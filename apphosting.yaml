@@ -1,0 +1,37 @@
+# Configuração do Firebase App Hosting (backend de produção da Criaê).
+runConfig:
+  minInstances: 0 # sem acesso, sem custo de servidor parado
+  maxInstances: 3
+  concurrency: 40
+  cpu: 1
+  memoryMiB: 1024 # o PDF é diagramado em memória
+  timeoutSeconds: 900 # capítulo com revisão leva minutos
+
+env:
+  # Configuração pública do Firebase (vai para o navegador; a segurança está nas regras).
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyBlS58ccIvFoeLDr50FuTaEffaP5ToTVMs
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: criae-app.firebaseapp.com
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: criae-app
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: criae-app.firebasestorage.app
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "969564852725"
+    availability: [BUILD, RUNTIME]
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:969564852725:web:fce33f1d03a07df9c090bc
+    availability: [BUILD, RUNTIME]
+
+  # Chaves só do servidor: ficam no Secret Manager, nunca neste arquivo.
+  - variable: ANTHROPIC_API_KEY
+    secret: ANTHROPIC_API_KEY
+    availability: [RUNTIME]
+  - variable: OPENAI_API_KEY
+    secret: OPENAI_API_KEY
+    availability: [RUNTIME]
