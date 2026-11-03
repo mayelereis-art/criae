@@ -5,6 +5,7 @@ import {
 import { db } from "./firebase/client";
 import type { ConfiguracaoProduto } from "./validacao/produto";
 import type { Planejamento } from "./ia/esquemas";
+import type { Identidade } from "@/config/identidade";
 
 export type StatusProduto = "rascunho" | "em_edicao" | "publicado";
 
@@ -18,6 +19,7 @@ export type Produto = {
   configuracao: Partial<ConfiguracaoProduto>;
   planejamento?: Planejamento | null;
   planejamentoAprovado?: boolean;
+  identidade?: Identidade;
   criadoEm: Timestamp | null;
   atualizadoEm: Timestamp | null;
 };
@@ -65,6 +67,11 @@ export async function salvarPlanejamento(id: string, planejamento: Planejamento,
     status: "em_edicao",
     atualizadoEm: serverTimestamp(),
   });
+}
+
+/** Salva a identidade visual. Só conta a etapa como feita se a redação já estiver completa (etapa 3). */
+export async function salvarIdentidade(id: string, identidade: Identidade, etapaAtual: number) {
+  await updateDoc(doc(produtos, id), { identidade, etapa: etapaAtual >= 3 ? Math.max(etapaAtual, 4) : etapaAtual, atualizadoEm: serverTimestamp() });
 }
 
 export async function marcarEtapa(id: string, etapa: number) {

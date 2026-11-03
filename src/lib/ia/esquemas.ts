@@ -80,3 +80,7 @@ export type Oportunidade = z.infer<typeof oportunidadeSchema>;
 export type Planejamento = z.infer<typeof planejamentoSchema>;
 export type CapituloPlano = z.infer<typeof capituloPlanoSchema>;
 export type Revisao = z.infer<typeof revisaoSchema>;
+
+export const promptImagemSchema = z.object({
+  prompt: z.string().describe("Prompt em inglês para o gerador de imagens, 60 a 120 palavras"),
+});

@@ -45,6 +45,42 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "imagens",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "donoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "produtoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "arquivos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "donoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "produtoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "versao",
+          "order": "DESCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

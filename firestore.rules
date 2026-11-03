@@ -28,13 +28,14 @@ service cloud.firestore {
     match /produtos/{id} {
       function produtoValido() {
         let d = request.resource.data;
-        return d.keys().hasOnly(['donoId', 'titulo', 'status', 'etapa', 'configuracao', 'planejamento', 'planejamentoAprovado', 'criadoEm', 'atualizadoEm'])
+        return d.keys().hasOnly(['donoId', 'titulo', 'status', 'etapa', 'configuracao', 'planejamento', 'planejamentoAprovado', 'identidade', 'criadoEm', 'atualizadoEm'])
           && textoAte(d.titulo, 120)
           && d.status in ['rascunho', 'em_edicao']   // 'publicado' só o servidor marca (Etapa 5)
           && d.etapa is int && d.etapa >= 0 && d.etapa <= 6
           && d.configuracao is map
           && (!('planejamento' in d) || d.planejamento == null || d.planejamento is map)
           && (!('planejamentoAprovado' in d) || d.planejamentoAprovado is bool)
+          && (!('identidade' in d) || d.identidade is map)
           && d.atualizadoEm == request.time;
       }
       allow read: if dono();
@@ -62,6 +63,32 @@ service cloud.firestore {
       allow create: if novoDono() && capituloValido();
       allow update: if dono() && novoDono() && capituloValido() && request.resource.data.produtoId == resource.data.produtoId;
       allow delete: if dono();
+    }
+
+    // Imagens geradas: o arquivo fica no Storage (criadores/{uid}/...); aqui só o registro.
+    match /imagens/{id} {
+      allow read, delete: if dono();
+      allow create: if novoDono()
+        && request.resource.data.keys().hasOnly(['donoId', 'produtoId', 'tipo', 'ordem', 'url', 'caminho', 'prompt', 'criadoEm'])
+        && request.resource.data.tipo in ['capa', 'capitulo']
+        && request.resource.data.ordem is int
+        && request.resource.data.url is string && request.resource.data.url.matches('https://firebasestorage[.]googleapis[.]com/.*')
+        && request.resource.data.caminho.matches('criadores/' + request.auth.uid + '/.*')
+        && textoAte(request.resource.data.prompt, 4000)
+        && request.resource.data.criadoEm == request.time
+        && get(/databases/$(database)/documents/produtos/$(request.resource.data.produtoId)).data.donoId == request.auth.uid;
+    }
+
+    // Versões do PDF: o arquivo fica no Storage do criador; aqui o histórico.
+    match /arquivos/{id} {
+      allow read: if dono();
+      allow create: if novoDono()
+        && request.resource.data.keys().hasOnly(['donoId', 'produtoId', 'versao', 'url', 'caminho', 'paginas', 'bytes', 'rascunho', 'criadoEm'])
+        && request.resource.data.versao is int
+        && request.resource.data.url.matches('https://firebasestorage[.]googleapis[.]com/.*')
+        && request.resource.data.caminho.matches('criadores/' + request.auth.uid + '/.*')
+        && request.resource.data.criadoEm == request.time
+        && get(/databases/$(database)/documents/produtos/$(request.resource.data.produtoId)).data.donoId == request.auth.uid;
     }
 
     match /oportunidades/{id} {

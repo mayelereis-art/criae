@@ -75,10 +75,13 @@ Gerar um e-book inteiro passa de vários minutos, então não roda dentro de uma
 
 ### 2.6 Motor de PDF
 
-- Diagramação em HTML/CSS com regras de impressão (CSS Paged Media: `@page`, `break-inside: avoid`, `break-after: avoid` em títulos), renderizado por Chromium headless (Playwright) em uma Cloud Function/Cloud Run.
-- Resultado: texto selecionável, fontes incorporadas, sumário com links internos, cabeçalho/rodapé e numeração.
-- Verificação automática pós-render: páginas em branco, títulos órfãos no pé da página, imagens cortadas. Falhou → ajusta e renderiza de novo antes de liberar.
-- Cada exportação gera uma **versão** (`arquivos/` com número de versão).
+- `@react-pdf/renderer` no servidor (rota `/api/pdf`), sem navegador headless: texto selecionável, fontes embutidas (pacotes `@fontsource`, licença OFL), sumário com links internos, cabeçalho, rodapé e numeração.
+- Duas passadas: a 1ª descobre a página real de cada seção; a 2ª escreve o sumário com esses números.
+- Títulos com `minPresenceAhead` (nunca ficam sozinhos no pé da página); quadros e listas não se partem.
+- Estrutura: capa → apresentação → direitos e avisos (inclui aviso de tema sensível e de uso de IA) → sumário → introdução → capítulos (com imagem de abertura) → conclusão → página final.
+- Verificação antes de liberar (`src/lib/documentos/verificacao.ts`): capítulos sem texto ou com marcador a preencher bloqueiam (o PDF sai como RASCUNHO); capítulo curto, citação de estudo/porcentagem, final cortado, falta de imagens e bônus não criados geram aviso. Depois de diagramar, confere se toda seção do sumário caiu numa página.
+- Armadilhas do react-pdf já resolvidas no código: altura de linha herdada explode em elementos `fixed` (fica só nos estilos do corpo); texto dinâmico não reserva espaço; imagens só JPEG/PNG (as geradas são JPEG).
+- Introdução e conclusão hoje são montadas a partir do planejamento aprovado; bônus ainda não são gerados e não entram no PDF.
 
 ### 2.7 Pagamentos (Mercado Pago) e entrega
 
@@ -138,7 +141,7 @@ Proteção do arquivo:
 | 2 | Identidade visual, layout, navegação, telas e componentes | ✅ |
 | 3 | Projeto Firebase `criae-app` (Firestore em southamerica-east1), login/cadastro, sessão, regras, termos e privacidade, produtos no Firestore | ✅ (falta ativar o Authentication no console) |
 | 4 | IA parte 1: pesquisa de nicho, oportunidades salvas, IA preenche configuração, planejamento editável, redação capítulo a capítulo com revisão, leitura e edição | ✅ (falta a chave `ANTHROPIC_API_KEY`) |
-| 4 | IA parte 2: identidade visual, capa, imagens (gpt-image), PDF | ⏳ |
+| 4 | IA parte 2: identidade visual (10 estilos), imagens com prompt do Claude + gpt-image, PDF com verificação, pré-visualização e versões | ✅ (faltam `OPENAI_API_KEY` e o Firebase Storage/Blaze) |
 | 5 | Precificação, páginas de venda, checkout Mercado Pago, entrega | ⏳ |
 | 6 | Criativos, legendas, roteiros, calendário, ZIP | ⏳ |
 | 7 | Planos, créditos, consumo, painel admin | ⏳ |

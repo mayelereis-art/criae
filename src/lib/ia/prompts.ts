@@ -122,3 +122,21 @@ Objetivo: ${cap.objetivo}
 Tópicos: ${cap.topicos.join("; ")}
 Exemplos sugeridos: ${cap.exemplos.join("; ") || "(livre)"}`;
 }
+
+export const SISTEMA_DIRETOR_ARTE = `${BASE}
+
+Sua função agora: diretor de arte. Você escreve prompts para um gerador de imagens criar a arte de capas e aberturas de capítulo de e-books. A arte precisa ter relação direta com o conteúdo (objetos, cenas e gestos do tema), nada genérico.
+Regras do prompt: escreva em inglês; descreva cena, enquadramento, luz, paleta e estilo; diga explicitamente que a imagem não deve ter texto, letras, números, logotipos nem marcas d'água (o título é colocado depois pelo sistema); evite rostos em close de pessoas reais ou famosas; nada de conteúdo médico explícito.`;
+
+export function pedidoPromptImagem(d: {
+  tipo: "capa" | "capitulo"; titulo: string; subtitulo: string; tema: string; publico: string;
+  estilo: string; cores: string[]; capitulo?: { titulo: string; objetivo: string };
+}) {
+  return `Crie o prompt da ${d.tipo === "capa" ? "arte da CAPA (formato retrato 2:3; deixe área mais calma no terço inferior para o título)" : "imagem de ABERTURA DE CAPÍTULO (formato paisagem 3:2)"}.
+
+E-book: "${d.titulo}" — ${d.subtitulo}
+Tema: ${d.tema}
+Público: ${d.publico}
+${d.capitulo ? `Capítulo: ${d.capitulo.titulo} — ${d.capitulo.objetivo}\n` : ""}Estilo visual definido pela autora/autor: ${d.estilo}
+Paleta da identidade (use como cores dominantes): ${d.cores.join(", ")}`;
+}

@@ -192,9 +192,8 @@ export function RedacaoConteudo({ produtoId }: { produtoId: string }) {
       {tudoPronto && (
         <Cartao className="mt-6 border-sucesso/30!">
           <p className="font-semibold">Texto completo e revisado</p>
-          <p className="mt-1 text-sm text-suave">
-            Próximas etapas: identidade visual, capa, imagens e o PDF diagramado. Elas entram na segunda parte da Etapa 4; até lá você pode revisar e editar qualquer capítulo aqui.
-          </p>
+          <p className="mt-1 text-sm text-suave">Agora escolha a identidade visual, gere a capa e as imagens e diagrame o PDF. Você pode voltar aqui e editar qualquer capítulo quando quiser.</p>
+          <Link href={`/produtos/${produtoId}/identidade`} className={`${classesBotao()} mt-4`}>Ir para a identidade visual</Link>
         </Cartao>
       )}
     </>

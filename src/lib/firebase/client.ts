@@ -1,5 +1,6 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 import { getFirestore, initializeFirestore, type Firestore } from "firebase/firestore";
 
 const config = {
@@ -22,3 +23,7 @@ try {
   banco = getFirestore(app); // já inicializado (recarga em desenvolvimento)
 }
 export const db = banco;
+export const storage = getStorage(app);
+// Padrão do SDK: repetir envios por até 10 min sem avisar. Aqui a falha aparece em 20 s.
+storage.maxUploadRetryTime = 20_000;
+storage.maxOperationRetryTime = 20_000;
