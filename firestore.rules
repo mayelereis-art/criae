@@ -1,0 +1,57 @@
+rules_version = '2';
+
+// Regra geral: tudo negado. Cada coleção abre só o necessário.
+// Campos sensíveis (créditos, assinatura, pedidos, pagamentos, papel) só o servidor escreve (Admin SDK ignora estas regras).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function logado() { return request.auth != null; }
+    function eu(uid) { return logado() && request.auth.uid == uid; }
+    function dono() { return logado() && resource.data.donoId == request.auth.uid; }
+    function novoDono() { return logado() && request.resource.data.donoId == request.auth.uid; }
+    function soMudou(campos) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(campos); }
+    function textoAte(v, max) { return v is string && v.size() <= max; }
+
+    match /usuarios/{uid} {
+      allow read: if eu(uid);
+      allow create: if eu(uid)
+        && request.resource.data.keys().hasOnly(['nome', 'email', 'criadoEm', 'aceite'])
+        && textoAte(request.resource.data.nome, 120)
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.criadoEm == request.time
+        && request.resource.data.aceite.versao is string
+        && request.resource.data.aceite.em == request.time;
+      allow update: if eu(uid) && soMudou(['nome']) && textoAte(request.resource.data.nome, 120);
+      allow delete: if false;
+    }
+
+    match /produtos/{id} {
+      function produtoValido() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['donoId', 'titulo', 'status', 'etapa', 'configuracao', 'criadoEm', 'atualizadoEm'])
+          && textoAte(d.titulo, 120)
+          && d.status in ['rascunho', 'em_edicao']   // 'publicado' só o servidor marca (Etapa 5)
+          && d.etapa is int && d.etapa >= 0 && d.etapa <= 6
+          && d.configuracao is map
+          && d.atualizadoEm == request.time;
+      }
+      allow read: if dono();
+      allow create: if novoDono() && produtoValido() && request.resource.data.criadoEm == request.time;
+      allow update: if dono() && novoDono() && produtoValido()
+        && request.resource.data.criadoEm == resource.data.criadoEm
+        && resource.data.status != 'publicado';
+      allow delete: if dono() && resource.data.status != 'publicado';
+    }
+
+    // Leitura do próprio dono; escrita só pelo servidor.
+    match /{colecao}/{id} {
+      allow read: if colecao in ['creditos', 'assinaturas'] && eu(id);
+    }
+    match /consumo_ia/{id} { allow read: if dono(); }
+    match /jobs/{id} { allow read: if dono(); }
+    match /pedidos/{id} { allow read: if logado() && resource.data.vendedorId == request.auth.uid; }
+
+    match /planos/{id} { allow read: if true; }
+    match /paginas_vendas/{id} { allow read: if resource.data.publicada == true || dono(); }
+  }
+}

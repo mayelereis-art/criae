@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  --color-fundo: #050b19;
+  --color-superficie: #0a1428;
+  --color-superficie-2: #0e1b36;
+  --color-borda: rgb(80 130 255 / 0.16);
+  --color-borda-forte: rgb(80 130 255 / 0.34);
+  --color-primaria: #2f6bff;
+  --color-primaria-clara: #5b8cff;
+  --color-ciano: #38bdf8;
+  --color-texto: #e8eefb;
+  --color-suave: #8b98b8;
+  --color-apagado: #5d6a8a;
+  --color-sucesso: #34d399;
+  --color-alerta: #fbbf24;
+  --color-erro: #f87171;
+
+  --font-sans: var(--font-corpo);
+  --font-display: var(--font-titulo);
+  --font-mono: var(--font-codigo);
+
+  --animate-surgir: surgir 0.35s ease-out both;
+  @keyframes surgir {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+html { color-scheme: dark; }
+
+body {
+  background: var(--color-fundo);
+  color: var(--color-texto);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Fundo com feixes diagonais luminosos (referência visual) */
+.fundo-feixes {
+  background:
+    linear-gradient(118deg, transparent 0 38%, rgb(47 107 255 / 0.10) 38.2% 38.6%, transparent 39% 100%),
+    linear-gradient(118deg, transparent 0 62%, rgb(56 189 248 / 0.07) 62.2% 62.5%, transparent 63% 100%),
+    radial-gradient(1200px 600px at 85% -10%, rgb(47 107 255 / 0.18), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgb(56 189 248 / 0.08), transparent 60%),
+    var(--color-fundo);
+}
+
+.cartao {
+  background: linear-gradient(180deg, rgb(14 27 54 / 0.72), rgb(10 20 40 / 0.72));
+  border: 1px solid var(--color-borda);
+  border-radius: 1rem;
+  backdrop-filter: blur(8px);
+}
+
+.brilho-primario { box-shadow: 0 0 0 1px rgb(91 140 255 / 0.5), 0 8px 28px -6px rgb(47 107 255 / 0.65); }
+
+:focus-visible { outline: 2px solid var(--color-primaria-clara); outline-offset: 2px; border-radius: 0.5rem; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: rgb(80 130 255 / 0.25); border-radius: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

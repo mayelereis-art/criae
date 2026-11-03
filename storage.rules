@@ -1,0 +1,17 @@
+rules_version = '2';
+
+// Arquivos de trabalho do criador ficam em criadores/{uid}/...
+// PDFs vendidos (entregas/) nunca são lidos direto: o servidor gera URL assinada por pedido pago.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /criadores/{uid}/{caminho=**} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null && request.auth.uid == uid
+        && request.resource.size < 15 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*|application/pdf');
+    }
+    match /{tudo=**} {
+      allow read, write: if false;
+    }
+  }
+}
