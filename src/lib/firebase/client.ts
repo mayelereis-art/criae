@@ -1,6 +1,6 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore, type Firestore } from "firebase/firestore";
 
 const config = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,4 +14,11 @@ const config = {
 export const app = getApps().length ? getApp() : initializeApp(config);
 export const auth = getAuth(app);
 auth.languageCode = "pt";
-export const db = getFirestore(app);
+// ignoreUndefinedProperties: campos opcionais em branco não quebram a gravação.
+let banco: Firestore;
+try {
+  banco = initializeFirestore(app, { ignoreUndefinedProperties: true });
+} catch {
+  banco = getFirestore(app); // já inicializado (recarga em desenvolvimento)
+}
+export const db = banco;

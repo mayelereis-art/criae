@@ -1,17 +1,18 @@
 "use client";
 
 import clsx from "clsx";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { AlertCircle, ArrowLeft, ArrowRight, Check, Cloud, Loader2, Sparkles } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, Cloud, Loader2, Sparkles } from "lucide-react";
 import { NIVEIS_PUBLICO, PROFUNDIDADES, TONS } from "@/config/catalogo";
 import { CONFIGURACAO_VAZIA, configuracaoProdutoSchema, type ConfiguracaoProduto } from "@/lib/validacao/produto";
 import { criarProduto, lerProduto, salvarConfiguracao } from "@/lib/produtos";
 import { mensagemErro } from "@/lib/firebase/erros";
 import { useAuth } from "@/components/ProvedorAuth";
-import { AvisoEtapa, Botao, Campo, Cartao, estiloEntrada } from "@/components/ui";
-
-const ETAPAS = ["Configuração", "Planejamento", "Redação", "Identidade visual", "Imagens", "PDF", "Preço"];
+import { Botao, Campo, Cartao, classesBotao, estiloEntrada } from "@/components/ui";
+import { EtapasProduto } from "@/components/EtapasProduto";
+import { chamarIA } from "@/lib/ia/cliente";
 
 /** A configuração se divide em três telas curtas, para não virar um formulário gigante. */
 const PARTES: { titulo: string; campos: (keyof ConfiguracaoProduto)[] }[] = [
@@ -46,6 +47,8 @@ export function AssistenteCriacao({ nichoInicial, produtoId }: { nichoInicial?: 
   const [salvo, setSalvo] = useState<EstadoSalvo>({ tipo: "ocioso" });
   const [concluida, setConcluida] = useState(false);
   const [carregando, setCarregando] = useState(!!produtoId);
+  const [etapaProduto, setEtapaProduto] = useState(0);
+  const [sugerindo, setSugerindo] = useState(false);
   const alterado = useRef(false);
   const criadoAqui = useRef<string | undefined>(undefined);
 
@@ -57,6 +60,7 @@ export function AssistenteCriacao({ nichoInicial, produtoId }: { nichoInicial?: 
         if (!p) return setSalvo({ tipo: "erro", msg: "Produto não encontrado." });
         setDados({ ...CONFIGURACAO_VAZIA, ...p.configuracao });
         setConcluida(p.etapa >= 1);
+        setEtapaProduto(p.etapa);
       })
       .catch((e) => setSalvo({ tipo: "erro", msg: mensagemErro(e) }))
       .finally(() => setCarregando(false));
@@ -103,10 +107,33 @@ export function AssistenteCriacao({ nichoInicial, produtoId }: { nichoInicial?: 
         setSalvo({ tipo: "salvo", em: new Date() });
       }
       if (parte < PARTES.length - 1) return setParte(parte + 1);
-      await salvarConfiguracao(id!, dados, 1);
+      await salvarConfiguracao(id!, dados, Math.max(etapaProduto, 1));
+      setEtapaProduto((e) => Math.max(e, 1));
       setConcluida(true);
     } catch (e) {
       setSalvo({ tipo: "erro", msg: mensagemErro(e) });
+    }
+  };
+
+  // A IA completa só os campos vazios; o que a pessoa escreveu fica.
+  const sugerir = async () => {
+    setSugerindo(true);
+    setSalvo({ tipo: "ocioso" });
+    try {
+      const sugestao = await chamarIA<ConfiguracaoProduto>("configuracao", dados);
+      alterado.current = true;
+      setDados((d) => {
+        const novo = { ...d };
+        for (const k of Object.keys(sugestao) as (keyof ConfiguracaoProduto)[]) {
+          if (typeof d[k] === "string" && !(d[k] as string).trim()) (novo as Record<string, string>)[k] = sugestao[k] as string;
+        }
+        return novo;
+      });
+      setErros({});
+    } catch (e) {
+      setSalvo({ tipo: "erro", msg: (e as Error).message });
+    } finally {
+      setSugerindo(false);
     }
   };
 
@@ -114,21 +141,7 @@ export function AssistenteCriacao({ nichoInicial, produtoId }: { nichoInicial?: 
 
   return (
     <>
-      <ol className="mb-6 flex gap-1.5 overflow-x-auto pb-1" aria-label="Etapas da criação">
-        {ETAPAS.map((nome, i) => {
-          const feita = i === 0 && concluida;
-          const atual = i === (concluida ? 1 : 0);
-          return (
-            <li key={nome} className="min-w-[110px] flex-1">
-              <div className={clsx("h-1 rounded-full", feita ? "bg-sucesso" : atual ? "bg-primaria" : "bg-superficie-2")} />
-              <p className={clsx("mt-2 flex items-center gap-1 text-xs", atual ? "font-semibold text-texto" : "text-apagado")}>
-                {feita && <Check size={12} className="text-sucesso" />}
-                <span className="font-mono">{i + 1}.</span> {nome}
-              </p>
-            </li>
-          );
-        })}
-      </ol>
+      <EtapasProduto produtoId={id} atual={0} concluidas={Math.max(etapaProduto, concluida ? 1 : 0)} />
 
       {concluida ? (
         <Cartao className="animate-surgir">
@@ -145,12 +158,13 @@ export function AssistenteCriacao({ nichoInicial, produtoId }: { nichoInicial?: 
             ))}
           </dl>
           <div className="mt-6">
-            <AvisoEtapa etapa={4} oQueFalta="A geração do planejamento com Claude é ligada na Etapa 4." />
             <div className="flex flex-wrap gap-2">
               <Botao variante="secundario" onClick={() => { setConcluida(false); setParte(0); }}>
                 <ArrowLeft size={16} /> Editar configuração
               </Botao>
-              <Botao disabled><Sparkles size={16} /> Gerar planejamento</Botao>
+              <Link href={`/produtos/${id}/planejamento`} className={classesBotao()}>
+                <Sparkles size={16} /> {etapaProduto >= 2 ? "Ver planejamento" : "Ir para o planejamento"} <ArrowRight size={16} />
+              </Link>
             </div>
           </div>
         </Cartao>
@@ -214,8 +228,8 @@ export function AssistenteCriacao({ nichoInicial, produtoId }: { nichoInicial?: 
               <ArrowLeft size={16} /> Voltar
             </Botao>
             <div className="flex flex-wrap gap-2">
-              <Botao variante="secundario" disabled title="Sugestões da IA entram na Etapa 4">
-                <Sparkles size={16} /> IA preenche
+              <Botao variante="secundario" onClick={sugerir} disabled={sugerindo} title="A IA completa os campos vazios; você pode editar tudo depois">
+                {sugerindo ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />} {sugerindo ? "Pensando..." : "IA preenche o que falta"}
               </Botao>
               <Botao onClick={avancar}>
                 {parte < PARTES.length - 1 ? "Avançar" : "Concluir configuração"} <ArrowRight size={16} />

@@ -4,8 +4,46 @@
       "collectionGroup": "produtos",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "donoId", "order": "ASCENDING" },
-        { "fieldPath": "atualizadoEm", "order": "DESCENDING" }
+        {
+          "fieldPath": "donoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "atualizadoEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "capitulos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "donoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "produtoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ordem",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "oportunidades",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "donoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
       ]
     }
   ],

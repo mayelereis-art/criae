@@ -6,6 +6,7 @@ import { Loader2, Package, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/components/ProvedorAuth";
 import { excluirProduto, ouvirProdutos, type Produto, type StatusProduto } from "@/lib/produtos";
 import { mensagemErro } from "@/lib/firebase/erros";
+import { ETAPAS_FABRICA } from "@/components/EtapasProduto";
 import { Botao, Cartao, EstadoVazio, Selo, classesBotao } from "@/components/ui";
 
 const STATUS: Record<StatusProduto, { rotulo: string; tom: "neutro" | "azul" | "verde" }> = {
@@ -14,7 +15,12 @@ const STATUS: Record<StatusProduto, { rotulo: string; tom: "neutro" | "azul" | "
   publicado: { rotulo: "Publicado", tom: "verde" },
 };
 
-const ETAPAS = ["Configuração", "Planejamento", "Redação", "Identidade visual", "Imagens", "PDF", "Preço"];
+const ETAPAS = ETAPAS_FABRICA.map((e) => e.nome);
+/** Abre a etapa mais adiantada que já existe na plataforma. */
+const rotaContinuar = (p: Produto) => {
+  const disponiveis = ETAPAS_FABRICA.slice(0, p.etapa + 1).filter((e) => e.rota);
+  return disponiveis[disponiveis.length - 1].rota!(p.id);
+};
 
 export function useProdutos() {
   const { usuario } = useAuth();
@@ -43,7 +49,7 @@ export function ListaProdutos() {
   const excluir = async (p: Produto) => {
     if (!confirm(`Excluir "${p.titulo}"? Isso não pode ser desfeito.`)) return;
     setExcluindo(p.id);
-    await excluirProduto(p.id).catch((e) => alert(mensagemErro(e)));
+    await excluirProduto(p.donoId, p.id).catch((e) => alert(mensagemErro(e)));
     setExcluindo(null);
   };
 
@@ -54,7 +60,7 @@ export function ListaProdutos() {
           <Cartao className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <Link href={`/criar?id=${p.id}`} className="truncate font-semibold hover:text-primaria-clara">{p.titulo}</Link>
+                <Link href={rotaContinuar(p)} className="truncate font-semibold hover:text-primaria-clara">{p.titulo}</Link>
                 <Selo tom={STATUS[p.status].tom}>{STATUS[p.status].rotulo}</Selo>
               </div>
               <p className="mt-1 text-xs text-suave">
@@ -63,7 +69,7 @@ export function ListaProdutos() {
               </p>
             </div>
             <div className="flex shrink-0 gap-2">
-              <Link href={`/criar?id=${p.id}`} className={classesBotao("secundario")}>Continuar</Link>
+              <Link href={rotaContinuar(p)} className={classesBotao("secundario")}>Continuar</Link>
               {p.status !== "publicado" && (
                 <Botao variante="fantasma" onClick={() => excluir(p)} disabled={excluindo === p.id} aria-label={`Excluir ${p.titulo}`}>
                   <Trash2 size={16} />

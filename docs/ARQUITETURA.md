@@ -48,6 +48,8 @@ Regra: componentes nunca chamam IA ou gateway direto. Tudo passa por rota de API
 
 ### 2.3 Jobs assíncronos (e-book, imagens, PDF)
 
+> **Hoje (Etapa 4, parte 1):** a redação é orquestrada pelo navegador, um capítulo por chamada a `/api/ia/capitulo`. Cada capítulo é salvo no Firestore assim que fica pronto, então dá para pausar, fechar e continuar de onde parou. A versão abaixo, em segundo plano com Cloud Functions, depende do plano Blaze.
+
 Gerar um e-book inteiro passa de vários minutos, então não roda dentro de uma requisição HTTP.
 
 1. A API cria `jobs/{id}` com `{tipo, produtoId, etapa, progresso, status: "aguardando"}`.
@@ -57,7 +59,8 @@ Gerar um e-book inteiro passa de vários minutos, então não roda dentro de uma
 
 ### 2.4 IA de texto (Claude)
 
-- Modelos: `claude-sonnet-5-5` para planejamento, redação e revisão; `claude-haiku-5-5` para tarefas curtas (sugerir campos, títulos, legendas).
+- Modelo: `claude-opus-5-5` em todas as operações (constante `MODELO` em `src/lib/ia/claude.ts`), com esforço ajustado por tarefa: `low` para preencher campos, `medium` para pesquisa de nicho e revisão, `high` para planejamento e redação.
+- Fallback automático no servidor (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`): se o classificador de segurança recusar por engano, a própria API refaz o pedido em outro modelo.
 - Saídas estruturadas (JSON validado por zod) para nichos, oportunidades, planejamento, preço, página e criativos.
 - **Revisão em duas passadas**: após redigir, um segundo prompt confere contradições, repetições, gramática, trechos incompletos e continuidade entre capítulos, e devolve correções aplicadas + relatório.
 - Temas sensíveis (saúde, finanças, jurídico): prompt de redação inclui limites explícitos, aviso no PDF e proibição de inventar estatística, pesquisa ou referência. Quando não houver fonte verificável, o texto diz isso em vez de inventar.
@@ -134,7 +137,8 @@ Proteção do arquivo:
 | 1 | Auditoria e arquitetura (este documento) | ✅ |
 | 2 | Identidade visual, layout, navegação, telas e componentes | ✅ |
 | 3 | Projeto Firebase `criae-app` (Firestore em southamerica-east1), login/cadastro, sessão, regras, termos e privacidade, produtos no Firestore | ✅ (falta ativar o Authentication no console) |
-| 4 | IA: nichos, planejamento, redação, revisão, imagens, PDF | ⏳ |
+| 4 | IA parte 1: pesquisa de nicho, oportunidades salvas, IA preenche configuração, planejamento editável, redação capítulo a capítulo com revisão, leitura e edição | ✅ (falta a chave `ANTHROPIC_API_KEY`) |
+| 4 | IA parte 2: identidade visual, capa, imagens (gpt-image), PDF | ⏳ |
 | 5 | Precificação, páginas de venda, checkout Mercado Pago, entrega | ⏳ |
 | 6 | Criativos, legendas, roteiros, calendário, ZIP | ⏳ |
 | 7 | Planos, créditos, consumo, painel admin | ⏳ |
