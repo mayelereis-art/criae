@@ -1,5 +1,5 @@
 import "server-only";
-import type { ConfiguracaoProduto } from "../validacao/produto";
+import { LIMITES, type ConfiguracaoProduto } from "../validacao/produto";
 import type { CapituloPlano, Planejamento } from "./esquemas";
 
 // Regras fixas no início do system prompt: ficam iguais entre chamadas (bom para cache) e valem para tudo.
@@ -36,9 +36,9 @@ Faça uma análise para quem quer criar um produto digital neste nicho:
 - o perfil do comprador ideal (um parágrafo)
 - 5 temas com potencial comercial
 - 4 a 6 diferenciais competitivos possíveis
-- 6 sugestões de títulos
+- 6 sugestões de títulos (até 80 caracteres cada)
 - 3 a 5 possibilidades de monetização (produto principal, order bump, upsell, etc.)
-- 4 a 6 oportunidades concretas de produto, cada uma com público, problema, transformação prometida (realista), formato, justificativa comercial qualitativa, título sugerido e preço inicial em centavos. ${PRECO_REFERENCIA}
+- 4 a 6 oportunidades concretas de produto, cada uma com público, problema, transformação prometida (realista), formato, justificativa comercial qualitativa, título sugerido (até 80 caracteres) e preço inicial em centavos. Nome da oportunidade com até 100 caracteres; público, problema e transformação com até 300 caracteres cada. ${PRECO_REFERENCIA}
 Marque temaSensivel como true se o nicho envolver saúde, finanças, direito, gestação ou crianças.`;
 }
 
@@ -49,7 +49,8 @@ export function pedidoSugestaoConfiguracao(parcial: Partial<ConfiguracaoProduto>
 Campos já preenchidos:
 ${preenchidos.length ? preenchidos.map(([k, v]) => `- ${k}: ${v}`).join("\n") : "- (nenhum: proponha um produto viável e específico)"}
 
-Seja específico: público com idade/situação, problema concreto, transformação realista e mensurável pelo próprio leitor.`;
+Seja específico: público com idade/situação, problema concreto, transformação realista e mensurável pelo próprio leitor.
+Respeite o tamanho máximo de cada campo, em caracteres: ${Object.entries(LIMITES).map(([k, n]) => `${k} ${n}`).join(", ")}.`;
 }
 
 export function pedidoPlanejamento(c: ConfiguracaoProduto) {
@@ -59,7 +60,7 @@ export function pedidoPlanejamento(c: ConfiguracaoProduto) {
 ${descreverConfiguracao(c)}
 
 Entregue: título comercial (forte, sem exagero), subtítulo, proposta de valor em uma frase, o que a introdução cobre, ${capitulos} capítulos em ordem lógica de aprendizado (cada um com título, objetivo, 3 a 6 tópicos, exemplos práticos sugeridos e um exercício ou material complementar quando fizer sentido), o que a conclusão cobre, 1 a 3 bônus que façam sentido (checklist, planilha, roteiro) e, se o tema for sensível, um aviso de limitação.
-Cada capítulo deve avançar o leitor; não crie capítulos que repetem outro com outras palavras.`;
+Títulos dos capítulos sem numeração (o sistema numera). Cada capítulo deve avançar o leitor; não crie capítulos que repetem outro com outras palavras.`;
 }
 
 export function pedidoCapitulo(

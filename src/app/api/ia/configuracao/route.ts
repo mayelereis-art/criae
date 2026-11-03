@@ -3,7 +3,7 @@ import { sugestaoConfiguracaoSchema } from "@/lib/ia/esquemas";
 import { SISTEMA_EDITOR, pedidoSugestaoConfiguracao } from "@/lib/ia/prompts";
 import { rotaIA } from "@/lib/ia/rota";
 import { z } from "zod";
-import { CONFIGURACAO_VAZIA, type ConfiguracaoProduto } from "@/lib/validacao/produto";
+import { CONFIGURACAO_VAZIA, LIMITES, encurtar, type ConfiguracaoProduto } from "@/lib/validacao/produto";
 
 export const maxDuration = 120;
 
@@ -26,6 +26,8 @@ export function POST(req: Request) {
     });
     // O que a pessoa escreveu prevalece sobre a sugestão.
     const mantidos = Object.fromEntries(Object.entries(parcial).filter(([, v]) => typeof v === "string" && v.trim()));
-    return { ...dados, ...mantidos };
+    const sugestao = { ...dados } as Record<string, string>;
+    for (const [campo, max] of Object.entries(LIMITES)) sugestao[campo] = encurtar(sugestao[campo] ?? "", max);
+    return { ...sugestao, ...mantidos };
   });
 }

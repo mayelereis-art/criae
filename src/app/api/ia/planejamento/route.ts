@@ -14,6 +14,8 @@ export function POST(req: Request) {
       pedido: pedidoPlanejamento(configuracao),
       esforco: "high",
     });
-    return dados;
+    // A numeração é do sistema (sumário e PDF); tira "Capítulo 3 –" que a IA às vezes põe no título.
+    const semNumero = (t: string) => t.replace(/^\s*cap[ií]tulo\s*\d+\s*[–—:.\-]\s*/i, "").trim();
+    return { ...dados, capitulos: dados.capitulos.map((c) => ({ ...c, titulo: semNumero(c.titulo) })) };
   });
 }
