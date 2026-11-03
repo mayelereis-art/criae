@@ -34,7 +34,11 @@ export async function gerarImagem(prompt: string, formato: Formato): Promise<str
   } catch (e) {
     if (e instanceof ErroIA) throw e;
     if (e instanceof OpenAI.AuthenticationError) throw new ErroIA("Chave da IA de imagens inválida no servidor.", 503);
-    if (e instanceof OpenAI.RateLimitError) throw new ErroIA("A IA de imagens está com muitos pedidos ou sem créditos. Tente mais tarde.", 429);
+    if (e instanceof OpenAI.RateLimitError) {
+      // 429 serve para dois casos bem diferentes: conta sem saldo ou excesso momentâneo de pedidos.
+      if (e.type === "insufficient_quota") throw new ErroIA("A conta da IA de imagens (OpenAI) está sem créditos. Adicione saldo no painel da OpenAI.", 402);
+      throw new ErroIA("A IA de imagens está com muitos pedidos agora. Aguarde um minuto e tente de novo.", 429);
+    }
     if (e instanceof OpenAI.BadRequestError) throw new ErroIA("A IA de imagens recusou este pedido. Ajuste o estilo das imagens e tente de novo.", 422);
     if (e instanceof OpenAI.APIError) throw new ErroIA(`Erro da IA de imagens (${e.status}). Tente de novo.`, 502);
     throw e;
