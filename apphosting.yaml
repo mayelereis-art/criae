@@ -28,6 +28,11 @@ env:
     value: 1:969564852725:web:fce33f1d03a07df9c090bc
     availability: [BUILD, RUNTIME]
 
+  # Endereço público (SEO e Open Graph). Trocar quando houver domínio próprio.
+  - variable: NEXT_PUBLIC_URL_SITE
+    value: https://criae--criae-app.us-east4.hosted.app
+    availability: [BUILD, RUNTIME]
+
   # Chaves só do servidor: ficam no Secret Manager, nunca neste arquivo.
   - variable: ANTHROPIC_API_KEY
     secret: ANTHROPIC_API_KEY
