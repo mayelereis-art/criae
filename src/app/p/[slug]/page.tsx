@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { MarcaMetrica } from "@/components/MarcaMetrica";
 import { PaginaVenda } from "@/components/PaginaVenda";
 import { lerPaginaPublicada } from "@/lib/paginas-publicas";
 
@@ -22,8 +23,11 @@ export default async function PaginaPublica({ params }: Props) {
   const p = await lerPaginaPublicada((await params).slug);
   if (!p) notFound();
   return (
+    <>
+    <MarcaMetrica slug={p.slug} tipo="visualizacoes" />
     <PaginaVenda
-      p={{ modelo: p.modelo, cores: p.cores, fontes: p.fontes, conteudo: p.conteudo, secoes: p.secoes, oferta: p.oferta, capa: p.capa, capaUrl: p.capaUrl, checkoutAtivo: p.checkoutAtivo }}
+      p={{ slug: p.slug, modelo: p.modelo, cores: p.cores, fontes: p.fontes, conteudo: p.conteudo, secoes: p.secoes, oferta: p.oferta, capa: p.capa, capaUrl: p.capaUrl, checkoutAtivo: p.checkoutAtivo }}
     />
+    </>
   );
 }

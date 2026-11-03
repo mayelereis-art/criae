@@ -107,7 +107,8 @@ export function ExportarPdf({ produtoId }: { produtoId: string }) {
     setAviso("");
     try {
       await salvarVersao(usuario.uid, produtoId, (versoes[0]?.versao ?? 0) + 1, resultado.blob, resultado.totalPaginas, resultado.rascunho);
-      setAviso("Versão salva.");
+      await fetch("/api/paginas/sincronizar", { method: "POST" }).catch(() => {});
+      setAviso(resultado.rascunho ? "Versão salva como rascunho: não pode ser vendida." : "Versão final salva: é ela que o comprador recebe.");
     } catch (e) {
       setAviso((e as Error).message);
     } finally {

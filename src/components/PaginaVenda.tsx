@@ -5,7 +5,7 @@ import { formatarPreco } from "@/lib/formato";
 import type { Pagina } from "@/lib/paginas";
 import { CapaPrevia } from "./CapaPrevia";
 
-export type DadosPaginaVenda = Pick<Pagina, "modelo" | "cores" | "fontes" | "conteudo" | "secoes" | "oferta" | "capa" | "capaUrl" | "checkoutAtivo">;
+export type DadosPaginaVenda = Pick<Pagina, "slug" | "modelo" | "cores" | "fontes" | "conteudo" | "secoes" | "oferta" | "capa" | "capaUrl" | "checkoutAtivo">;
 
 /**
  * Página de vendas. Mesmo componente na prévia do editor e na página pública.
@@ -32,8 +32,7 @@ export function PaginaVenda({ p }: { p: DadosPaginaVenda }) {
       <p className="text-4xl font-bold" style={{ fontFamily: fonteT }}>{formatarPreco(oferta.precoCentavos)}</p>
       <p className="mt-1 text-sm opacity-80">Pagamento por Pix ou cartão. Você recebe o PDF por e-mail após a confirmação.</p>
       {p.checkoutAtivo ? (
-        // O destino do botão entra com o checkout do Mercado Pago (Etapa 5, parte 2).
-        <span className="mt-4 inline-block rounded-xl px-7 py-3.5 font-bold" style={{ background: heroEscuro ? sobrePrimaria : cores.primaria, color: heroEscuro ? cores.primaria : sobrePrimaria }}>{c.chamadaCompra}</span>
+        <a href={`/p/${p.slug}/comprar`} className="mt-4 inline-block rounded-xl px-7 py-3.5 font-bold transition hover:opacity-90" style={{ background: heroEscuro ? sobrePrimaria : cores.primaria, color: heroEscuro ? cores.primaria : sobrePrimaria }}>{c.chamadaCompra}</a>
       ) : (
         <p className="mt-4 inline-block rounded-xl border border-current px-7 py-3.5 font-semibold opacity-80">Vendas ainda não abertas</p>
       )}
@@ -135,7 +134,7 @@ export function PaginaVenda({ p }: { p: DadosPaginaVenda }) {
       <section className="px-5 py-14" style={{ background: cores.primaria, color: sobrePrimaria }}>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="mb-5 text-2xl font-bold" style={{ fontFamily: fonteT }}>{c.tituloLivro}</h2>
-          <div className="[&>div]:text-center">{compra}</div>
+          <div className="[&_a]:!bg-white [&_a]:!text-black [&>div]:text-center">{compra}</div>
         </div>
       </section>
 

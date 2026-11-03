@@ -1,14 +1,14 @@
-import { TelaPlanejada } from "@/components/TelaPlanejada";
+import { Suspense } from "react";
+import { CabecalhoPagina } from "@/components/ui";
+import { PainelIntegracoes } from "./PainelIntegracoes";
 
-export const metadata = { title: "Integracoes" };
+export const metadata = { title: "Integrações" };
 
-export default function Pagina() {
+export default function Integracoes() {
   return (
-    <TelaPlanejada
-      href="/integracoes"
-      descricao="Contas conectadas para vender e divulgar."
-      recursos={["Mercado Pago (receber pelas vendas na sua própria conta)","E-mail de entrega ao comprador","Domínio próprio para as páginas"]}
-      vazio={{ titulo: "Nenhuma integração", texto: "A conexão com o Mercado Pago entra com o módulo de checkout." }}
-    />
+    <>
+      <CabecalhoPagina titulo="Integrações" descricao="Contas conectadas para receber e entregar suas vendas." />
+      <Suspense><PainelIntegracoes /></Suspense>
+    </>
   );
 }

@@ -40,3 +40,24 @@ env:
   - variable: OPENAI_API_KEY
     secret: OPENAI_API_KEY
     availability: [RUNTIME]
+  - variable: MP_ACCESS_TOKEN
+    secret: MP_ACCESS_TOKEN
+    availability: [RUNTIME]
+  - variable: MP_CLIENT_ID
+    secret: MP_CLIENT_ID
+    availability: [RUNTIME]
+  - variable: MP_CLIENT_SECRET
+    secret: MP_CLIENT_SECRET
+    availability: [RUNTIME]
+  - variable: MP_WEBHOOK_SECRET
+    secret: MP_WEBHOOK_SECRET
+    availability: [RUNTIME]
+  - variable: RESEND_API_KEY
+    secret: RESEND_API_KEY
+    availability: [RUNTIME]
+
+  # true = criadores conectados operam em modo de teste do Mercado Pago, sem dinheiro de verdade.
+  # Trocar para "false" ao abrir vendas reais.
+  - variable: MP_OAUTH_TESTE
+    value: "true"
+    availability: [RUNTIME]

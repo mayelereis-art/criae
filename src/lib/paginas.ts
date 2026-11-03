@@ -20,7 +20,7 @@ export type Pagina = {
   fontes: { titulo: string; corpo: string };
   conteudo: TextoPagina & { capitulos: string[]; autor: string; tituloLivro: string; subtituloLivro: string };
   secoes: Record<SecaoPagina, boolean>;
-  oferta: { precoCentavos: number; precoOriginalCentavos?: number | null; garantiaDias: number };
+  oferta: { precoCentavos: number; precoOriginalCentavos?: number | null; garantiaDias: number; orderBump?: { titulo: string; chamada: string; precoCentavos: number } | null };
   /** Composição da capa (a arte não tem texto; título e subtítulo são sobrepostos). */
   capa: Identidade;
   capaUrl?: string;

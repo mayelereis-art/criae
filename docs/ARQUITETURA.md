@@ -143,7 +143,7 @@ Proteção do arquivo:
 | 4 | IA parte 1: pesquisa de nicho, oportunidades salvas, IA preenche configuração, planejamento editável, redação capítulo a capítulo com revisão, leitura e edição | ✅ (falta a chave `ANTHROPIC_API_KEY`) |
 | 4 | IA parte 2: identidade visual (10 estilos), imagens com prompt do Claude + gpt-image, PDF com verificação, pré-visualização e versões | ✅ (faltam `OPENAI_API_KEY` e o Firebase Storage/Blaze) |
 | 5 | Parte 1: precificação com IA, cupons, order bump e upsell (configuração), páginas de venda com 3 modelos, SEO e URL própria | ✅ |
-| 5 | Parte 2: publicar o site, checkout Mercado Pago, webhook, entrega, vendas | ⏳ |
+| 5 | Parte 2: site publicado, conexão OAuth, checkout Mercado Pago, webhook assinado, entrega por e-mail com download marcado, vendas, reembolso, métricas | ✅ código (teste real em andamento) |
 | 6 | Criativos, legendas, roteiros, calendário, ZIP | ⏳ |
 | 7 | Planos, créditos, consumo, painel admin | ⏳ |
 | 8 | Testes funcionais, segurança, responsivo, documentação final | ⏳ |
@@ -174,3 +174,14 @@ Proteção do arquivo:
 - `checkoutAtivo` só o servidor grava. Sem ele, a página mostra "Vendas ainda não abertas" no lugar do botão.
 - Copy com regras proibindo depoimentos e números inventados, falsa urgência e promessa de resultado. Bônus só entram quando existirem.
 - Order bump, upsell e cupons estão configuráveis, mas só têm efeito quando o checkout existir (parte 2). Visualizações e cliques também dependem dela.
+
+## 8. Venda de ponta a ponta
+
+1. Criador conecta o Mercado Pago (`/api/mercadopago/conectar` → OAuth → `retorno`); tokens cifrados em `conexoes_mp`, sem regra de leitura.
+2. Botão de compra só liga com conta conectada **e** versão final do PDF (`sincronizarPaginas`).
+3. `/api/checkout` monta o pedido só com dados do banco (preço, cupom, order bump) e cria a preferência com o token do vendedor.
+4. `/api/webhooks/mercadopago` valida `x-signature`, consulta o pagamento na API e chama `aplicarPagamento`, o único ponto que muda status. Valor menor que o pedido não libera.
+5. Pago → e-mail com link (`/pedido/{id}?t=...`; só o hash do token fica no banco). Download passa pelo servidor, com limite e marca do e-mail do comprador.
+6. Reembolso e contestação revogam o acesso.
+
+**Antes de vender de verdade:** `MP_OAUTH_TESTE` para `"false"`, credenciais de produção do Mercado Pago, webhook de produção no painel, e domínio próprio no Resend (`EMAIL_REMETENTE`).

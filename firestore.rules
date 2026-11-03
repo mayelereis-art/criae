@@ -101,6 +101,10 @@ service cloud.firestore {
         && request.resource.data.criadoEm == request.time;
     }
 
+    // Status da conexão com o gateway (os tokens ficam em conexoes_mp, sem nenhuma regra de leitura).
+    match /integracoes/{uid} { allow read: if eu(uid); }
+    match /metricas/{id} { allow read: if dono(); }
+
     // Leitura do próprio dono; escrita só pelo servidor.
     match /{colecao}/{id} {
       allow read: if colecao in ['creditos', 'assinaturas'] && eu(id);

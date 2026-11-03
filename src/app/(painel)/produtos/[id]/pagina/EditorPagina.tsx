@@ -76,7 +76,7 @@ export function EditorPagina({ produtoId }: { produtoId: string }) {
     );
 
   const capaUrl = imagemAtual(imagens, "capa", 0)?.url;
-  const ofertaPagina = { precoCentavos: oferta.precoCentavos, precoOriginalCentavos: oferta.precoOriginalCentavos ?? null, garantiaDias: oferta.garantiaDias };
+  const ofertaPagina = { precoCentavos: oferta.precoCentavos, precoOriginalCentavos: oferta.precoOriginalCentavos ?? null, garantiaDias: oferta.garantiaDias, orderBump: oferta.orderBump ? { titulo: oferta.orderBump.titulo, chamada: oferta.orderBump.chamada, precoCentavos: oferta.orderBump.precoCentavos } : null };
 
   const gerar = async () => {
     if (r && !confirm("Gerar de novo substitui todos os textos da página, inclusive suas edições. Continuar?")) return;
@@ -128,6 +128,8 @@ export function EditorPagina({ produtoId }: { produtoId: string }) {
       else await salvarPagina(novo, !!paginaSalva?.publicada);
       const estavaPublicada = r.publicada;
       setR(novo);
+      // Liga o botão de compra se já houver Mercado Pago conectado e PDF final.
+      await fetch("/api/paginas/sincronizar", { method: "POST" }).catch(() => {});
       if (publicada && produto.etapa === 7) await marcarEtapa(produtoId, 8).catch(() => {});
       setAviso(publicada === estavaPublicada ? "Alterações salvas." : publicada ? "Página publicada." : "Página fora do ar.");
     } catch (e) {
@@ -186,7 +188,7 @@ export function EditorPagina({ produtoId }: { produtoId: string }) {
         </div>
         {!paginaSalva?.checkoutAtivo && (
           <p className="mt-3 flex gap-2 text-xs text-alerta">
-            <AlertTriangle size={14} className="shrink-0" /> O checkout ainda não está ligado: a página pública mostra &ldquo;Vendas ainda não abertas&rdquo; no lugar do botão de compra.
+            <AlertTriangle size={14} className="shrink-0" /> Vendas fechadas: para abrir, conecte o Mercado Pago em Integrações e salve uma versão final do PDF. Até lá a página mostra &ldquo;Vendas ainda não abertas&rdquo;.
           </p>
         )}
         {precoDesatualizado && <p className="mt-2 text-xs text-suave">O preço do produto mudou. Salve para atualizar a página.</p>}
