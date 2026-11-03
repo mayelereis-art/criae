@@ -140,3 +140,39 @@ Público: ${d.publico}
 ${d.capitulo ? `Capítulo: ${d.capitulo.titulo} — ${d.capitulo.objetivo}\n` : ""}Estilo visual definido pela autora/autor: ${d.estilo}
 Paleta da identidade (use como cores dominantes): ${d.cores.join(", ")}`;
 }
+
+export const SISTEMA_VENDAS = `${BASE}
+
+Sua função agora: estrategista de ofertas e copywriter de páginas de vendas para produtos digitais de baixo ticket. Persuasão honesta: mostre a dor e o resultado realista, sem gatilhos falsos.
+Proibido: depoimentos ou números de alunos/vendas inventados, escassez ou urgência falsa ("últimas vagas", contador), promessas de renda, cura ou resultado garantido, comparação com concorrentes nomeados, citar o produto como "best-seller".`;
+
+export function pedidoPreco(c: ConfiguracaoProduto, p: Planejamento) {
+  return `Sugira três preços para este e-book, em centavos de real.
+
+${descreverConfiguracao(c)}
+Título: ${p.tituloComercial} — ${p.subtitulo}
+Capítulos: ${p.capitulos.length} (${c.profundidade})
+Exercícios práticos em ${p.capitulos.filter((x) => x.exercicio).length} capítulos.
+
+Faixas: preço de ENTRADA (para vender volume e validar), RECOMENDADO (equilíbrio) e PREMIUM (posicionamento mais alto, justificado pela profundidade).
+${"Use R$ 19,90 como referência de preço de entrada, ajustando para cima quando a profundidade ou o nicho justificarem."} Prefira finais ,90 ou ,97. Justifique cada faixa pelo valor percebido (profundidade, especificidade, transformação), sem citar pesquisas ou preços de concorrentes.`;
+}
+
+export function pedidoTextoPagina(c: ConfiguracaoProduto, p: Planejamento, oferta: { precoCentavos: number; garantiaDias: number; bonusExistentes: string[] }) {
+  return `Escreva os textos da página de vendas deste e-book.
+
+${descreverConfiguracao(c)}
+Título: ${p.tituloComercial}
+Subtítulo: ${p.subtitulo}
+Proposta de valor: ${p.propostaValor}
+Sumário:
+${p.capitulos.map((x, i) => `${i + 1}. ${x.titulo} — ${x.objetivo}`).join("\n")}
+Preço: R$ ${(oferta.precoCentavos / 100).toFixed(2).replace(".", ",")}
+Garantia: ${oferta.garantiaDias} dias (direito de arrependimento; reembolso integral no período)
+Bônus que já existem: ${oferta.bonusExistentes.length ? oferta.bonusExistentes.join("; ") : "nenhum (não mencione bônus)"}
+${p.avisoTemaSensivel ? `Tema sensível: ${p.avisoTemaSensivel}. Reflita esse limite no texto e no FAQ.` : ""}
+
+Formato: e-book em PDF, enviado por e-mail logo após a confirmação do pagamento. Pagamento por Pix ou cartão.
+"O que você recebe" só pode listar o que existe: o e-book (com o número real de capítulos e exercícios) e os bônus listados acima.
+FAQ deve responder de verdade: formato, como recebe, garantia, para quem é, e as dúvidas típicas do público.`;
+}

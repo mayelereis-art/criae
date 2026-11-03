@@ -81,6 +81,34 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "paginas_vendas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "donoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "atualizadoEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "cupons",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "donoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

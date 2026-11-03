@@ -142,7 +142,8 @@ Proteção do arquivo:
 | 3 | Projeto Firebase `criae-app` (Firestore em southamerica-east1), login/cadastro, sessão, regras, termos e privacidade, produtos no Firestore | ✅ (falta ativar o Authentication no console) |
 | 4 | IA parte 1: pesquisa de nicho, oportunidades salvas, IA preenche configuração, planejamento editável, redação capítulo a capítulo com revisão, leitura e edição | ✅ (falta a chave `ANTHROPIC_API_KEY`) |
 | 4 | IA parte 2: identidade visual (10 estilos), imagens com prompt do Claude + gpt-image, PDF com verificação, pré-visualização e versões | ✅ (faltam `OPENAI_API_KEY` e o Firebase Storage/Blaze) |
-| 5 | Precificação, páginas de venda, checkout Mercado Pago, entrega | ⏳ |
+| 5 | Parte 1: precificação com IA, cupons, order bump e upsell (configuração), páginas de venda com 3 modelos, SEO e URL própria | ✅ |
+| 5 | Parte 2: publicar o site, checkout Mercado Pago, webhook, entrega, vendas | ⏳ |
 | 6 | Criativos, legendas, roteiros, calendário, ZIP | ⏳ |
 | 7 | Planos, créditos, consumo, painel admin | ⏳ |
 | 8 | Testes funcionais, segurança, responsivo, documentação final | ⏳ |
@@ -165,3 +166,11 @@ Proteção do arquivo:
 - `middleware.ts` barra rotas do painel sem cookie. `(painel)/layout.tsx` verifica o token no servidor (`firebase-admin`, só com projectId: não precisa de chave de conta de serviço).
 - Cookie expirado → login → o Firebase restaura a sessão sozinho e o usuário volta para a página em que estava (`?volta=`, só caminhos internos).
 - Dados do usuário são lidos/escritos pelo SDK do cliente, protegidos por `firestore.rules`. Deploy das regras: `firebase deploy --only firestore,storage`.
+
+## 7. Página de vendas
+
+- O id do documento em `paginas_vendas` é o próprio endereço (`/p/{slug}`), o que garante URL única.
+- A página pública é renderizada no servidor e lê o Firestore pela API REST (`src/lib/paginas-publicas.ts`), sem login: as regras só liberam páginas publicadas. Erro real não vira 404.
+- `checkoutAtivo` só o servidor grava. Sem ele, a página mostra "Vendas ainda não abertas" no lugar do botão.
+- Copy com regras proibindo depoimentos e números inventados, falsa urgência e promessa de resultado. Bônus só entram quando existirem.
+- Order bump, upsell e cupons estão configuráveis, mas só têm efeito quando o checkout existir (parte 2). Visualizações e cliques também dependem dela.

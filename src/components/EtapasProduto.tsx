@@ -9,7 +9,8 @@ export const ETAPAS_FABRICA = [
   { nome: "Identidade visual", rota: (id: string) => `/produtos/${id}/identidade` },
   { nome: "Imagens", rota: (id: string) => `/produtos/${id}/imagens` },
   { nome: "PDF", rota: (id: string) => `/produtos/${id}/pdf` },
-  { nome: "Preço", rota: null },
+  { nome: "Preço", rota: (id: string) => `/produtos/${id}/preco` },
+  { nome: "Página de vendas", rota: (id: string) => `/produtos/${id}/pagina` },
 ] as const;
 
 /**

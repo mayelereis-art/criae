@@ -1,14 +1,13 @@
-import { TelaPlanejada } from "@/components/TelaPlanejada";
+import { CabecalhoPagina } from "@/components/ui";
+import { ListaPaginas } from "./ListaPaginas";
 
-export const metadata = { title: "Paginas" };
+export const metadata = { title: "Páginas de vendas" };
 
-export default function Pagina() {
+export default function Paginas() {
   return (
-    <TelaPlanejada
-      href="/paginas"
-      descricao="Páginas de vendas geradas para seus produtos."
-      recursos={["Três modelos visuais, cores e seções editáveis","Prévia no computador e no celular","URL própria /p/nome-do-produto, SEO e Open Graph","Publicar e despublicar"]}
-      vazio={{ titulo: "Nenhuma página", texto: "Defina o preço de um produto para gerar a página de vendas." }}
-    />
+    <>
+      <CabecalhoPagina titulo="Páginas de vendas" descricao="As páginas geradas para os seus produtos." />
+      <ListaPaginas />
+    </>
   );
 }

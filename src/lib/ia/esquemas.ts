@@ -84,3 +84,33 @@ export type Revisao = z.infer<typeof revisaoSchema>;
 export const promptImagemSchema = z.object({
   prompt: z.string().describe("Prompt em inglês para o gerador de imagens, 60 a 120 palavras"),
 });
+
+const faixaPrecoSchema = z.object({
+  precoCentavos: z.number().int(),
+  justificativa: z.string().describe("Por que este preço faz sentido, sem inventar dados de mercado"),
+});
+
+export const sugestaoPrecoSchema = z.object({
+  entrada: faixaPrecoSchema,
+  recomendado: faixaPrecoSchema,
+  premium: faixaPrecoSchema,
+  observacao: z.string().describe("Uma dica curta sobre posicionamento ou teste de preço"),
+});
+
+export const textoPaginaSchema = z.object({
+  headline: z.string(),
+  subheadline: z.string(),
+  problema: z.string().describe("2 a 3 parágrafos curtos sobre a dor do público, separados por linha em branco"),
+  paraQuem: z.array(z.string()).describe("4 a 6 perfis de quem deve comprar"),
+  naoEParaQuem: z.array(z.string()).describe("2 a 3 perfis de quem NÃO deve comprar, para alinhar expectativas"),
+  beneficios: z.array(z.object({ titulo: z.string(), texto: z.string() })).describe("4 a 6 benefícios concretos"),
+  oQueVoceRecebe: z.array(z.string()).describe("Itens que realmente existem no produto"),
+  sobreOProduto: z.string(),
+  faq: z.array(z.object({ pergunta: z.string(), resposta: z.string() })).describe("5 a 7 perguntas frequentes"),
+  chamadaCompra: z.string().describe("Texto curto do botão de compra"),
+  seoTitulo: z.string().describe("Até 60 caracteres"),
+  seoDescricao: z.string().describe("Até 155 caracteres"),
+});
+
+export type SugestaoPreco = z.infer<typeof sugestaoPrecoSchema>;
+export type TextoPagina = z.infer<typeof textoPaginaSchema>;

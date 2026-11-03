@@ -6,6 +6,7 @@ import { db } from "./firebase/client";
 import type { ConfiguracaoProduto } from "./validacao/produto";
 import type { Planejamento } from "./ia/esquemas";
 import type { Identidade } from "@/config/identidade";
+import type { Oferta } from "./oferta";
 
 export type StatusProduto = "rascunho" | "em_edicao" | "publicado";
 
@@ -20,6 +21,7 @@ export type Produto = {
   planejamento?: Planejamento | null;
   planejamentoAprovado?: boolean;
   identidade?: Identidade;
+  oferta?: Oferta;
   criadoEm: Timestamp | null;
   atualizadoEm: Timestamp | null;
 };

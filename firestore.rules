@@ -28,14 +28,15 @@ service cloud.firestore {
     match /produtos/{id} {
       function produtoValido() {
         let d = request.resource.data;
-        return d.keys().hasOnly(['donoId', 'titulo', 'status', 'etapa', 'configuracao', 'planejamento', 'planejamentoAprovado', 'identidade', 'criadoEm', 'atualizadoEm'])
+        return d.keys().hasOnly(['donoId', 'titulo', 'status', 'etapa', 'configuracao', 'planejamento', 'planejamentoAprovado', 'identidade', 'oferta', 'criadoEm', 'atualizadoEm'])
           && textoAte(d.titulo, 120)
           && d.status in ['rascunho', 'em_edicao']   // 'publicado' só o servidor marca (Etapa 5)
-          && d.etapa is int && d.etapa >= 0 && d.etapa <= 6
+          && d.etapa is int && d.etapa >= 0 && d.etapa <= 8
           && d.configuracao is map
           && (!('planejamento' in d) || d.planejamento == null || d.planejamento is map)
           && (!('planejamentoAprovado' in d) || d.planejamentoAprovado is bool)
           && (!('identidade' in d) || d.identidade is map)
+          && (!('oferta' in d) || (d.oferta is map && d.oferta.precoCentavos is int && d.oferta.precoCentavos >= 500 && d.oferta.precoCentavos <= 500000))
           && d.atualizadoEm == request.time;
       }
       allow read: if dono();
@@ -109,6 +110,40 @@ service cloud.firestore {
     match /pedidos/{id} { allow read: if logado() && resource.data.vendedorId == request.auth.uid; }
 
     match /planos/{id} { allow read: if true; }
-    match /paginas_vendas/{id} { allow read: if resource.data.publicada == true || dono(); }
+    // Página de vendas: o id do documento É o endereço (/p/{slug}), então dois produtos nunca disputam a mesma URL.
+    // "checkoutAtivo" só o servidor escreve (Etapa 5, parte 2): sem ele a página pública não mostra botão de compra.
+    match /paginas_vendas/{slug} {
+      function paginaValida() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['donoId', 'produtoId', 'slug', 'modelo', 'cores', 'fontes', 'conteudo', 'secoes', 'oferta', 'capa', 'capaUrl', 'seo', 'publicada', 'publicadaEm', 'checkoutAtivo', 'atualizadoEm'])
+          && d.slug == slug && slug.matches('^[a-z0-9]+(-[a-z0-9]+)*$') && slug.size() >= 3 && slug.size() <= 60
+          && d.modelo in ['impacto', 'editorial', 'essencial']
+          && d.publicada is bool
+          && d.atualizadoEm == request.time
+          && get(/databases/$(database)/documents/produtos/$(d.produtoId)).data.donoId == request.auth.uid;
+      }
+      // resource == null: endereço livre pode ser consultado antes de ser ocupado.
+      allow read: if resource == null || resource.data.publicada == true || dono();
+      allow create: if novoDono() && paginaValida() && request.resource.data.get('checkoutAtivo', false) == false;
+      allow update: if dono() && novoDono() && paginaValida()
+        && request.resource.data.produtoId == resource.data.produtoId
+        && request.resource.data.get('checkoutAtivo', false) == resource.data.get('checkoutAtivo', false);
+      allow delete: if dono();
+    }
+
+    // Cupons: o dono cria e ativa/desativa; a contagem de usos é do servidor.
+    match /cupons/{id} {
+      allow read, delete: if dono();
+      allow create: if novoDono()
+        && request.resource.data.keys().hasOnly(['donoId', 'produtoId', 'codigo', 'tipo', 'valor', 'validoAte', 'usosMax', 'usos', 'ativo', 'criadoEm'])
+        && request.resource.data.codigo.matches('^[A-Z0-9]{3,20}$')
+        && request.resource.data.tipo in ['percentual', 'valor']
+        && request.resource.data.valor is int && request.resource.data.valor > 0
+        && (request.resource.data.tipo != 'percentual' || request.resource.data.valor <= 90)
+        && request.resource.data.usos == 0
+        && request.resource.data.ativo is bool
+        && request.resource.data.criadoEm == request.time;
+      allow update: if dono() && soMudou(['ativo']) && request.resource.data.ativo is bool;
+    }
   }
 }

@@ -8,6 +8,8 @@ const corpo = Inter({ variable: "--font-corpo", subsets: ["latin"] });
 const codigo = JetBrains_Mono({ variable: "--font-codigo", subsets: ["latin"], weight: ["400", "500"] });
 
 export const metadata: Metadata = {
+  // Base dos links absolutos de SEO e Open Graph (canonical, imagens).
+  metadataBase: new URL(process.env.NEXT_PUBLIC_URL_SITE || "http://localhost:8750"),
   title: { default: "Criaê — Produtos digitais com IA", template: "%s · Criaê" },
   description:
     "Transforme uma ideia em produto digital: pesquisa de nicho, e-book escrito com IA, página de vendas, divulgação e checkout em um só lugar.",
