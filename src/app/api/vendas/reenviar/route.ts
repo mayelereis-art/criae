@@ -14,6 +14,7 @@ export async function POST(req: Request) {
   const ref = dbAdmin().collection("pedidos").doc(p.data.pedidoId);
   const pedido = (await ref.get()).data();
   if (!pedido || pedido.vendedorId !== usuario.uid) return NextResponse.json({ erro: "Pedido não encontrado." }, { status: 404 });
+  if (pedido.plataforma) return NextResponse.json({ erro: "A entrega desta venda é feita pela plataforma onde ela aconteceu." }, { status: 422 });
   if (pedido.status !== "pago") return NextResponse.json({ erro: "O pedido não está pago." }, { status: 422 });
   const token = novoToken();
   await ref.update({ tokensHash: FieldValue.arrayUnion(hashToken(token)) });

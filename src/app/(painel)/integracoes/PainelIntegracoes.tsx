@@ -3,11 +3,11 @@
 import { doc, onSnapshot } from "firebase/firestore";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { CheckCircle2, CreditCard, ExternalLink, Loader2, Mail, Store } from "lucide-react";
+import { CheckCircle2, CreditCard, ExternalLink, Loader2, Mail } from "lucide-react";
 import { useAuth } from "@/components/ProvedorAuth";
 import { Botao, Cartao, Selo, classesBotao } from "@/components/ui";
 import { db } from "@/lib/firebase/client";
+import { PlataformaExterna, type EstadoExterno } from "./PlataformaExterna";
 
 const AVISOS: Record<string, { texto: string; ok?: boolean }> = {
   ok: { texto: "Mercado Pago conectado. As vendas caem direto na sua conta.", ok: true },
@@ -21,10 +21,14 @@ export function PainelIntegracoes() {
   const aviso = AVISOS[useSearchParams().get("mp") ?? ""];
   const [mp, setMp] = useState<{ conectado?: boolean; contaId?: string } | null | undefined>(undefined);
   const [saindo, setSaindo] = useState(false);
+  const [externas, setExternas] = useState<{ kiwify?: EstadoExterno; hotmart?: EstadoExterno }>({});
 
   useEffect(() => {
     if (!usuario) return;
-    return onSnapshot(doc(db, "integracoes", usuario.uid), (s) => setMp(s.data()?.mercadoPago ?? null), () => setMp(null));
+    return onSnapshot(doc(db, "integracoes", usuario.uid), (s) => {
+      setMp(s.data()?.mercadoPago ?? null);
+      setExternas({ kiwify: s.data()?.kiwify, hotmart: s.data()?.hotmart });
+    }, () => setMp(null));
   }, [usuario]);
 
   const desconectar = async () => {
@@ -62,19 +66,8 @@ export function PainelIntegracoes() {
         {mp?.conectado && <p className="mt-3 text-xs text-apagado">Para uma página vender, o produto também precisa de uma versão final do PDF salva (etapa PDF).</p>}
       </Cartao>
 
-      <Cartao>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex gap-3">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-borda bg-superficie-2 text-primaria-clara"><Store size={18} /></span>
-            <div>
-              <p className="font-semibold">Kiwify ou Hotmart</p>
-              <p className="mt-0.5 max-w-lg text-sm text-suave">Use a sua conta nessas plataformas: você cadastra o produto lá, sobe o PDF e cola o link de checkout na página de vendas. Pagamento, entrega, nota e repasse ficam com a plataforma, e o dinheiro cai na sua conta dela.</p>
-              <p className="mt-2 max-w-lg text-xs text-apagado">Essas vendas ficam no painel da plataforma. Elas ainda não aparecem em Minhas vendas.</p>
-            </div>
-          </div>
-          <Link href="/paginas" className={classesBotao("secundario")}>Configurar nas páginas</Link>
-        </div>
-      </Cartao>
+      {usuario && <PlataformaExterna plataforma="kiwify" uid={usuario.uid} estado={externas.kiwify} />}
+      {usuario && <PlataformaExterna plataforma="hotmart" uid={usuario.uid} estado={externas.hotmart} />}
 
       <Cartao>
         <div className="flex gap-3">

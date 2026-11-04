@@ -54,7 +54,7 @@ export function PaginaVenda({ p }: { p: DadosPaginaVenda }) {
 
   const externa = venda && venda.plataforma !== "mercadopago" ? venda : null;
   const linkExterno = externa ? (ativa && externa.linkPromo ? externa.linkPromo : externa.link) : null;
-  const href = linkExterno ? (origem ? `${linkExterno}${linkExterno.includes("?") ? "&" : "?"}utm_source=${origem}` : linkExterno) : `/p/${p.slug}/comprar`;
+  const href = linkExterno ? (origem ? `${linkExterno}${linkExterno.includes("?") ? "&" : "?"}${externa?.plataforma === "hotmart" ? "sck" : "utm_source"}=${origem}` : linkExterno) : `/p/${p.slug}/comprar`;
   const aberta = externa ? !!linkExterno : !!p.checkoutAtivo;
   const nomeExterno = externa ? NOMES_PLATAFORMA[externa.plataforma] : "";
   const contaClique = () => {

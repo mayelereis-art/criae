@@ -151,7 +151,7 @@ Proteção do arquivo:
 ### Venda e oferta (04/11/2026)
 
 - Cada página escolhe como receber: Mercado Pago (checkout e entrega da Criaê) ou link de checkout da Kiwify/Hotmart do próprio criador. Nesse caso pagamento, entrega e repasse ficam na plataforma; só domínios dela são aceitos, na tela e nas regras do banco.
-- Vendas externas ainda não entram em Minhas vendas. Próximo passo: webhooks (Kiwify: HMAC-SHA1 no parâmetro signature; Hotmart: cabeçalho hottok).
+- Vendas externas entram em Minhas vendas por `/api/webhooks/vendas/{plataforma}/{uid}`, com o token de cada criador cifrado em `conexoes_externas` (Kiwify: HMAC-SHA1 do corpo no parâmetro signature; Hotmart: cabeçalho X-HOTMART-HOTTOK). A Kiwify não publica o corpo completo do aviso: conferir com um aviso real.
 - Contagem regressiva só com oferta real (`oferta.promo`): ao fim do prazo o preço volta ao normal na página e no checkout (`montarPedido`). Sem contador que reinicia.
 
 ## 5. O que depende de você (credenciais externas)
