@@ -1,14 +1,14 @@
-import { TelaPlanejada } from "@/components/TelaPlanejada";
+import { CabecalhoPagina } from "@/components/ui";
+import { CentralDivulgacao } from "./CentralDivulgacao";
 
-export const metadata = { title: "Divulgacao" };
+export const metadata = { title: "Central de divulgação" };
 
-export default function Pagina() {
+export default async function Pagina({ searchParams }: { searchParams: Promise<{ produto?: string }> }) {
+  const { produto } = await searchParams;
   return (
-    <TelaPlanejada
-      href="/divulgacao"
-      descricao="Estratégia e materiais de divulgação para cada produto."
-      recursos={["Posts, carrosséis, stories e legendas para Instagram","Roteiros e ganchos para TikTok","Anúncios e textos para Facebook","Mensagens para WhatsApp e grupos","Calendário de publicações e download em ZIP"]}
-      vazio={{ titulo: "Nenhuma campanha", texto: "Escolha um produto publicado para gerar a estratégia de divulgação." }}
-    />
+    <>
+      <CabecalhoPagina titulo="Central de divulgação" descricao="Estratégia, textos para cada canal e calendário de publicações, escritos a partir do seu produto." />
+      <CentralDivulgacao produtoId={produto} />
+    </>
   );
 }

@@ -1,14 +1,14 @@
-import { TelaPlanejada } from "@/components/TelaPlanejada";
+import { CabecalhoPagina } from "@/components/ui";
+import { GaleriaCriativos } from "./GaleriaCriativos";
 
 export const metadata = { title: "Criativos" };
 
-export default function Pagina() {
+export default async function Pagina({ searchParams }: { searchParams: Promise<{ produto?: string }> }) {
+  const { produto } = await searchParams;
   return (
-    <TelaPlanejada
-      href="/criativos"
-      descricao="Imagens publicitárias com a identidade visual do produto."
-      recursos={["Formatos 1080×1080, 1080×1350 e 1080×1920","Texto sobreposto pelo sistema, sem erro de ortografia","Legenda, CTA e plataforma recomendada em cada peça"]}
-      vazio={{ titulo: "Nenhum criativo", texto: "Os criativos são gerados a partir de um produto com capa pronta." }}
-    />
+    <>
+      <CabecalhoPagina titulo="Criativos" descricao="Imagens publicitárias nos formatos 1080×1080, 1080×1350 e 1080×1920, com a identidade visual do produto." />
+      <GaleriaCriativos produtoId={produto} />
+    </>
   );
 }

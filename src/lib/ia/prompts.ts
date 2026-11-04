@@ -176,3 +176,59 @@ Formato: e-book em PDF, enviado por e-mail logo após a confirmação do pagamen
 "O que você recebe" só pode listar o que existe: o e-book (com o número real de capítulos e exercícios) e os bônus listados acima.
 FAQ deve responder de verdade: formato, como recebe, garantia, para quem é, e as dúvidas típicas do público.`;
 }
+
+export const SISTEMA_DIVULGACAO = `${BASE}
+
+Sua função agora: estrategista de divulgação e social media de produtos digitais de baixo ticket no Brasil. Escreva em português do Brasil, natural e específico do tema, sem clichês de marketing.
+Proibido: depoimentos, números de alunos ou de vendas inventados, escassez ou urgência falsa, promessas de renda, cura ou resultado garantido, concorrentes nomeados, "best-seller", preço riscado, desconto ou bônus que não estejam na oferta informada.
+Quando precisar do endereço de compra, escreva exatamente [LINK]. Nunca invente um endereço, arroba ou nome de perfil.`;
+
+function descreverOferta(c: ConfiguracaoProduto, p: Planejamento, oferta: { precoCentavos: number; garantiaDias: number }) {
+  return `${descreverConfiguracao(c)}
+Título: ${p.tituloComercial}
+Subtítulo: ${p.subtitulo}
+Proposta de valor: ${p.propostaValor}
+Sumário:
+${p.capitulos.map((x, i) => `${i + 1}. ${x.titulo}`).join("\n")}
+Preço: R$ ${(oferta.precoCentavos / 100).toFixed(2).replace(".", ",")}
+Garantia: ${oferta.garantiaDias} dias
+Formato: e-book em PDF, com acesso logo após a confirmação do pagamento por Pix ou cartão.
+${p.avisoTemaSensivel ? `Tema sensível: ${p.avisoTemaSensivel}. Respeite esse limite em todos os textos.` : ""}`;
+}
+
+const PARTES_CAMPANHA = {
+  estrategia: "a estratégia de divulgação: posicionamento, mensagem central, ângulos, canais prioritários e objeções. Este texto é interno, para o criador: não use [LINK] nele",
+  instagram: "os materiais de Instagram: posts, carrosséis, stories e chamadas comerciais. Conteúdo que ensina algo real do tema vem antes da venda",
+  tiktok: "os materiais de TikTok: roteiros de vídeo com cenas, ganchos de abertura, ideias de conteúdo e textos para publicação. Roteiros que uma pessoa comum grava com o celular",
+  canais: "os materiais de Facebook, WhatsApp e as variações de anúncio pago. WhatsApp com tom de conversa, sem parecer spam",
+  calendario: "o calendário de 14 dias: comece aquecendo o público, apresente o produto depois e distribua lembretes sem pressão falsa. Cada item precisa dizer o que publicar, de forma que a pessoa consiga executar sem pensar de novo",
+} as const;
+
+export function pedidoCampanha(
+  parte: keyof typeof PARTES_CAMPANHA, c: ConfiguracaoProduto, p: Planejamento, oferta: { precoCentavos: number; garantiaDias: number },
+  estrategia?: { posicionamento: string; mensagemCentral: string; angulos: string[] },
+) {
+  return `Crie ${PARTES_CAMPANHA[parte]}. Respeite as quantidades descritas em cada campo.
+
+${descreverOferta(c, p, oferta)}
+${estrategia ? `
+Estratégia já definida, que os materiais devem seguir:
+Posicionamento: ${estrategia.posicionamento}
+Mensagem central: ${estrategia.mensagemCentral}
+Ângulos: ${estrategia.angulos.join("; ")}` : ""}`;
+}
+
+export function pedidoCriativos(
+  c: ConfiguracaoProduto, p: Planejamento, oferta: { precoCentavos: number; garantiaDias: number },
+  visual: { estilo: string; cores: string[] }, quantidadePorFormato: number,
+) {
+  return `Crie ${quantidadePorFormato * 3} peças publicitárias para este e-book: ${quantidadePorFormato} em cada formato (quadrado 1080x1080, retrato 1080x1350, story 1080x1920).
+
+${descreverOferta(c, p, oferta)}
+
+Estilo visual da identidade: ${visual.estilo}
+Paleta: ${visual.cores.join(", ")}
+
+Cada peça usa um ângulo diferente. Título, apoio e CTA são colocados na imagem pelo nosso sistema, então não dependem da arte.
+Regras do promptArte: em inglês; cena ligada ao tema, com objetos e gestos reais; paleta da identidade; área calma para receber texto; sem texto, letras, números, logotipos, marcas d'água, livros ou capas (o e-book é colocado depois pelo sistema); evite rostos em close de pessoas reais ou famosas.`;
+}

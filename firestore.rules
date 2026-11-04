@@ -92,6 +92,50 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/produtos/$(request.resource.data.produtoId)).data.donoId == request.auth.uid;
     }
 
+    // Divulgação: o id da campanha é o id do produto (uma campanha por produto).
+    match /campanhas/{produtoId} {
+      function campanhaValida() {
+        let d = request.resource.data;
+        return novoDono()
+          && d.produtoId == produtoId
+          && d.keys().hasOnly(['donoId', 'produtoId', 'dados', 'dataInicio', 'feitos', 'atualizadoEm'])
+          && d.dados is map
+          && d.dataInicio is string && d.dataInicio.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+          && d.feitos is list && d.feitos.size() <= 100
+          && d.atualizadoEm == request.time
+          && get(/databases/$(database)/documents/produtos/$(produtoId)).data.donoId == request.auth.uid;
+      }
+      // resource == null: produto ainda sem campanha; a consulta por id não pode virar erro de permissão.
+      allow read: if logado() && (resource == null || dono());
+      allow delete: if dono();
+      allow create: if campanhaValida();
+      allow update: if dono() && campanhaValida();
+    }
+
+    // Criativos: as imagens ficam no Storage do criador; aqui os textos e os endereços.
+    match /criativos/{id} {
+      function urlOuVazia(v) { return v == null || (v is string && v.matches('https://firebasestorage[.]googleapis[.]com/.*')); }
+      function caminhoOuVazio(v) { return v == null || (v is string && v.matches('criadores/' + request.auth.uid + '/.*')); }
+      function criativoValido() {
+        let d = request.resource.data;
+        return novoDono()
+          && d.keys().hasOnly(['donoId', 'produtoId', 'formato', 'plataforma', 'angulo', 'titulo', 'apoio', 'textoPrincipal', 'legenda', 'cta', 'usarMockup', 'promptArte', 'urlFundo', 'caminhoFundo', 'urlFinal', 'caminhoFinal', 'status', 'criadoEm', 'atualizadoEm'])
+          && d.formato in ['quadrado', 'retrato', 'story']
+          && d.status in ['pendente', 'pronto', 'erro']
+          && d.usarMockup is bool
+          && textoAte(d.plataforma, 80) && textoAte(d.angulo, 300) && textoAte(d.titulo, 100) && textoAte(d.apoio, 160)
+          && textoAte(d.textoPrincipal, 3000) && textoAte(d.legenda, 3000) && textoAte(d.cta, 40) && textoAte(d.promptArte, 4000)
+          && urlOuVazia(d.urlFundo) && urlOuVazia(d.urlFinal) && caminhoOuVazio(d.caminhoFundo) && caminhoOuVazio(d.caminhoFinal)
+          && d.atualizadoEm == request.time;
+      }
+      allow read, delete: if dono();
+      allow create: if criativoValido() && request.resource.data.criadoEm == request.time
+        && get(/databases/$(database)/documents/produtos/$(request.resource.data.produtoId)).data.donoId == request.auth.uid;
+      allow update: if dono() && criativoValido()
+        && request.resource.data.produtoId == resource.data.produtoId
+        && request.resource.data.criadoEm == resource.data.criadoEm;
+    }
+
     match /oportunidades/{id} {
       allow read, delete: if dono();
       allow create: if novoDono()

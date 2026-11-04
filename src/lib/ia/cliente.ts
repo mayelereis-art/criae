@@ -1,5 +1,5 @@
 /** Chamada às rotas /api/ia/* a partir do navegador. Lança Error com a mensagem em português da rota. */
-export async function chamarIA<T>(rota: "nicho" | "configuracao" | "planejamento" | "capitulo" | "imagem" | "preco" | "pagina", corpo: unknown): Promise<T> {
+export async function chamarIA<T>(rota: "nicho" | "configuracao" | "planejamento" | "capitulo" | "imagem" | "preco" | "pagina" | "campanha" | "criativos" | "arte-criativo", corpo: unknown): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`/api/ia/${rota}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo) });

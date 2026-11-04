@@ -143,8 +143,8 @@ Proteção do arquivo:
 | 4 | IA parte 1: pesquisa de nicho, oportunidades salvas, IA preenche configuração, planejamento editável, redação capítulo a capítulo com revisão, leitura e edição | ✅ (falta a chave `ANTHROPIC_API_KEY`) |
 | 4 | IA parte 2: identidade visual (10 estilos), imagens com prompt do Claude + gpt-image, PDF com verificação, pré-visualização e versões | ✅ (faltam `OPENAI_API_KEY` e o Firebase Storage/Blaze) |
 | 5 | Parte 1: precificação com IA, cupons, order bump e upsell (configuração), páginas de venda com 3 modelos, SEO e URL própria | ✅ |
-| 5 | Parte 2: site publicado, conexão OAuth, checkout Mercado Pago, webhook assinado, entrega por e-mail com download marcado, vendas, reembolso, métricas | ✅ código (teste real em andamento) |
-| 6 | Criativos, legendas, roteiros, calendário, ZIP | ⏳ |
+| 5 | Parte 2: site publicado, conexão OAuth, checkout Mercado Pago, webhook com chave na URL, entrega por e-mail com download marcado, vendas, reembolso, métricas | ✅ compra de teste de ponta a ponta em 04/11/2026 |
+| 6 | Central de divulgação (estratégia, Instagram, TikTok, Facebook, WhatsApp, anúncios, calendário), criativos nos 3 formatos com texto do sistema, ZIP | ✅ |
 | 7 | Planos, créditos, consumo, painel admin | ⏳ |
 | 8 | Testes funcionais, segurança, responsivo, documentação final | ⏳ |
 

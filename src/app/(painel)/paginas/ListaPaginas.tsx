@@ -42,6 +42,7 @@ export function ListaPaginas() {
             </div>
             <div className="flex shrink-0 gap-2">
               {p.publicada && <a href={`/p/${p.slug}`} target="_blank" rel="noreferrer" className={classesBotao("fantasma")}>Abrir <ExternalLink size={14} /></a>}
+              <Link href={`/divulgacao?produto=${p.produtoId}`} className={classesBotao("fantasma")}>Divulgar</Link>
               <Link href={`/produtos/${p.produtoId}/pagina`} className={classesBotao("secundario")}>Editar</Link>
             </div>
           </Cartao>

@@ -60,7 +60,10 @@ export async function gerarEstruturado<S extends z.ZodType>(opcoes: {
     if (e instanceof Anthropic.AuthenticationError) throw new ErroIA("Chave da IA inválida no servidor.", 503);
     if (e instanceof Anthropic.RateLimitError) throw new ErroIA("A IA está com muitos pedidos agora. Aguarde um minuto e tente de novo.", 429);
     if (e instanceof Anthropic.APIConnectionError) throw new ErroIA("Não foi possível falar com a IA. Tente de novo.", 502);
-    if (e instanceof Anthropic.APIError) throw new ErroIA(`Erro da IA (${e.status}). Tente de novo.`, 502);
+    if (e instanceof Anthropic.APIError) {
+      console.error(JSON.stringify({ evento: "ia-api", status: e.status, mensagem: e.message.slice(0, 400) }));
+      throw new ErroIA(`Erro da IA (${e.status}). Tente de novo.`, 502);
+    }
     throw e;
   }
 }

@@ -15,3 +15,9 @@ export function mensagemErro(e: unknown): string {
   const codigo = (e as { code?: string })?.code ?? "";
   return MENSAGENS[codigo] ?? "Algo deu errado. Tente novamente.";
 }
+
+/** Para fluxos que misturam Firebase e rotas de IA: as rotas já devolvem a mensagem pronta em português. */
+export function mensagemFluxo(e: unknown): string {
+  const erro = e as { code?: string; message?: string };
+  return erro?.code || !erro?.message ? mensagemErro(e) : erro.message;
+}

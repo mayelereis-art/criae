@@ -123,6 +123,24 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "criativos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "donoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "produtoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []
