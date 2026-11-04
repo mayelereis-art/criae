@@ -148,6 +148,12 @@ Proteção do arquivo:
 | 7 | Planos, créditos, consumo, painel admin | ⏳ |
 | 8 | Testes funcionais, segurança, responsivo, documentação final | ⏳ |
 
+### Venda e oferta (04/11/2026)
+
+- Cada página escolhe como receber: Mercado Pago (checkout e entrega da Criaê) ou link de checkout da Kiwify/Hotmart do próprio criador. Nesse caso pagamento, entrega e repasse ficam na plataforma; só domínios dela são aceitos, na tela e nas regras do banco.
+- Vendas externas ainda não entram em Minhas vendas. Próximo passo: webhooks (Kiwify: HMAC-SHA1 no parâmetro signature; Hotmart: cabeçalho hottok).
+- Contagem regressiva só com oferta real (`oferta.promo`): ao fim do prazo o preço volta ao normal na página e no checkout (`montarPedido`). Sem contador que reinicia.
+
 ## 5. O que depende de você (credenciais externas)
 
 | Integração | O que falta | Quando |

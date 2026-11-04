@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { EMOCOES, MIDIAS, TIPOS_GANCHO } from "../criativos/opcoes";
 
 // Schemas das saídas da IA. Sem min/max aqui: restrições de tamanho são conferidas depois, no domínio.
 
@@ -98,16 +99,20 @@ export const sugestaoPrecoSchema = z.object({
 });
 
 export const textoPaginaSchema = z.object({
-  headline: z.string(),
+  chamadaTopo: z.string().describe("Frase curtíssima acima do título, dizendo para quem é. Até 50 caracteres"),
+  headline: z.string().describe("Promessa grande, específica e realista, até 80 caracteres"),
   subheadline: z.string(),
   problema: z.string().describe("2 a 3 parágrafos curtos sobre a dor do público, separados por linha em branco"),
+  antesDepois: z.array(z.object({ antes: z.string(), depois: z.string() })).describe("3 a 5 pares: a situação de hoje e como ela fica com o método, sem prometer resultado garantido"),
+  aprendizados: z.array(z.string()).describe("6 a 8 itens começando com verbo ou \"Como\", ditos a partir do conteúdo real do sumário"),
   paraQuem: z.array(z.string()).describe("4 a 6 perfis de quem deve comprar"),
   naoEParaQuem: z.array(z.string()).describe("2 a 3 perfis de quem NÃO deve comprar, para alinhar expectativas"),
   beneficios: z.array(z.object({ titulo: z.string(), texto: z.string() })).describe("4 a 6 benefícios concretos"),
   oQueVoceRecebe: z.array(z.string()).describe("Itens que realmente existem no produto"),
   sobreOProduto: z.string(),
   faq: z.array(z.object({ pergunta: z.string(), resposta: z.string() })).describe("5 a 7 perguntas frequentes"),
-  chamadaCompra: z.string().describe("Texto curto do botão de compra"),
+  chamadaCompra: z.string().describe("Texto do botão de compra, na primeira pessoa e com ação. Até 30 caracteres. Ex.: Quero aprender agora"),
+  chamadaFinal: z.string().describe("2 a 3 frases de fechamento: o custo de continuar como está e o primeiro passo, sem pressão falsa"),
   seoTitulo: z.string().describe("Até 60 caracteres"),
   seoDescricao: z.string().describe("Até 155 caracteres"),
 });
@@ -173,13 +178,17 @@ export const campanhaSchema = z.object({
 export const pacoteCriativosSchema = z.object({
   criativos: z.array(z.object({
     formato: z.enum(["quadrado", "retrato", "story"]),
-    plataforma: z.string().describe("Plataforma recomendada. Ex.: Instagram Feed, Facebook Ads, Stories"),
+    midia: z.enum(MIDIAS),
+    plataforma: z.string().describe("Plataforma recomendada. Ex.: Instagram, Facebook, TikTok"),
     angulo: z.string(),
-    titulo: z.string().describe("Frase principal na arte, até 60 caracteres"),
+    tipoGancho: z.enum(TIPOS_GANCHO),
+    emocao: z.enum(EMOCOES).describe("O que a peça quer despertar na pessoa"),
+    titulo: z.string().describe("O gancho: a frase da arte que faz parar a rolagem, com a emoção escolhida. Até 60 caracteres"),
     apoio: z.string().describe("Frase de apoio na arte, até 90 caracteres"),
     textoPrincipal: z.string().describe("Texto principal do anúncio ou publicação"),
     legenda: z.string().describe("Legenda pronta, pode usar [LINK]"),
     cta: z.string().describe("Texto do botão na arte, até 24 caracteres"),
+    comoUsar: z.string().describe("Como publicar nesta mídia: o que fazer além de postar a imagem. Ex.: figurinha de enquete nos stories, primeiro comentário no feed. 1 a 2 frases"),
     usarMockup: z.boolean().describe("true quando mostrar o e-book ajuda a peça"),
     promptArte: z.string().describe("Prompt em inglês para a arte de fundo, sem nenhum texto na imagem"),
   })),

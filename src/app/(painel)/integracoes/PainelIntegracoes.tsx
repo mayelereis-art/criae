@@ -3,7 +3,8 @@
 import { doc, onSnapshot } from "firebase/firestore";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CheckCircle2, CreditCard, ExternalLink, Loader2, Mail } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, CreditCard, ExternalLink, Loader2, Mail, Store } from "lucide-react";
 import { useAuth } from "@/components/ProvedorAuth";
 import { Botao, Cartao, Selo, classesBotao } from "@/components/ui";
 import { db } from "@/lib/firebase/client";
@@ -62,10 +63,24 @@ export function PainelIntegracoes() {
       </Cartao>
 
       <Cartao>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-borda bg-superficie-2 text-primaria-clara"><Store size={18} /></span>
+            <div>
+              <p className="font-semibold">Kiwify ou Hotmart</p>
+              <p className="mt-0.5 max-w-lg text-sm text-suave">Use a sua conta nessas plataformas: você cadastra o produto lá, sobe o PDF e cola o link de checkout na página de vendas. Pagamento, entrega, nota e repasse ficam com a plataforma, e o dinheiro cai na sua conta dela.</p>
+              <p className="mt-2 max-w-lg text-xs text-apagado">Essas vendas ficam no painel da plataforma. Elas ainda não aparecem em Minhas vendas.</p>
+            </div>
+          </div>
+          <Link href="/paginas" className={classesBotao("secundario")}>Configurar nas páginas</Link>
+        </div>
+      </Cartao>
+
+      <Cartao>
         <div className="flex gap-3">
           <span className="grid size-10 shrink-0 place-items-center rounded-xl border border-borda bg-superficie-2 text-primaria-clara"><Mail size={18} /></span>
           <div>
-            <p className="font-semibold">E-mail de entrega</p>
+            <p className="font-semibold">E-mail de entrega (Mercado Pago)</p>
             <p className="mt-0.5 max-w-lg text-sm text-suave">O comprador recebe o link de download por e-mail assim que o pagamento é confirmado. Configurado pela plataforma.</p>
           </div>
         </div>

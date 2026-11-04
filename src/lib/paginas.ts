@@ -2,12 +2,13 @@ import { collection, deleteDoc, doc, getDoc, onSnapshot, orderBy, query, serverT
 import { db } from "./firebase/client";
 import type { Identidade } from "@/config/identidade";
 import type { TextoPagina } from "./ia/esquemas";
+import type { PlataformaVenda, Promocao } from "./promocao";
 
 export type ModeloPagina = "impacto" | "editorial" | "essencial";
-export type SecaoPagina = "problema" | "paraQuem" | "beneficios" | "conteudo" | "oQueVoceRecebe" | "garantia" | "faq";
+export type SecaoPagina = "problema" | "antesDepois" | "paraQuem" | "beneficios" | "conteudo" | "oQueVoceRecebe" | "garantia" | "faq";
 
 export const SECOES: Record<SecaoPagina, string> = {
-  problema: "O problema", paraQuem: "Para quem é", beneficios: "Benefícios", conteudo: "O que tem dentro (sumário)",
+  problema: "O problema", antesDepois: "Antes e depois", paraQuem: "Para quem é", beneficios: "Benefícios", conteudo: "O que tem dentro (sumário)",
   oQueVoceRecebe: "O que você recebe", garantia: "Garantia", faq: "Perguntas frequentes",
 };
 
@@ -16,11 +17,13 @@ export type Pagina = {
   donoId: string;
   produtoId: string;
   modelo: ModeloPagina;
-  cores: { primaria: string; fundo: string; texto: string; destaque: string };
+  cores: { primaria: string; fundo: string; texto: string; destaque: string; botao?: string };
   fontes: { titulo: string; corpo: string };
-  conteudo: TextoPagina & { capitulos: string[]; autor: string; tituloLivro: string; subtituloLivro: string };
+  conteudo: TextoPagina & { capitulos: string[]; autor: string; tituloLivro: string; subtituloLivro: string; depoimentos?: { nome: string; texto: string }[] };
   secoes: Record<SecaoPagina, boolean>;
-  oferta: { precoCentavos: number; precoOriginalCentavos?: number | null; garantiaDias: number; orderBump?: { titulo: string; chamada: string; precoCentavos: number } | null };
+  oferta: { precoCentavos: number; precoOriginalCentavos?: number | null; garantiaDias: number; orderBump?: { titulo: string; chamada: string; precoCentavos: number } | null; promo?: Promocao | null };
+  /** Onde o comprador paga. Sem isto, vale o checkout próprio com Mercado Pago. */
+  venda?: { plataforma: PlataformaVenda; link: string | null; linkPromo: string | null } | null;
   /** Composição da capa (a arte não tem texto; título e subtítulo são sobrepostos). */
   capa: Identidade;
   capaUrl?: string;

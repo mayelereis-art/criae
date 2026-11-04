@@ -2,6 +2,7 @@ import "server-only";
 import type { Firestore } from "firebase-admin/firestore";
 import type { ItemPedido } from "./servidor";
 import { pdfFinal } from "./servidor";
+import { promoAtiva } from "../promocao";
 
 export class ErroCheckout extends Error {
   constructor(message: string, public status = 422) {
@@ -35,6 +36,7 @@ export function calcularDesconto(precoCentavos: number, tipo: "percentual" | "va
 export async function montarPedido(db: Firestore, slug: string, opcoes: { cupom?: string; comBump?: boolean }): Promise<PedidoMontado> {
   const pagina = (await db.collection("paginas_vendas").doc(slug).get()).data();
   if (!pagina?.publicada) throw new ErroCheckout("Esta página não está disponível.", 404);
+  if (pagina.venda?.plataforma && pagina.venda.plataforma !== "mercadopago") throw new ErroCheckout("Este produto é vendido em outra plataforma.");
   if (!pagina.checkoutAtivo) throw new ErroCheckout("As vendas deste produto ainda não estão abertas.");
 
   const vendedorId: string = pagina.donoId;
@@ -45,6 +47,7 @@ export async function montarPedido(db: Firestore, slug: string, opcoes: { cupom?
   const caminho = await pdfFinal(db, vendedorId, produtoId);
   if (!caminho) throw new ErroCheckout("O arquivo deste produto ainda não está pronto.");
 
+  const precoBase: number = promoAtiva(oferta.promo) ? oferta.promo.precoCentavos : oferta.precoCentavos;
   let descontoCentavos = 0;
   let cupomId: string | null = null;
   let cupomCodigo: string | null = null;
@@ -56,12 +59,12 @@ export async function montarPedido(db: Firestore, slug: string, opcoes: { cupom?
     const vencido = dados?.validoAte && dados.validoAte.toDate() < new Date();
     const esgotado = dados?.usosMax && dados.usos >= dados.usosMax;
     if (!c || !dados?.ativo || vencido || esgotado) throw new ErroCheckout("Cupom inválido ou expirado.");
-    descontoCentavos = calcularDesconto(oferta.precoCentavos, dados.tipo, dados.valor);
+    descontoCentavos = calcularDesconto(precoBase, dados.tipo, dados.valor);
     cupomId = c.id;
     cupomCodigo = codigo;
   }
 
-  const precoPrincipal = oferta.precoCentavos - descontoCentavos;
+  const precoPrincipal = precoBase - descontoCentavos;
   if (precoPrincipal < MINIMO_CENTAVOS) throw new ErroCheckout("O desconto deixa o valor abaixo do mínimo de R$ 1,00.");
   const itens: ItemPedido[] = [{ produtoId, titulo: produto.titulo, precoCentavos: precoPrincipal, caminho, tipo: "principal" }];
 

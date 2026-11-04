@@ -33,6 +33,8 @@ export function EditorPreco({ produtoId }: { produtoId: string }) {
   const [preco, setPreco] = useState("");
   const [precoDe, setPrecoDe] = useState("");
   const [garantia, setGarantia] = useState(7);
+  const [promoPreco, setPromoPreco] = useState("");
+  const [promoFim, setPromoFim] = useState("");
   const [bump, setBump] = useState<ProdutoAdicional | undefined>();
   const [upsell, setUpsell] = useState<ProdutoAdicional | undefined>();
   const [carregado, setCarregado] = useState(false);
@@ -48,6 +50,10 @@ export function EditorPreco({ produtoId }: { produtoId: string }) {
       setPreco(reais(o.precoCentavos));
       setPrecoDe(reais(o.precoOriginalCentavos));
       setGarantia(o.garantiaDias);
+      if (o.promo) {
+        setPromoPreco(reais(o.promo.precoCentavos));
+        setPromoFim(paraCampoData(o.promo.terminaEm));
+      }
       setSugestoes(o.sugestoes);
       setBump(o.orderBump);
       setUpsell(o.upsell);
@@ -90,10 +96,19 @@ export function EditorPreco({ produtoId }: { produtoId: string }) {
     if (de === null || (de && de <= centavos)) return setErro("O preço \"de\" precisa ser maior que o preço de venda, ou ficar em branco.");
     const adicionalValido = (a?: ProdutoAdicional) => !a || (a.precoCentavos >= 500 && a.produtoId);
     if (!adicionalValido(bump) || !adicionalValido(upsell)) return setErro("Order bump e upsell precisam de um produto e de um preço a partir de R$ 5,00.");
+    let promo: Oferta["promo"] = null;
+    if (promoPreco.trim() || promoFim) {
+      const p = lerReais(promoPreco);
+      const fim = new Date(promoFim).getTime();
+      if (!p || p < 500 || p >= centavos) return setErro("O preço da oferta precisa ser menor que o preço de venda e de pelo menos R$ 5,00.");
+      if (!fim || fim <= Date.now()) return setErro("O fim da oferta precisa ser uma data futura.");
+      if (fim - Date.now() > 60 * 86400000) return setErro("A oferta pode durar no máximo 60 dias.");
+      promo = { precoCentavos: p, terminaEm: fim };
+    }
     setErro("");
     setSalvando(true);
     try {
-      const oferta: Oferta = { precoCentavos: centavos, precoOriginalCentavos: de ?? undefined, garantiaDias: garantia, sugestoes, orderBump: bump, upsell };
+      const oferta: Oferta = { precoCentavos: centavos, precoOriginalCentavos: de ?? undefined, garantiaDias: garantia, promo, sugestoes, orderBump: bump, upsell };
       await salvarOferta(produtoId, oferta, produto.etapa);
       setSalvoEm(new Date());
       if (seguir) router.push(`/produtos/${produtoId}/pagina`);
@@ -160,6 +175,15 @@ export function EditorPreco({ produtoId }: { produtoId: string }) {
           </Campo>
         </Cartao>
 
+        <Cartao>
+          <h2 className="font-semibold">Oferta com prazo</h2>
+          <p className="mb-3 mt-1 text-xs text-apagado">Mostra a contagem regressiva na página. Quando o prazo acaba, o preço volta sozinho ao normal e a contagem some. Deixe em branco para não usar. Depois de mudar, salve também a página de vendas.</p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Campo rotulo="Preço na oferta (R$)"><input inputMode="decimal" className={estiloEntrada} placeholder="19,90" value={promoPreco} onChange={(e) => setPromoPreco(e.target.value)} /></Campo>
+            <Campo rotulo="Termina em"><input type="datetime-local" className={estiloEntrada} value={promoFim} onChange={(e) => setPromoFim(e.target.value)} /></Campo>
+          </div>
+        </Cartao>
+
         <div className="grid gap-5 md:grid-cols-2">
           <EditorAdicional titulo="Order bump" descricao="Oferta extra marcada no próprio checkout." valor={bump} aoMudar={setBump} produtos={outros} />
           <EditorAdicional titulo="Upsell" descricao="Oferta mostrada logo depois da compra." valor={upsell} aoMudar={setUpsell} produtos={outros} />
@@ -178,6 +202,12 @@ export function EditorPreco({ produtoId }: { produtoId: string }) {
       </div>
     </>
   );
+}
+
+/** Formato do campo datetime-local, no fuso de quem está editando. */
+function paraCampoData(ms: number) {
+  const d = new Date(ms - new Date(ms).getTimezoneOffset() * 60000);
+  return d.toISOString().slice(0, 16);
 }
 
 function EditorAdicional({ titulo, descricao, valor, aoMudar, produtos }: {

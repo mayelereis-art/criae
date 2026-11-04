@@ -1,6 +1,7 @@
 import { collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "./firebase/client";
 import type { SugestaoPreco } from "./ia/esquemas";
+import type { Promocao } from "./promocao";
 
 export type ProdutoAdicional = { produtoId: string; titulo: string; precoCentavos: number; chamada: string };
 
@@ -9,6 +10,8 @@ export type Oferta = {
   /** Preço "de" riscado: só se for um preço que o produto realmente teve ou terá (não inventar desconto). */
   precoOriginalCentavos?: number;
   garantiaDias: number;
+  /** Oferta com prazo: quando termina, o preço volta a precoCentavos na página e no checkout. */
+  promo?: Promocao | null;
   sugestoes?: SugestaoPreco;
   orderBump?: ProdutoAdicional;
   upsell?: ProdutoAdicional;

@@ -21,6 +21,7 @@ import { comLink, ouvirCampanha, type DocCampanha } from "@/lib/campanhas";
 import { carregarFontes, comporCapa, comporCriativo } from "@/lib/criativos/compor";
 import { MEDIDAS, atualizarCriativo, criarPendente, excluirCriativo, guardarFinal, guardarFundo, lerImagemPropria, ouvirCriativos, type Criativo, type FormatoCriativo } from "@/lib/criativos/dados";
 import { nomeArquivo } from "@/lib/criativos/materiais";
+import { EMOCOES, MIDIAS, type Emocao, type Midia } from "@/lib/criativos/opcoes";
 import { mensagemErro, mensagemFluxo } from "@/lib/firebase/erros";
 import { chamarIA } from "@/lib/ia/cliente";
 import type { ConceitoCriativo } from "@/lib/ia/esquemas";
@@ -45,6 +46,8 @@ export function GaleriaCriativos({ produtoId }: { produtoId?: string }) {
   const [ocupados, setOcupados] = useState<Record<string, string>>({});
   const [erro, setErro] = useState("");
   const [editando, setEditando] = useState<string | null>(null);
+  const [midias, setMidias] = useState<Midia[]>(["Feed", "Stories", "Anúncio no feed"]);
+  const [emocoes, setEmocoes] = useState<Emocao[]>([]);
   const id = produto?.id;
 
   useEffect(() => {
@@ -146,6 +149,8 @@ export function GaleriaCriativos({ produtoId }: { produtoId?: string }) {
         planejamento: produto.planejamento,
         oferta: { precoCentavos: produto.oferta!.precoCentavos, garantiaDias: produto.oferta!.garantiaDias },
         visual: { estilo: identidade.estiloImagens.slice(0, 300), cores: [identidade.cores.primaria, identidade.cores.secundaria, identidade.cores.destaque] },
+        midias,
+        emocoes,
       });
       const novos: Criativo[] = [];
       for (const c of conceitos) novos.push(await criarPendente(usuario!.uid, produto.id, c));
@@ -192,11 +197,26 @@ export function GaleriaCriativos({ produtoId }: { produtoId?: string }) {
                 <Botao variante="secundario" onClick={() => processar(faltando)}><RefreshCw size={15} /> Criar {faltando.length} {faltando.length === 1 ? "arte pendente" : "artes pendentes"}</Botao>
               )}
               <BotaoZip produto={produto} campanha={campanha} criativos={criativos} urlPagina={urlPagina} />
-              <Botao onClick={gerarPacote} disabled={ocupado}>
+              <Botao onClick={gerarPacote} disabled={ocupado || !midias.length}>
                 {ocupado ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />} {progresso || "Gerar 6 criativos"}
               </Botao>
             </div>
           </div>
+          <Cartao className="mb-5 grid gap-4 md:grid-cols-2">
+            <fieldset>
+              <legend className="mb-2 text-sm font-semibold">Onde vai publicar</legend>
+              <div className="flex flex-wrap gap-1.5">
+                {MIDIAS.map((m) => <Opcao key={m} rotulo={m} ativa={midias.includes(m)} aoClicar={() => setMidias(alternar(midias, m))} />)}
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend className="mb-2 text-sm font-semibold">O que despertar na pessoa</legend>
+              <div className="flex flex-wrap gap-1.5">
+                {EMOCOES.map((e) => <Opcao key={e} rotulo={e} ativa={emocoes.includes(e)} aoClicar={() => setEmocoes(alternar(emocoes, e))} />)}
+              </div>
+              <p className="mt-2 text-xs text-apagado">{emocoes.length ? "A IA usa só as emoções marcadas." : "Sem marcar nenhuma, a IA escolhe e varia entre as peças."}</p>
+            </fieldset>
+          </Cartao>
           {ocupado && <p className="mb-4 text-sm text-suave">Mantenha esta aba aberta. Cada arte leva cerca de 40 segundos.</p>}
 
           {!criativos.length ? (
@@ -228,11 +248,14 @@ export function GaleriaCriativos({ produtoId }: { produtoId?: string }) {
                         )}
                       </div>
                       <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <Selo tom="azul">{c.plataforma}</Selo>
-                        <span className="text-xs text-apagado">{MEDIDAS[c.formato].rotulo}</span>
+                        <Selo tom="azul">{c.midia ?? c.plataforma}</Selo>
+                        {c.emocao && <Selo tom="amarelo">{c.emocao}</Selo>}
+                        <span className="text-xs text-apagado">{MEDIDAS[c.formato].rotulo}{c.midia ? ` · ${c.plataforma}` : ""}</span>
                       </div>
+                      {c.tipoGancho && <p className="mt-2 text-xs text-suave">Gancho: {c.tipoGancho}</p>}
                       <p className="mt-2 text-sm font-semibold">{c.titulo}</p>
                       <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-suave">{comLink(c.legenda, urlPagina, "criativo")}</p>
+                      {c.comoUsar && <p className="mt-2 rounded-lg bg-superficie-2/60 p-2 text-xs leading-relaxed text-suave"><span className="font-semibold text-texto">Como usar:</span> {comLink(c.comoUsar, urlPagina, "criativo")}</p>}
                       <div className="mt-auto flex flex-wrap gap-1 pt-3">
                         <Acao icone={Download} rotulo="Baixar" desativado={!c.urlFinal || !!estado} aoClicar={async () => {
                           try { baixarArquivo(await lerImagemPropria(c.urlFinal!), nomeArquivo(c, indice)); } catch (e) { setErro(mensagemFluxo(e)); }
@@ -271,6 +294,16 @@ export function GaleriaCriativos({ produtoId }: { produtoId?: string }) {
         </>
       )}
     </>
+  );
+}
+
+const alternar = <T,>(lista: T[], item: T) => (lista.includes(item) ? lista.filter((x) => x !== item) : [...lista, item]);
+
+function Opcao({ rotulo, ativa, aoClicar }: { rotulo: string; ativa: boolean; aoClicar: () => void }) {
+  return (
+    <button type="button" onClick={aoClicar} aria-pressed={ativa} className={clsx("rounded-full border px-3 py-1.5 text-xs font-medium transition", ativa ? "border-primaria-clara bg-primaria/15 text-texto" : "border-borda text-suave hover:border-borda-forte")}>
+      {rotulo}
+    </button>
   );
 }
 

@@ -143,7 +143,7 @@ Paleta da identidade (use como cores dominantes): ${d.cores.join(", ")}`;
 
 export const SISTEMA_VENDAS = `${BASE}
 
-Sua função agora: estrategista de ofertas e copywriter de páginas de vendas para produtos digitais de baixo ticket. Persuasão honesta: mostre a dor e o resultado realista, sem gatilhos falsos.
+Sua função agora: estrategista de ofertas e copywriter de páginas de vendas de alta conversão para produtos digitais de baixo ticket no Brasil. Escreva com força e emoção: título que para a rolagem, dor descrita com as palavras do próprio público, contraste entre hoje e o depois, benefícios concretos, quebra de objeções e chamadas diretas para a compra. Frases curtas, ritmo de conversa. Persuasão honesta: toda a força vem da especificidade do tema, nunca de algo inventado.
 Proibido: depoimentos ou números de alunos/vendas inventados, escassez ou urgência falsa ("últimas vagas", contador), promessas de renda, cura ou resultado garantido, comparação com concorrentes nomeados, citar o produto como "best-seller".`;
 
 export function pedidoPreco(c: ConfiguracaoProduto, p: Planejamento) {
@@ -172,7 +172,7 @@ Garantia: ${oferta.garantiaDias} dias (direito de arrependimento; reembolso inte
 Bônus que já existem: ${oferta.bonusExistentes.length ? oferta.bonusExistentes.join("; ") : "nenhum (não mencione bônus)"}
 ${p.avisoTemaSensivel ? `Tema sensível: ${p.avisoTemaSensivel}. Reflita esse limite no texto e no FAQ.` : ""}
 
-Formato: e-book em PDF, enviado por e-mail logo após a confirmação do pagamento. Pagamento por Pix ou cartão.
+Formato: e-book em PDF, com acesso liberado logo após a confirmação do pagamento. Não cite a forma de pagamento nem o nome de plataformas: isso depende da configuração do vendedor.
 "O que você recebe" só pode listar o que existe: o e-book (com o número real de capítulos e exercícios) e os bônus listados acima.
 FAQ deve responder de verdade: formato, como recebe, garantia, para quem é, e as dúvidas típicas do público.`;
 }
@@ -220,15 +220,24 @@ Mensagem central: ${estrategia.mensagemCentral}
 
 export function pedidoCriativos(
   c: ConfiguracaoProduto, p: Planejamento, oferta: { precoCentavos: number; garantiaDias: number },
-  visual: { estilo: string; cores: string[] }, quantidadePorFormato: number,
+  visual: { estilo: string; cores: string[] }, escolha: { quantidade: number; midias: string[]; emocoes: string[] },
 ) {
-  return `Crie ${quantidadePorFormato * 3} peças publicitárias para este e-book: ${quantidadePorFormato} em cada formato (quadrado 1080x1080, retrato 1080x1350, story 1080x1920).
+  return `Crie ${escolha.quantidade} peças publicitárias para este e-book, distribuídas entre as mídias: ${escolha.midias.join(", ")}.
 
 ${descreverOferta(c, p, oferta)}
 
 Estilo visual da identidade: ${visual.estilo}
 Paleta: ${visual.cores.join(", ")}
+Emoções a despertar: ${escolha.emocoes.length ? escolha.emocoes.join(", ") : "escolha a melhor para cada peça, variando entre elas"}.
 
-Cada peça usa um ângulo diferente. Título, apoio e CTA são colocados na imagem pelo nosso sistema, então não dependem da arte.
-Regras do promptArte: em inglês; cena ligada ao tema, com objetos e gestos reais; paleta da identidade; área calma para receber texto; sem texto, letras, números, logotipos, marcas d'água, livros ou capas (o e-book é colocado depois pelo sistema); evite rostos em close de pessoas reais ou famosas.`;
+Cada peça usa um ângulo, um tipo de gancho e uma combinação diferentes. Adapte tudo à mídia:
+- Feed: formato quadrado ou retrato. Gancho que funciona parado, legenda mais longa que conta uma pequena história ou ensina algo, terminando com chamada e [LINK].
+- Stories: formato story. Texto muito curto, leitura em 3 segundos, tom de conversa, com interação sugerida em "comoUsar" (enquete, caixa de pergunta, figurinha de link). Legenda de 1 a 2 frases.
+- Reels (capa): formato story. Gancho que promete o que o vídeo mostra. Legenda curta e pergunta para gerar comentário.
+- Anúncio no feed: formato quadrado ou retrato. Benefício claro já no gancho, sem depender de contexto, texto principal objetivo.
+- Anúncio em stories: formato story. Uma ideia só e chamada imediata.
+
+A emoção precisa aparecer de verdade no texto. Humor: situação engraçada e reconhecível do tema, leve, sem zombar da pessoa. Identificação: descreva a cena exata que ela vive. Alívio: tire a culpa e mostre que tem saída. Curiosidade: abra uma pergunta que só o conteúdo fecha, sem enganar. Em tema sensível, prefira acolhimento e não use humor.
+Título, apoio e CTA são colocados na imagem pelo nosso sistema, então não dependem da arte.
+Regras do promptArte: em inglês; cena ligada ao tema, com objetos e gestos reais, no clima da emoção escolhida; paleta da identidade; área calma para receber texto; sem texto, letras, números, logotipos, marcas d'água, livros ou capas (o e-book é colocado depois pelo sistema); evite rostos em close de pessoas reais ou famosas.`;
 }

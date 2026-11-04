@@ -26,7 +26,7 @@ export default async function PaginaPublica({ params }: Props) {
     <>
     <MarcaMetrica slug={p.slug} tipo="visualizacoes" />
     <PaginaVenda
-      p={{ slug: p.slug, modelo: p.modelo, cores: p.cores, fontes: p.fontes, conteudo: p.conteudo, secoes: p.secoes, oferta: p.oferta, capa: p.capa, capaUrl: p.capaUrl, checkoutAtivo: p.checkoutAtivo }}
+      p={{ slug: p.slug, modelo: p.modelo, cores: p.cores, fontes: p.fontes, conteudo: p.conteudo, secoes: p.secoes, oferta: p.oferta, capa: p.capa, capaUrl: p.capaUrl, checkoutAtivo: p.checkoutAtivo, venda: p.venda }}
     />
     </>
   );

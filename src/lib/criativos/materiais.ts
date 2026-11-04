@@ -59,7 +59,9 @@ export const nomeArquivo = (c: Criativo, indice: number) =>
 export function textoCriativo(c: Criativo, indice: number, url: string | null) {
   return [
     `PEÇA ${indice + 1} (${MEDIDAS[c.formato].rotulo}): ${nomeArquivo(c, indice)}`,
-    `Plataforma: ${c.plataforma}`,
+    `Mídia: ${c.midia ?? "-"} | Plataforma: ${c.plataforma}`,
+    `Gancho: ${c.tipoGancho ?? "-"} | Emoção: ${c.emocao ?? "-"}`,
+    `Como usar: ${comLink(c.comoUsar ?? "-", url, "criativo")}`,
     `Título: ${c.titulo}`,
     `Apoio: ${c.apoio}`,
     `CTA: ${c.cta}`,

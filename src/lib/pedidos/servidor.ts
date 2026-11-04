@@ -36,7 +36,8 @@ export async function sincronizarPaginas(uid: string) {
   const conectado = (await db.collection("conexoes_mp").doc(uid).get()).exists;
   const paginas = await db.collection("paginas_vendas").where("donoId", "==", uid).get();
   await Promise.all(paginas.docs.map(async (p) => {
-    const ativo = conectado && !!(await pdfFinal(db, uid, p.data().produtoId));
+    const externa = p.data().venda?.plataforma && p.data().venda.plataforma !== "mercadopago";
+    const ativo = !externa && conectado && !!(await pdfFinal(db, uid, p.data().produtoId));
     if (p.data().checkoutAtivo !== ativo) await p.ref.update({ checkoutAtivo: ativo });
   }));
 }
