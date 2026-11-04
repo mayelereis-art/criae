@@ -12,7 +12,12 @@ export async function POST(req: Request) {
   const idDado = url.searchParams.get("data.id");
   const valido = mercadoPago.validarAssinatura({ assinatura: req.headers.get("x-signature"), requestId: req.headers.get("x-request-id"), idDado });
   if (!valido) {
-    console.warn(JSON.stringify({ evento: "webhook", ok: false, motivo: "assinatura" }));
+    // Só presença e tamanho, nunca os valores: separa segredo errado de cabeçalho perdido no caminho.
+    console.warn(JSON.stringify({
+      evento: "webhook", ok: false, motivo: "assinatura",
+      temAssinatura: !!req.headers.get("x-signature"), temRequestId: !!req.headers.get("x-request-id"), temIdDado: !!idDado,
+      tamanhoSegredo: process.env.MP_WEBHOOK_SECRET?.trim().length ?? 0,
+    }));
     return NextResponse.json({ erro: "assinatura inválida" }, { status: 401 });
   }
 
