@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { Sora, Inter, JetBrains_Mono } from "next/font/google";
 import { ProvedorAuth } from "@/components/ProvedorAuth";
+// Fontes em pacotes locais: o build não depende do Google Fonts responder (next/font/google falhava às vezes).
+import "@fontsource/sora/600.css";
+import "@fontsource/sora/700.css";
+import "@fontsource/sora/800.css";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/500.css";
+import "@fontsource/inter/600.css";
+import "@fontsource/inter/700.css";
+import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource/jetbrains-mono/500.css";
 import "./globals.css";
-
-const titulo = Sora({ variable: "--font-titulo", subsets: ["latin"], weight: ["600", "700", "800"] });
-const corpo = Inter({ variable: "--font-corpo", subsets: ["latin"] });
-const codigo = JetBrains_Mono({ variable: "--font-codigo", subsets: ["latin"], weight: ["400", "500"] });
 
 export const metadata: Metadata = {
   // Base dos links absolutos de SEO e Open Graph (canonical, imagens).
@@ -18,7 +23,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${titulo.variable} ${corpo.variable} ${codigo.variable}`}>
+      <body>
         <ProvedorAuth>{children}</ProvedorAuth>
       </body>
     </html>

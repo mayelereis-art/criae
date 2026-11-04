@@ -27,6 +27,12 @@
   }
 }
 
+:root {
+  --font-titulo: "Sora";
+  --font-corpo: "Inter";
+  --font-codigo: "JetBrains Mono";
+}
+
 html { color-scheme: dark; }
 
 body {
