@@ -7,7 +7,8 @@ const site = () => process.env.NEXT_PUBLIC_URL_SITE ?? "";
 const redirectUri = () => `${site()}/api/mercadopago/retorno`;
 
 function exigir(nome: string) {
-  const v = process.env[nome];
+  // trim: chave colada no terminal pode trazer tabulação ou espaço junto.
+  const v = process.env[nome]?.trim();
   if (!v) throw new ErroGateway(`${nome} não está configurada no servidor.`, 503);
   return v;
 }

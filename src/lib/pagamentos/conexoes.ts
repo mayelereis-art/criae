@@ -6,7 +6,7 @@ import { mercadoPago } from "./mercadopago";
 
 // Tokens de vendedores nunca ficam em texto puro: AES-256-GCM com chave derivada de um segredo do servidor.
 // A coleção conexoes_mp não tem regra de leitura: só o servidor acessa.
-const chave = () => scryptSync(process.env.MP_CLIENT_SECRET ?? "", "criae-conexoes-mp", 32);
+const chave = () => scryptSync(process.env.MP_CLIENT_SECRET?.trim() ?? "", "criae-conexoes-mp", 32);
 
 function cifrar(texto: string) {
   const iv = randomBytes(12);

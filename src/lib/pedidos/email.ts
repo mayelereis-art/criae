@@ -4,7 +4,7 @@ const escapar = (t: string) => t.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<"
 
 /** E-mail do comprador com o link seguro de download. O remetente padrão do Resend só entrega ao dono da conta. */
 export async function enviarEntrega(d: { para: string; nome: string; itens: { titulo: string }[]; link: string }) {
-  const chave = process.env.RESEND_API_KEY;
+  const chave = process.env.RESEND_API_KEY?.trim();
   if (!chave) throw new Error("RESEND_API_KEY não configurada");
   const titulos = d.itens.map((i) => `<li>${escapar(i.titulo)}</li>`).join("");
   const res = await fetch("https://api.resend.com/emails", {
