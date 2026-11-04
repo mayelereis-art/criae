@@ -89,7 +89,7 @@ Gerar um e-book inteiro passa de vários minutos, então não roda dentro de uma
 
 Fluxo de venda:
 1. Comprador clica em "Comprar" → API cria `pedidos/{id}` (status `pendente`) e uma preferência/pagamento Pix no MP com `external_reference = pedidoId`.
-2. MP chama `/api/webhooks/mercadopago`. Validamos a assinatura `x-signature` (HMAC com o segredo) e **consultamos o pagamento na API do MP** antes de acreditar no status.
+2. MP chama `/api/webhooks/mercadopago`. Validamos a chave secreta da URL (o App Hosting remove o `x-request-id`, sem o qual a assinatura `x-signature` não confere) e **consultamos o pagamento na API do MP** antes de acreditar no status.
 3. Aprovado → pedido `pago`, registra `pagamentos/`, gera link de download, envia e-mail.
 4. Página de "obrigado" só mostra o que o pedido já tem no banco. Voltar para ela **não** aprova nada.
 
@@ -180,8 +180,8 @@ Proteção do arquivo:
 1. Criador conecta o Mercado Pago (`/api/mercadopago/conectar` → OAuth → `retorno`); tokens cifrados em `conexoes_mp`, sem regra de leitura.
 2. Botão de compra só liga com conta conectada **e** versão final do PDF (`sincronizarPaginas`).
 3. `/api/checkout` monta o pedido só com dados do banco (preço, cupom, order bump) e cria a preferência com o token do vendedor.
-4. `/api/webhooks/mercadopago` valida `x-signature`, consulta o pagamento na API e chama `aplicarPagamento`, o único ponto que muda status. Valor menor que o pedido não libera.
+4. `/api/webhooks/mercadopago` valida a chave da URL (`MP_WEBHOOK_CHAVE`) ou `x-signature`, consulta o pagamento na API e chama `aplicarPagamento`, o único ponto que muda status. Valor menor que o pedido não libera.
 5. Pago → e-mail com link (`/pedido/{id}?t=...`; só o hash do token fica no banco). Download passa pelo servidor, com limite e marca do e-mail do comprador.
 6. Reembolso e contestação revogam o acesso.
 
-**Antes de vender de verdade:** `MP_OAUTH_TESTE` para `"false"`, credenciais de produção do Mercado Pago, webhook de produção no painel, e domínio próprio no Resend (`EMAIL_REMETENTE`).
+**Antes de vender de verdade:** `MP_OAUTH_TESTE` para `"false"`, credenciais de produção do Mercado Pago, webhook de produção no painel com `?chave=` na URL, nova assinatura secreta (Redefinir), e domínio próprio no Resend (`EMAIL_REMETENTE`).

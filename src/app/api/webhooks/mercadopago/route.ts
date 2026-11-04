@@ -1,21 +1,23 @@
 import { NextResponse } from "next/server";
 import { tokenDoVendedor, vendedorDaConta } from "@/lib/pagamentos/conexoes";
-import { mercadoPago } from "@/lib/pagamentos/mercadopago";
+import { chaveWebhookValida, mercadoPago } from "@/lib/pagamentos/mercadopago";
 import { aplicarPagamento } from "@/lib/pedidos/servidor";
 
 /**
- * Único caminho que confirma pagamento. A assinatura prova que o aviso veio do Mercado Pago;
- * mesmo assim o status é lido de novo na API, nunca do corpo do aviso.
+ * Único caminho que confirma pagamento. A chave da URL ou a assinatura provam que o aviso veio do
+ * Mercado Pago; mesmo assim o status é lido de novo na API, nunca do corpo do aviso.
+ * A URL traz a chave: nunca registrá-la nos logs.
  */
 export async function POST(req: Request) {
   const url = new URL(req.url);
   const idDado = url.searchParams.get("data.id");
-  const valido = mercadoPago.validarAssinatura({ assinatura: req.headers.get("x-signature"), requestId: req.headers.get("x-request-id"), idDado });
+  const valido = chaveWebhookValida(url.searchParams.get("chave"))
+    || mercadoPago.validarAssinatura({ assinatura: req.headers.get("x-signature"), requestId: req.headers.get("x-request-id"), idDado });
   if (!valido) {
     // Só presença e tamanho, nunca os valores: separa segredo errado de cabeçalho perdido no caminho.
     console.warn(JSON.stringify({
       evento: "webhook", ok: false, motivo: "assinatura",
-      temAssinatura: !!req.headers.get("x-signature"), temRequestId: !!req.headers.get("x-request-id"), temIdDado: !!idDado,
+      temChave: url.searchParams.has("chave"), temAssinatura: !!req.headers.get("x-signature"), temRequestId: !!req.headers.get("x-request-id"), temIdDado: !!idDado,
       tamanhoSegredo: process.env.MP_WEBHOOK_SECRET?.trim().length ?? 0,
     }));
     return NextResponse.json({ erro: "assinatura inválida" }, { status: 401 });

@@ -52,6 +52,9 @@ env:
   - variable: MP_WEBHOOK_SECRET
     secret: MP_WEBHOOK_SECRET
     availability: [RUNTIME]
+  - variable: MP_WEBHOOK_CHAVE
+    secret: MP_WEBHOOK_CHAVE
+    availability: [RUNTIME]
   - variable: RESEND_API_KEY
     secret: RESEND_API_KEY
     availability: [RUNTIME]

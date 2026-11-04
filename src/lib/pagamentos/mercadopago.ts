@@ -59,6 +59,15 @@ function iguais(a: string, b: string) {
   return x.length === y.length && timingSafeEqual(x, y);
 }
 
+/**
+ * O App Hosting remove o cabeçalho x-request-id, sem o qual a assinatura do Mercado Pago não confere.
+ * Por isso a URL do webhook leva uma chave secreta. Sem chave configurada, nada passa por aqui.
+ */
+export function chaveWebhookValida(chave: string | null) {
+  const esperada = process.env.MP_WEBHOOK_CHAVE?.trim();
+  return !!esperada && !!chave && iguais(esperada, chave);
+}
+
 export const mercadoPago: Gateway = {
   urlAutorizacao(estado) {
     const q = new URLSearchParams({ client_id: exigir("MP_CLIENT_ID"), response_type: "code", platform_id: "mp", state: estado, redirect_uri: redirectUri() });
