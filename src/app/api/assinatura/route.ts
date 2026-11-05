@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { lerPlanos } from "@/lib/creditos/servidor";
-import { cancelarAssinatura, iniciarAssinatura } from "@/lib/pagamentos/assinaturas";
+import { cancelarAssinatura, iniciarAssinatura, sincronizarAssinatura } from "@/lib/pagamentos/assinaturas";
 import { ErroGateway } from "@/lib/pagamentos/gateway";
 import { usuarioAtual } from "@/lib/sessao";
 
 const entrada = z.discriminatedUnion("acao", [
   z.object({ acao: z.literal("assinar"), planoId: z.string().max(40), email: z.email("Informe um e-mail válido.").max(200) }),
   z.object({ acao: z.literal("cancelar") }),
+  z.object({ acao: z.literal("sincronizar") }),
 ]);
 
 export async function POST(req: Request) {
@@ -20,6 +21,11 @@ export async function POST(req: Request) {
       await cancelarAssinatura(usuario.uid);
       console.info(JSON.stringify({ evento: "assinatura", acao: "cancelar", uid: usuario.uid }));
       return NextResponse.json({ ok: true });
+    }
+    if (p.data.acao === "sincronizar") {
+      const encontradas = await sincronizarAssinatura(usuario.uid);
+      console.info(JSON.stringify({ evento: "assinatura", acao: "sincronizar", uid: usuario.uid, encontradas }));
+      return NextResponse.json({ encontradas });
     }
     const { planoId, email } = p.data;
     // O preço vem sempre do banco, nunca do navegador.

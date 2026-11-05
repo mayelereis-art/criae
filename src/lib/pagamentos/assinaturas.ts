@@ -116,3 +116,23 @@ export async function processarAvisoCobranca(id: string) {
   }
   return "pendente";
 }
+
+/**
+ * Confere direto no Mercado Pago, sem depender do aviso: um aviso perdido não pode deixar quem pagou sem plano.
+ * Usa as mesmas funções dos avisos, que já são idempotentes e relêem tudo na API.
+ */
+export async function sincronizarAssinatura(uid: string) {
+  const planos = await lerPlanos();
+  let encontradas = 0;
+  for (const plano of planos) {
+    const q = new URLSearchParams({ external_reference: referencia(uid, plano.id), limit: "5" });
+    const { results = [] } = await mp<{ results?: Preapproval[] }>(`/preapproval/search?${q}`);
+    for (const p of results.filter((x) => x.status === "authorized")) {
+      encontradas++;
+      await processarAvisoAssinatura(p.id);
+      const cobrancas = await mp<{ results?: { id: string | number }[] }>(`/authorized_payments/search?preapproval_id=${encodeURIComponent(p.id)}`);
+      for (const c of cobrancas.results ?? []) await processarAvisoCobranca(String(c.id));
+    }
+  }
+  return encontradas;
+}

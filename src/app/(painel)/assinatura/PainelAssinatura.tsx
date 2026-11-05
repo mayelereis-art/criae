@@ -2,7 +2,7 @@
 
 import { collection, doc, onSnapshot, orderBy, query, where, type Timestamp } from "firebase/firestore";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/ProvedorAuth";
 import { Botao, Campo, Cartao, Selo, estiloEntrada } from "@/components/ui";
@@ -41,8 +41,30 @@ export function PainelAssinatura() {
     const res = await fetch("/api/assinatura", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo) });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(j.erro ?? "Não foi possível concluir.");
-    return j as { url?: string };
+    return j as { url?: string; encontradas?: number };
   };
+
+  const atualizar = async (manual: boolean) => {
+    setErro("");
+    setOcupado("atualizar");
+    try {
+      const { encontradas } = await chamar({ acao: "sincronizar" });
+      if (manual && !encontradas) setErro("O Mercado Pago ainda não confirmou o pagamento. Tente de novo em alguns minutos.");
+    } catch (e) {
+      if (manual) setErro((e as Error).message);
+    } finally {
+      setOcupado("");
+    }
+  };
+
+  // Ao voltar do pagamento, confere uma vez sem esperar pelo aviso do Mercado Pago.
+  const conferiu = useRef(false);
+  useEffect(() => {
+    if (!voltou || !usuario || conferiu.current) return;
+    conferiu.current = true;
+    void atualizar(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voltou, usuario]);
 
   const assinar = async (planoId: string) => {
     setErro("");
@@ -77,6 +99,7 @@ export function PainelAssinatura() {
   return (
     <div className="space-y-5">
       {voltou && assinatura?.status !== "ativa" && <p className="rounded-xl border border-borda p-3 text-sm text-suave" role="status">Assim que o Mercado Pago confirmar o pagamento, seu plano e seus créditos aparecem aqui.</p>}
+      {assinatura?.status !== "ativa" && <Botao variante="secundario" disabled={!!ocupado} onClick={() => atualizar(true)}>{ocupado === "atualizar" && <Loader2 size={15} className="animate-spin" />} Já paguei: atualizar meu plano</Botao>}
       {erro && <p className="rounded-xl border border-erro/40 bg-erro/10 p-3 text-sm text-erro" role="alert">{erro}</p>}
 
       <Cartao className="flex flex-wrap items-center justify-between gap-3">
