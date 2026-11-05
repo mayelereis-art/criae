@@ -30,6 +30,11 @@ export function motivoBloqueio(assinatura: Record<string, unknown> | undefined, 
     const desde = data(assinatura?.inadimplenteDesde) ?? agora;
     if (agora - desde > (plano?.diasTolerancia ?? 3) * 864e5) return "O pagamento da sua assinatura não foi confirmado. Atualize o pagamento para voltar a usar a IA.";
   }
+  // Ativa com o período vencido além da tolerância: a renovação não foi confirmada nem por aviso nem pela conferência.
+  if (status === "ativa") {
+    const fim = data(assinatura?.renovaEm);
+    if (fim && agora - fim > (plano?.diasTolerancia ?? 3) * 864e5) return "Não confirmamos a renovação da sua assinatura. Atualize o pagamento para voltar a usar a IA.";
+  }
   if (status === "cancelada") {
     const fim = data(assinatura?.renovaEm);
     if (!fim || fim <= agora) return "Sua assinatura foi cancelada. Assine um plano para voltar a usar a IA.";

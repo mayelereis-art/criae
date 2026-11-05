@@ -123,16 +123,21 @@ export async function processarAvisoCobranca(id: string) {
  */
 export async function sincronizarAssinatura(uid: string) {
   const planos = await lerPlanos();
-  let encontradas = 0;
+  const vistas = new Set<string>();
+  let retornadas = 0;
   for (const plano of planos) {
-    const q = new URLSearchParams({ external_reference: referencia(uid, plano.id), limit: "5" });
+    const ref_ = referencia(uid, plano.id);
+    const q = new URLSearchParams({ external_reference: ref_, limit: "50" });
     const { results = [] } = await mp<{ results?: Preapproval[] }>(`/preapproval/search?${q}`);
-    for (const p of results.filter((x) => x.status === "authorized")) {
-      encontradas++;
+    retornadas += results.length;
+    // Só o que é desta pessoa e deste plano: nunca confiar só no filtro da busca.
+    for (const p of results.filter((x) => x.status === "authorized" && x.external_reference === ref_ && !vistas.has(x.id))) {
+      vistas.add(p.id);
       await processarAvisoAssinatura(p.id);
       const cobrancas = await mp<{ results?: { id: string | number }[] }>(`/authorized_payments/search?preapproval_id=${encodeURIComponent(p.id)}`);
       for (const c of cobrancas.results ?? []) await processarAvisoCobranca(String(c.id));
     }
   }
-  return encontradas;
+  console.info(JSON.stringify({ evento: "sincronizar-assinatura", uid, retornadas, deste: vistas.size }));
+  return vistas.size;
 }

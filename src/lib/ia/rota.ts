@@ -4,6 +4,8 @@ import type { z } from "zod";
 import { usuarioAtual, type UsuarioSessao } from "../sessao";
 import type { Operacao } from "@/config/planos";
 import { ErroCreditos, estornarCreditos, registrarUso, reservarCreditos } from "../creditos/servidor";
+import { dbAdmin } from "../firebase/admin";
+import { sincronizarAssinatura } from "../pagamentos/assinaturas";
 import { ErroIA } from "./claude";
 import { medidor, type Medicao } from "./medidor";
 
@@ -39,6 +41,9 @@ export async function rotaIA<E extends z.ZodType, R>(
   const inicio = Date.now();
   let reserva: Awaited<ReturnType<typeof reservarCreditos>>;
   try {
+    // Venceu o período: confere a renovação no Mercado Pago, caso o aviso não tenha chegado.
+    const assinatura = (await dbAdmin().collection("assinaturas").doc(usuario.uid).get()).data();
+    if (assinatura?.status === "ativa" && assinatura.renovaEm?.toMillis() <= Date.now()) await sincronizarAssinatura(usuario.uid).catch((e) => console.error(JSON.stringify({ evento: "sincronizar-assinatura", ok: false, erro: String(e).slice(0, 200) })));
     reserva = await reservarCreditos(usuario.uid, operacao);
   } catch (e) {
     if (e instanceof ErroCreditos) return NextResponse.json({ erro: e.message, codigo: "creditos" }, { status: e.status });
