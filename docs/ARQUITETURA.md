@@ -105,7 +105,8 @@ Proteção do arquivo:
 - Planos em `planos/` (editáveis pelo admin): Mensal R$ 49,90 · Pro R$ 89,90 · Premium R$ 149,90, cada um com créditos/mês e limites.
 - Toda operação de IA chama `debitarCreditos(usuario, operacao)` numa **transação** do Firestore antes de executar; falhou a IA → estorna.
 - Custos iniciais (configuráveis em `configuracoes/creditos`): texto curto 1 · planejamento 5 · capítulo 8 · regenerar capítulo 8 · imagem 4 · e-book completo = soma dos capítulos · pacote de criativos 15.
-- Inadimplência: webhook de assinatura → `assinaturas.status = "inadimplente"` → painel bloqueia criação, mantém leitura e vendas já publicadas.
+- Inadimplência: webhook de assinatura → `assinaturas.status = "inadimplente"` → depois da tolerância do plano, a IA bloqueia; leitura e vendas publicadas continuam.
+- Administradores por uid em `ADMIN_UIDS` (apphosting.yaml), nunca por e-mail. Histórico em `movimentos_creditos`; pagamentos em `pagamentos_assinatura`.
 
 ## 3. Coleções do Firestore
 
@@ -145,7 +146,7 @@ Proteção do arquivo:
 | 5 | Parte 1: precificação com IA, cupons, order bump e upsell (configuração), páginas de venda com 3 modelos, SEO e URL própria | ✅ |
 | 5 | Parte 2: site publicado, conexão OAuth, checkout Mercado Pago, webhook com chave na URL, entrega por e-mail com download marcado, vendas, reembolso, métricas | ✅ compra de teste de ponta a ponta em 04/11/2026 |
 | 6 | Central de divulgação (estratégia, Instagram, TikTok, Facebook, WhatsApp, anúncios, calendário), criativos nos 3 formatos com texto do sistema, ZIP | ✅ |
-| 7 | Planos, créditos, consumo, painel admin | ⏳ |
+| 7 | Planos configuráveis, créditos em toda operação de IA, histórico e avisos, assinatura recorrente no Mercado Pago, painel administrativo | ✅ código (cobrança real em teste) |
 | 8 | Testes funcionais, segurança, responsivo, documentação final | ⏳ |
 
 ### Venda e oferta (04/11/2026)

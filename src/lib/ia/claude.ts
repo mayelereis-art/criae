@@ -2,6 +2,7 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import type { z } from "zod";
+import { medir } from "./medidor";
 
 /** Um só lugar para trocar de modelo. */
 export const MODELO = "claude-opus-5-5";
@@ -51,6 +52,7 @@ export async function gerarEstruturado<S extends z.ZodType>(opcoes: {
       throw new ErroIA("A resposta da IA ficou longa demais e foi cortada. Tente de novo.", 502);
     if (!resposta.parsed_output) throw new ErroIA("A IA devolveu uma resposta fora do formato esperado. Tente de novo.", 502);
 
+    medir({ entrada: resposta.usage.input_tokens, saida: resposta.usage.output_tokens });
     return {
       dados: resposta.parsed_output as z.infer<S>,
       uso: { entrada: resposta.usage.input_tokens, saida: resposta.usage.output_tokens },

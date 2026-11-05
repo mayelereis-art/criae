@@ -12,6 +12,6 @@ export const config = {
   matcher: [
     "/visao-geral", "/produtos/:path*", "/criar/:path*", "/biblioteca", "/nichos", "/oportunidades", "/publico",
     "/sugestoes", "/divulgacao", "/criativos", "/paginas", "/checkouts", "/vendas", "/conta", "/assinatura",
-    "/creditos", "/integracoes", "/ajuda",
+    "/creditos", "/integracoes", "/ajuda", "/admin/:path*",
   ],
 };

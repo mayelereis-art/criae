@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { tokenDoVendedor, vendedorDaConta } from "@/lib/pagamentos/conexoes";
 import { chaveWebhookValida, mercadoPago } from "@/lib/pagamentos/mercadopago";
+import { processarAvisoAssinatura, processarAvisoCobranca } from "@/lib/pagamentos/assinaturas";
 import { aplicarPagamento } from "@/lib/pedidos/servidor";
 
 /**
@@ -26,6 +27,17 @@ export async function POST(req: Request) {
   const corpo = (await req.json().catch(() => ({}))) as { type?: string; topic?: string; user_id?: number | string; data?: { id?: string | number } };
   const tipo = corpo.type ?? corpo.topic ?? url.searchParams.get("type");
   const pagamentoId = idDado ?? (corpo.data?.id !== undefined ? String(corpo.data.id) : null);
+  // Assinatura da plataforma: cobrada na conta da Criaê, não na do criador.
+  if ((tipo === "subscription_preapproval" || tipo === "subscription_authorized_payment") && pagamentoId) {
+    try {
+      const resultado = tipo === "subscription_preapproval" ? await processarAvisoAssinatura(pagamentoId) : await processarAvisoCobranca(pagamentoId);
+      console.info(JSON.stringify({ evento: "webhook-assinatura", tipo, resultado }));
+      return NextResponse.json({ ok: true });
+    } catch (e) {
+      console.error(JSON.stringify({ evento: "webhook-assinatura", tipo, ok: false, erro: String(e).slice(0, 300) }));
+      return NextResponse.json({ erro: "falha ao processar" }, { status: 500 });
+    }
+  }
   if (tipo !== "payment" || !pagamentoId) return NextResponse.json({ ok: true, ignorado: tipo ?? "sem-tipo" });
 
   try {

@@ -141,6 +141,34 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "movimentos_creditos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "donoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "pagamentos_assinatura",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "donoId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "criadoEm",
+          "order": "DESCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": []

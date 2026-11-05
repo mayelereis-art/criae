@@ -1,14 +1,13 @@
-import { TelaPlanejada } from "@/components/TelaPlanejada";
+import { CabecalhoPagina } from "@/components/ui";
+import { PainelCreditos } from "./PainelCreditos";
 
-export const metadata = { title: "Creditos" };
+export const metadata = { title: "Créditos e consumo" };
 
 export default function Pagina() {
   return (
-    <TelaPlanejada
-      href="/creditos"
-      descricao="Quanto da sua cota de IA você já usou."
-      recursos={["Saldo de créditos do mês","Custo de cada operação (texto, imagem, capítulo)","Histórico de consumo e avisos de limite"]}
-      vazio={{ titulo: "Sem consumo registrado", texto: "Cada geração com IA debita créditos e aparece neste histórico." }}
-    />
+    <>
+      <CabecalhoPagina titulo="Créditos e consumo" descricao="Quanto você tem, quanto custa cada ação e tudo o que já foi usado." />
+      <PainelCreditos />
+    </>
   );
 }

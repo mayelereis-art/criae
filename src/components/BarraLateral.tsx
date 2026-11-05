@@ -3,13 +3,13 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, ShieldCheck, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NAVEGACAO } from "@/config/navegacao";
 import { Logo } from "./Logo";
 import { useAuth } from "./ProvedorAuth";
 
-type UsuarioBarra = { nome: string; email: string };
+type UsuarioBarra = { nome: string; email: string; admin?: boolean };
 
 const iniciais = (nome: string, email: string) =>
   (nome || email).split(/[s@.]+/).filter(Boolean).slice(0, 2).map((p) => p[0]!.toUpperCase()).join("");
@@ -23,7 +23,7 @@ function Conteudo({ usuario, aoNavegar }: { usuario: UsuarioBarra; aoNavegar?: (
         <Logo />
       </div>
       <nav className="flex-1 overflow-y-auto px-3 pb-4" aria-label="Menu principal">
-        {NAVEGACAO.map((grupo) => (
+        {[...NAVEGACAO, ...(usuario.admin ? [{ titulo: "Plataforma", itens: [{ rotulo: "Administração", href: "/admin", icone: ShieldCheck, etapa: 7 }] }] : [])].map((grupo) => (
           <div key={grupo.titulo} className="mt-4">
             <p className="px-3 pb-1.5 font-mono text-[10px] tracking-[0.2em] text-apagado uppercase">{grupo.titulo}</p>
             <ul className="space-y-0.5">

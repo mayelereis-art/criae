@@ -1,6 +1,7 @@
 import "server-only";
 import OpenAI from "openai";
 import { ErroIA } from "./claude";
+import { medir } from "./medidor";
 
 const MODELO_IMAGEM = process.env.OPENAI_IMAGE_MODEL || "gpt-image-2";
 
@@ -30,6 +31,7 @@ export async function gerarImagem(prompt: string, formato: Formato): Promise<str
     });
     const b64 = r.data?.[0]?.b64_json;
     if (!b64) throw new ErroIA("A IA de imagens não devolveu a imagem. Tente de novo.", 502);
+    medir({ imagens: 1 });
     return b64;
   } catch (e) {
     if (e instanceof ErroIA) throw e;

@@ -60,6 +60,10 @@ env:
     availability: [RUNTIME]
 
   # true = criadores conectados operam em modo de teste do Mercado Pago, sem dinheiro de verdade.
+  # Quem acessa /admin. Uids separados por vírgula.
+  - variable: ADMIN_UIDS
+    value: "3y90EeUYVsgRhtDFLRapplPWZcS2"
+    availability: [RUNTIME]
   # Trocar para "false" ao abrir vendas reais.
   - variable: MP_OAUTH_TESTE
     value: "true"

@@ -154,6 +154,9 @@ service cloud.firestore {
       allow read: if colecao in ['creditos', 'assinaturas'] && eu(id);
     }
     match /consumo_ia/{id} { allow read: if dono(); }
+    match /movimentos_creditos/{id} { allow read: if dono(); }
+    match /pagamentos_assinatura/{id} { allow read: if dono(); }
+    match /configuracoes/{id} { allow read: if logado(); }
     match /jobs/{id} { allow read: if dono(); }
     match /pedidos/{id} { allow read: if logado() && resource.data.vendedorId == request.auth.uid; }
 
