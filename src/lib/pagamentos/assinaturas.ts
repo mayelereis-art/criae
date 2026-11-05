@@ -20,7 +20,7 @@ async function mp<T>(caminho: string, metodo = "GET", corpo?: unknown): Promise<
   const dados = (await res.json().catch(() => ({}))) as T & { message?: string };
   if (!res.ok) {
     console.error(JSON.stringify({ evento: "mp-assinatura", caminho: caminho.split("/").slice(0, 2).join("/"), status: res.status, mensagem: String(dados.message ?? "").slice(0, 300) }));
-    throw new ErroGateway(`O Mercado Pago recusou o pedido (${res.status}).`, 502);
+    throw new ErroGateway("Não foi possível falar com o Mercado Pago agora. Tente de novo em alguns minutos.", 502);
   }
   return dados;
 }
