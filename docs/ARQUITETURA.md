@@ -102,13 +102,13 @@ Proteção do arquivo:
 
 ### Modelos por tarefa
 
-Capítulos em grupos de 3; a revisão devolve só correções, aplicadas por `lib/ia/correcoes.ts`. `MODELOS` em `lib/ia/claude.ts`. Forte (Opus): rascunho dos capítulos. Médio (Sonnet): nicho, planejamento, revisão, página, estratégia, canais e criativos. Leve (Haiku): preencher configuração, preço, prompt de imagem e calendário.
+Capa em alta qualidade; imagens de capítulo opcionais. Capítulos de 1.000 a 1.500 palavras no modo completo, salvos também pelo servidor, em grupos de 3; a revisão devolve só correções, aplicadas por `lib/ia/correcoes.ts`. `MODELOS` em `lib/ia/claude.ts`. Forte (Opus): rascunho dos capítulos. Médio (Sonnet): nicho, planejamento, revisão, página, estratégia, canais e criativos. Leve (Haiku): preencher configuração, preço, prompt de imagem e calendário.
 
 ### 2.8 Assinatura e créditos
 
-- Planos em `planos/` (editáveis pelo admin): Mensal R$ 49,90 · Pro R$ 89,90 · Premium R$ 149,90, cada um com créditos/mês e limites.
+- Planos em `planos/` (editáveis pelo admin): Mensal R$ 147 (recorrente, 1.000 créditos) e Vitalício R$ 287 (pagamento único, 300 créditos por mês, recarregados no primeiro uso de cada mês).
 - Toda operação de IA chama `debitarCreditos(usuario, operacao)` numa **transação** do Firestore antes de executar; falhou a IA → estorna.
-- Custos iniciais (configuráveis em `configuracoes/creditos`): texto curto 1 · planejamento 5 · capítulo 8 · regenerar capítulo 8 · imagem 4 · e-book completo = soma dos capítulos · pacote de criativos 15.
+- Um crédito vale cerca de US$ 0,01 de IA. Custos atuais em `config/planos.ts`. Valores originais do plano (configuráveis em `configuracoes/creditos`): texto curto 1 · planejamento 5 · capítulo 8 · regenerar capítulo 8 · imagem 4 · e-book completo = soma dos capítulos · pacote de criativos 15.
 - Inadimplência: webhook de assinatura → `assinaturas.status = "inadimplente"` → depois da tolerância do plano, a IA bloqueia; leitura e vendas publicadas continuam.
 - Administradores por uid em `ADMIN_UIDS` (apphosting.yaml), nunca por e-mail. Histórico em `movimentos_creditos`; pagamentos em `pagamentos_assinatura`.
 

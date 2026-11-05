@@ -89,7 +89,7 @@ Como escrever:
 - Faça uma transição natural para o próximo capítulo na última frase, sem resumir o capítulo inteiro.
 - Outros capítulos podem estar sendo escritos agora, então não desenvolva aqui os tópicos deles:
 ${p.capitulos.map((x, i) => (i === indice ? "" : `  ${i + 1}. ${x.titulo}: ${x.topicos.join("; ")}`)).filter(Boolean).join("\n")}
-- Tamanho: o necessário para ensinar bem (em geral 1.500 a 3.000 palavras). Nada de enchimento.${p.avisoTemaSensivel ? `\n- Tema sensível: respeite este limite: ${p.avisoTemaSensivel}` : ""}`;
+- Tamanho: ${{ essencial: "800 a 1.200", completo: "1.000 a 1.500", aprofundado: "1.800 a 2.500" }[c.profundidade]} palavras. Direto, sem enchimento: cada parágrafo precisa ensinar algo.${p.avisoTemaSensivel ? `\n- Tema sensível: respeite este limite: ${p.avisoTemaSensivel}` : ""}`;
 }
 
 export function pedidoRevisao(p: Planejamento, indice: number, conteudo: string, resumosAnteriores: string[]) {
@@ -134,7 +134,7 @@ export function pedidoPromptImagem(d: {
   tipo: "capa" | "capitulo"; titulo: string; subtitulo: string; tema: string; publico: string;
   estilo: string; cores: string[]; capitulo?: { titulo: string; objetivo: string };
 }) {
-  return `Crie o prompt da ${d.tipo === "capa" ? "arte da CAPA (formato retrato 2:3; deixe área mais calma no terço inferior para o título)" : "imagem de ABERTURA DE CAPÍTULO (formato paisagem 3:2)"}.
+  return `Crie o prompt da ${d.tipo === "capa" ? "arte da CAPA (formato retrato 2:3; deixe área mais calma no terço inferior para o título). A capa é o que vende o e-book: precisa chamar a atenção mesmo em miniatura, no celular. Um único assunto forte e reconhecível do tema, composição marcante, contraste alto, cores vibrantes da paleta, luz dramática e acabamento de capa profissional" : "imagem de ABERTURA DE CAPÍTULO (formato paisagem 3:2)"}.
 
 E-book: "${d.titulo}" — ${d.subtitulo}
 Tema: ${d.tema}

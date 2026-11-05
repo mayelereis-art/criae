@@ -55,7 +55,7 @@ export function PainelAdmin() {
       {aviso && <p className="text-sm text-sucesso" role="status">{aviso}</p>}
       {aba === "Resumo" && <Resumo d={dados} />}
       {aba === "Usuários" && <Usuarios d={dados} enviar={enviar} />}
-      {aba === "Planos" && <div className="grid gap-4 lg:grid-cols-3">{dados.planos.map((p) => <EditorPlano key={p.id} plano={p} enviar={enviar} />)}</div>}
+      {aba === "Planos" && <div className="grid gap-4 lg:grid-cols-2">{dados.planos.map((p) => <EditorPlano key={p.id} plano={p} enviar={enviar} />)}</div>}
       {aba === "Custos" && <EditorCustos config={dados.config} enviar={enviar} />}
     </div>
   );
@@ -148,10 +148,10 @@ function EditorPlano({ plano, enviar }: { plano: Plano; enviar: (c: object, s: s
       <form className="grid gap-3" onSubmit={(e) => { e.preventDefault(); void enviar({ acao: "plano", plano: { ...p, precoCentavos: lerReais(preco) ?? 0 } }, `Plano ${p.nome} salvo.`); }}>
         <Campo rotulo="Nome"><input required maxLength={40} className={estiloEntrada} value={p.nome} onChange={(e) => setP({ ...p, nome: e.target.value })} /></Campo>
         <Campo rotulo="Descrição"><textarea rows={2} maxLength={200} className={estiloEntrada} value={p.descricao} onChange={(e) => setP({ ...p, descricao: e.target.value })} /></Campo>
-        <Campo rotulo="Preço mensal (R$)" dica="Vale para novas assinaturas. Quem já assina continua no valor contratado."><input inputMode="decimal" required className={estiloEntrada} value={preco} onChange={(e) => setPreco(e.target.value)} /></Campo>
+        <Campo rotulo={p.tipo === "vitalicio" ? "Preço único (R$)" : "Preço mensal (R$)"} dica="Vale para novas compras. Quem já assinou continua no valor contratado."><input inputMode="decimal" required className={estiloEntrada} value={preco} onChange={(e) => setPreco(e.target.value)} /></Campo>
         {numero("creditosMes", "Créditos por mês")}
         {numero("maxProdutos", "Limite de produtos com IA")}
-        {numero("diasTolerancia", "Dias de tolerância após falha de pagamento")}
+        {p.tipo !== "vitalicio" && numero("diasTolerancia", "Dias de tolerância após falha de pagamento")}
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="accent-primaria" checked={p.ativo} onChange={(e) => setP({ ...p, ativo: e.target.checked })} /> Disponível para novas assinaturas</label>
         <Botao type="submit" variante="secundario">Salvar plano</Botao>
       </form>

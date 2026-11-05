@@ -1,7 +1,10 @@
 // Valores iniciais. O administrador muda tudo no painel: o que está salvo no banco vale mais que isto.
 
 export type Plano = {
-  id: string; nome: string; descricao: string; precoCentavos: number; creditosMes: number;
+  id: string; nome: string; descricao: string;
+  /** mensal = cobrança recorrente; vitalicio = pagamento único, com créditos renovados todo mês. */
+  tipo: "mensal" | "vitalicio";
+  precoCentavos: number; creditosMes: number;
   /** Quantos produtos podem ser criados com IA. */
   maxProdutos: number;
   /** Dias em que a conta continua usando a IA depois de uma cobrança falhar. */
@@ -10,22 +13,24 @@ export type Plano = {
 };
 
 export const PLANOS_PADRAO: Plano[] = [
-  { id: "mensal", nome: "Mensal", descricao: "Para criar e vender seus primeiros produtos.", precoCentavos: 4990, creditosMes: 300, maxProdutos: 5, diasTolerancia: 3, ativo: true, ordem: 1 },
-  { id: "pro", nome: "Pro", descricao: "Para quem lança com frequência.", precoCentavos: 8990, creditosMes: 800, maxProdutos: 20, diasTolerancia: 3, ativo: true, ordem: 2 },
-  { id: "premium", nome: "Premium", descricao: "Para operar vários produtos e nichos.", precoCentavos: 14990, creditosMes: 2000, maxProdutos: 100, diasTolerancia: 3, ativo: true, ordem: 3 },
+  { id: "mensal", nome: "Mensal", descricao: "Cobrança todo mês, com mais créditos para criar.", tipo: "mensal", precoCentavos: 14700, creditosMes: 1000, maxProdutos: 50, diasTolerancia: 3, ativo: true, ordem: 1 },
+  { id: "vitalicio", nome: "Vitalício", descricao: "Pagamento único, sem mensalidade.", tipo: "vitalicio", precoCentavos: 28700, creditosMes: 300, maxProdutos: 50, diasTolerancia: 0, ativo: true, ordem: 2 },
 ];
 
+// Um crédito vale cerca de US$ 0,01 de IA, pelo custo medido em 05/11/2026.
 export const OPERACOES = {
   sugerir_configuracao: { nome: "Preencher configuração com IA", custo: 1 },
-  pesquisa_nicho: { nome: "Pesquisa de nicho", custo: 3 },
+  pesquisa_nicho: { nome: "Pesquisa de nicho", custo: 4 },
   planejamento: { nome: "Planejamento do e-book", custo: 5 },
-  capitulo: { nome: "Escrever ou refazer um capítulo", custo: 8 },
-  imagem: { nome: "Imagem de capa ou capítulo", custo: 4 },
+  capitulo: { nome: "Escrever ou refazer um capítulo", custo: 18 },
+  capitulo_aprofundado: { nome: "Capítulo aprofundado", custo: 32 },
+  imagem_capa: { nome: "Capa em alta qualidade", custo: 17 },
+  imagem: { nome: "Imagem de capítulo (opcional)", custo: 4 },
   preco: { nome: "Sugestão de preço", custo: 1 },
-  texto_pagina: { nome: "Textos da página de vendas", custo: 3 },
-  campanha: { nome: "Campanha de divulgação", custo: 10 },
+  texto_pagina: { nome: "Textos da página de vendas", custo: 4 },
+  campanha: { nome: "Campanha de divulgação", custo: 20 },
   criativos: { nome: "Conceitos de um pacote de criativos", custo: 3 },
-  arte_criativo: { nome: "Arte de um criativo", custo: 4 },
+  arte_criativo: { nome: "Arte de um criativo", custo: 5 },
 } as const;
 export type Operacao = keyof typeof OPERACOES;
 
@@ -40,5 +45,5 @@ export type StatusAssinatura = "pendente" | "ativa" | "inadimplente" | "cancelad
 export const ROTULO_ASSINATURA: Record<StatusAssinatura, string> = { pendente: "Aguardando pagamento", ativa: "Ativa", inadimplente: "Pagamento pendente", cancelada: "Cancelada" };
 
 export const ROTULO_MOVIMENTO: Record<string, string> = {
-  debito: "Uso de IA", estorno: "Devolução por falha", inicial: "Créditos iniciais", renovacao: "Renovação do plano", ajuste: "Ajuste do administrador",
+  debito: "Uso de IA", estorno: "Devolução por falha", inicial: "Créditos iniciais", renovacao: "Créditos do plano", ajuste: "Ajuste do administrador",
 };

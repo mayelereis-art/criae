@@ -10,7 +10,7 @@ import { PLANOS_PADRAO, ROTULO_ASSINATURA, type Plano, type StatusAssinatura } f
 import { db } from "@/lib/firebase/client";
 import { formatarPreco } from "@/lib/formato";
 
-type Assinatura = { planoId: string; status: StatusAssinatura; renovaEm?: Timestamp; gatewayId?: string };
+type Assinatura = { planoId: string; status: StatusAssinatura; tipo?: string; renovaEm?: Timestamp; proximaRecargaEm?: Timestamp; gatewayId?: string };
 type Pagamento = { id: string; valorCentavos: number; status: string; planoId: string; criadoEm: Timestamp | null };
 
 const data = (t?: Timestamp | null) => t?.toDate().toLocaleDateString("pt-BR");
@@ -70,7 +70,7 @@ export function PainelAssinatura() {
     setErro("");
     setOcupado(planoId);
     try {
-      const { url } = await chamar({ acao: "assinar", planoId, email });
+      const { url } = await chamar({ acao: "assinar", planoId, ...(email ? { email } : {}) });
       if (url) window.location.href = url;
     } catch (e) {
       setErro((e as Error).message);
@@ -106,37 +106,40 @@ export function PainelAssinatura() {
         <div>
           <p className="text-xs text-suave">Plano atual</p>
           <p className="mt-0.5 font-display text-xl font-bold">{vigente && atual ? atual.nome : "Nenhum plano ativo"}</p>
+          {vigente && assinatura?.tipo === "vitalicio" && assinatura.status === "ativa" && <p className="mt-1 text-sm text-suave">Acesso sem mensalidade. {assinatura.proximaRecargaEm && `Próxima recarga de créditos a partir de ${data(assinatura.proximaRecargaEm)}.`}</p>}
           {vigente && assinatura?.renovaEm && <p className="mt-1 text-sm text-suave">{assinatura.status === "cancelada" ? `Acesso até ${data(assinatura.renovaEm)}` : `Próxima cobrança em ${data(assinatura.renovaEm)}`}</p>}
         </div>
         <div className="flex items-center gap-2">
           {assinatura && <Selo tom={assinatura.status === "ativa" ? "verde" : assinatura.status === "inadimplente" ? "vermelho" : "amarelo"}>{ROTULO_ASSINATURA[assinatura.status]}</Selo>}
-          {assinatura && (assinatura.status === "ativa" || assinatura.status === "inadimplente") && <Botao variante="fantasma" disabled={!!ocupado} onClick={cancelar}>Cancelar assinatura</Botao>}
+          {assinatura && assinatura.tipo !== "vitalicio" && (assinatura.status === "ativa" || assinatura.status === "inadimplente") && <Botao variante="fantasma" disabled={!!ocupado} onClick={cancelar}>Cancelar assinatura</Botao>}
         </div>
       </Cartao>
 
       <Cartao>
-        <Campo rotulo="E-mail da sua conta do Mercado Pago" dica="A assinatura é paga por essa conta. Use o mesmo e-mail com que você entra no Mercado Pago.">
+        <Campo rotulo="E-mail da sua conta do Mercado Pago" dica="Só para o plano Mensal, que é cobrado nessa conta. Use o mesmo e-mail com que você entra no Mercado Pago.">
           <input type="email" className={`${estiloEntrada} max-w-md`} value={email} onChange={(e) => setEmail(e.target.value)} />
         </Campo>
       </Cartao>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         {planos.filter((p) => p.ativo).map((p) => {
           const eAtual = vigente && assinatura?.status !== "cancelada" && assinatura?.planoId === p.id;
+          // Quem já tem o Vitalício não vê o Mensal como opção: não faz sentido pagar duas vezes.
+          if (assinatura?.tipo === "vitalicio" && assinatura.status === "ativa" && !eAtual) return null;
           return (
             <Cartao key={p.id} className={eAtual ? "flex flex-col border-primaria-clara!" : "flex flex-col"}>
               <p className="font-display text-lg font-bold">{p.nome}</p>
               <p className="mt-1 text-sm text-suave">{p.descricao}</p>
-              <p className="mt-4 font-display text-3xl font-bold">{formatarPreco(p.precoCentavos)}<span className="text-sm font-normal text-suave"> /mês</span></p>
+              <p className="mt-4 font-display text-3xl font-bold">{formatarPreco(p.precoCentavos)}<span className="text-sm font-normal text-suave">{p.tipo === "vitalicio" ? " pagamento único" : " /mês"}</span></p>
               <ul className="mt-4 mb-5 space-y-2 text-sm">
-                <li className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-sucesso" /> {p.creditosMes.toLocaleString("pt-BR")} créditos por mês</li>
+                <li className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-sucesso" /> {p.creditosMes.toLocaleString("pt-BR")} créditos por mês{p.tipo === "vitalicio" ? ", renovados enquanto o serviço existir" : ""}</li>
                 <li className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-sucesso" /> Até {p.maxProdutos} produtos com IA</li>
                 <li className="flex gap-2"><Check size={16} className="mt-0.5 shrink-0 text-sucesso" /> Vendas por Mercado Pago, Kiwify ou Hotmart</li>
               </ul>
               <div className="mt-auto">
                 {eAtual ? <Selo tom="verde">Seu plano</Selo> : (
-                  <Botao className="w-full" disabled={!!ocupado || !email} onClick={() => assinar(p.id)}>
-                    {ocupado === p.id && <Loader2 size={15} className="animate-spin" />} {vigente && assinatura?.status !== "cancelada" ? "Mudar para este plano" : "Assinar"}
+                  <Botao className="w-full" disabled={!!ocupado || (p.tipo !== "vitalicio" && !email)} onClick={() => assinar(p.id)}>
+                    {ocupado === p.id && <Loader2 size={15} className="animate-spin" />} {p.tipo === "vitalicio" ? "Comprar acesso vitalício" : vigente && assinatura?.status !== "cancelada" ? "Mudar para este plano" : "Assinar"}
                   </Botao>
                 )}
               </div>
@@ -144,7 +147,7 @@ export function PainelAssinatura() {
           );
         })}
       </div>
-      <p className="text-xs text-apagado">Cobrança mensal automática pelo Mercado Pago, sem fidelidade. Créditos não usados não acumulam para o mês seguinte. Ao mudar de plano, a assinatura anterior para de cobrar assim que a nova for confirmada.</p>
+      <p className="text-xs text-apagado">Plano Mensal: cobrança automática pelo Mercado Pago, sem fidelidade. Vitalício: um pagamento só; os créditos renovam no primeiro uso de cada mês. Créditos não usados não acumulam. Ao mudar de plano, a assinatura anterior para de cobrar assim que a nova for confirmada.</p>
 
       <Cartao>
         <h2 className="mb-3 font-semibold">Histórico de pagamentos</h2>

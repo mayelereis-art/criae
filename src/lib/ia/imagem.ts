@@ -19,13 +19,13 @@ export function exigirChaveImagem() {
 export type Formato = "retrato" | "paisagem" | "quadrado";
 
 /** Gera uma imagem e devolve em base64 (JPEG: o motor de PDF aceita só JPEG e PNG). Texto nunca é desenhado pela IA: o sistema sobrepõe depois. */
-export async function gerarImagem(prompt: string, formato: Formato): Promise<string> {
+export async function gerarImagem(prompt: string, formato: Formato, qualidade: "medium" | "high" = "medium"): Promise<string> {
   try {
     const r = await obterCliente().images.generate({
       model: MODELO_IMAGEM,
       prompt,
       size: formato === "retrato" ? "1024x1536" : formato === "quadrado" ? "1024x1024" : "1536x1024",
-      quality: "medium",
+      quality: qualidade,
       output_format: "jpeg",
       n: 1,
     });

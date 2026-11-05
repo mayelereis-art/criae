@@ -106,6 +106,7 @@ export type Capitulo = {
   revisaoAplicada?: boolean;
   editadoManualmente?: boolean;
   erro?: string;
+  atualizadoEm?: Timestamp | null;
 };
 
 const capitulos = collection(db, "capitulos");

@@ -47,7 +47,8 @@ export async function GET() {
       planoId: a?.planoId ?? null, status: a?.status ?? null, renovaEm: emMs(a?.renovaEm),
     };
   });
-  const precoDe = new Map(planos.map((p) => [p.id, p.precoCentavos]));
+  // Vitalício não é receita recorrente: entra só em "recebido".
+  const precoDe = new Map(planos.filter((p) => p.tipo !== "vitalicio").map((p) => [p.id, p.precoCentavos]));
   const ativas = assinaturas.docs.map((d) => d.data()).filter((a) => a.status === "ativa");
   const pagos = pagamentos.docs.map((d) => d.data()).filter((p) => p.status === "pago");
 
@@ -66,6 +67,7 @@ export async function GET() {
 
 const plano = z.object({
   id: z.string().regex(/^[a-z0-9-]{2,30}$/, "Identificador inválido."), nome: z.string().trim().min(2).max(40), descricao: z.string().trim().max(200),
+  tipo: z.enum(["mensal", "vitalicio"]),
   precoCentavos: z.number().int().min(100, "Preço mínimo de R$ 1,00.").max(10_000_000), creditosMes: z.number().int().min(0).max(1_000_000),
   maxProdutos: z.number().int().min(1).max(100_000), diasTolerancia: z.number().int().min(0).max(30), ativo: z.boolean(), ordem: z.number().int().min(0).max(100),
 });

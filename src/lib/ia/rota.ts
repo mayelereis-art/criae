@@ -5,7 +5,7 @@ import { usuarioAtual, type UsuarioSessao } from "../sessao";
 import type { Operacao } from "@/config/planos";
 import { ErroCreditos, estornarCreditos, registrarUso, reservarCreditos } from "../creditos/servidor";
 import { dbAdmin } from "../firebase/admin";
-import { sincronizarAssinatura } from "../pagamentos/assinaturas";
+import { recarregarVitalicio, sincronizarAssinatura } from "../pagamentos/assinaturas";
 import { ErroIA } from "./claude";
 import { medidor, type Medicao } from "./medidor";
 
@@ -26,7 +26,7 @@ function dentroDoLimite(uid: string) {
 /** Envelope comum das rotas de IA: sessão, limite, validação de entrada, créditos, erros e log. */
 export async function rotaIA<E extends z.ZodType, R>(
   req: Request,
-  operacao: Operacao,
+  operacaoDoPedido: Operacao | ((dados: z.infer<E>) => Operacao),
   entrada: E,
   executar: (dados: z.infer<E>, usuario: UsuarioSessao) => Promise<R>,
 ) {
@@ -38,9 +38,11 @@ export async function rotaIA<E extends z.ZodType, R>(
   const parse = entrada.safeParse(await req.json().catch(() => null));
   if (!parse.success) return NextResponse.json({ erro: parse.error.issues[0]?.message ?? "Dados inválidos." }, { status: 400 });
 
+  const operacao = typeof operacaoDoPedido === "function" ? operacaoDoPedido(parse.data) : operacaoDoPedido;
   const inicio = Date.now();
   let reserva: Awaited<ReturnType<typeof reservarCreditos>>;
   try {
+    await recarregarVitalicio(usuario.uid).catch((e) => console.error(JSON.stringify({ evento: "recarga-vitalicio", ok: false, erro: String(e).slice(0, 200) })));
     // Venceu o período: confere a renovação no Mercado Pago, caso o aviso não tenha chegado.
     const assinatura = (await dbAdmin().collection("assinaturas").doc(usuario.uid).get()).data();
     if (assinatura?.status === "ativa" && assinatura.renovaEm?.toMillis() <= Date.now()) await sincronizarAssinatura(usuario.uid).catch((e) => console.error(JSON.stringify({ evento: "sincronizar-assinatura", ok: false, erro: String(e).slice(0, 200) })));

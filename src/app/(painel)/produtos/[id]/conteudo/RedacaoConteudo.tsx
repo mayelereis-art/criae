@@ -23,6 +23,8 @@ const ROTULO_PROBLEMA: Record<string, string> = {
 };
 
 const CAPITULOS_POR_VEZ = 3;
+const AINDA_GERANDO_MS = 6 * 60 * 1000;
+const ainda = (c: Capitulo) => c.status === "gerando" && Date.now() - (c.atualizadoEm?.toMillis() ?? 0) < AINDA_GERANDO_MS;
 
 export function RedacaoConteudo({ produtoId }: { produtoId: string }) {
   const { produto, erro: erroProduto, usuario } = useProduto(produtoId);
@@ -78,7 +80,7 @@ export function RedacaoConteudo({ produtoId }: { produtoId: string }) {
     await atualizarCapitulo(cap.id, { status: "gerando", erro: "" });
     try {
       const resumosAnteriores = lista.filter((c) => c.ordem < cap.ordem).map((c) => c.resumo ?? "");
-      const r = await chamarIA<RespostaCapitulo>("capitulo", { configuracao: config.data, planejamento: plano, indice: cap.ordem, resumosAnteriores });
+      const r = await chamarIA<RespostaCapitulo>("capitulo", { configuracao: config.data, planejamento: plano, produtoId, indice: cap.ordem, resumosAnteriores });
       await atualizarCapitulo(cap.id, {
         status: "concluido", conteudo: r.conteudo, resumo: r.resumo, problemas: r.problemas,
         revisaoAplicada: r.revisaoAplicada, editadoManualmente: false, erro: "",
@@ -101,7 +103,8 @@ export function RedacaoConteudo({ produtoId }: { produtoId: string }) {
     try {
       // Até 3 por vez: cada grupo já conhece os resumos dos grupos anteriores.
       while (!parar.current) {
-        const grupo = lista.filter((c) => c.status !== "concluido").slice(0, CAPITULOS_POR_VEZ);
+        // Capítulo que começou há pouco ainda pode terminar no servidor: não cobra de novo.
+        const grupo = lista.filter((c) => c.status !== "concluido" && !ainda(c)).slice(0, CAPITULOS_POR_VEZ);
         if (!grupo.length) break;
         const base = lista;
         const resultados = await Promise.allSettled(grupo.map((cap) => escreverUm(cap, base)));
@@ -125,8 +128,8 @@ export function RedacaoConteudo({ produtoId }: { produtoId: string }) {
     finally { setRodando(false); }
   };
 
-  // "gerando" sem estar rodando aqui = geração interrompida (aba fechada): conta como pendente.
-  const statusVisivel = (c: Capitulo) => (c.status === "gerando" && !gerandoIds.includes(c.id) ? "pendente" : c.status);
+  // "gerando" antigo, sem estar rodando aqui = geração que não voltou: conta como pendente.
+  const statusVisivel = (c: Capitulo) => (c.status === "gerando" && !gerandoIds.includes(c.id) && !ainda(c) ? "pendente" : c.status);
   const aberto = capitulos.find((c) => c.id === selecionado) ?? capitulos.find((c) => c.status === "concluido") ?? capitulos[0];
 
   return (
@@ -159,7 +162,7 @@ export function RedacaoConteudo({ produtoId }: { produtoId: string }) {
           </div>
           <p className="mt-2 text-xs text-suave">
             {prontos} de {total} capítulos prontos
-            {rodando && " · escrevendo e revisando (cerca de 2 a 4 min por capítulo). Mantenha esta aba aberta."}
+            {rodando && " · escrevendo e revisando até 3 capítulos por vez. Cada capítulo é salvo ao terminar."}
           </p>
         </div>
         {erro && <p className="mt-3 flex gap-2 text-sm text-erro" role="alert"><AlertCircle size={16} className="mt-0.5 shrink-0" /> {erro}</p>}

@@ -67,16 +67,10 @@ export function GeradorImagens({ produtoId }: { produtoId: string }) {
     }
   };
 
-  const gerarFaltantes = async () => {
-    for (const v of vagas) if (!urlDe(v)) await gerar(v);
-  };
-
   const seguir = async () => {
     if (produto.etapa === 4) await marcarEtapa(produtoId, 5).catch(() => {});
     router.push(`/produtos/${produtoId}/pdf`);
   };
-
-  const faltam = vagas.filter((v) => !urlDe(v)).length;
 
   return (
     <>
@@ -84,15 +78,9 @@ export function GeradorImagens({ produtoId }: { produtoId: string }) {
 
       <Cartao className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-suave">
-          {faltam === 0 ? "Todas as imagens prontas." : `${faltam} de ${vagas.length} imagens por gerar.`} Cada imagem leva cerca de 30 a 60 segundos.
-          <span className="mt-1 block text-xs text-apagado">As imagens são opcionais: sem elas, a capa usa um degradê da sua paleta e os capítulos abrem só com o título.</span>
+          {urlDe(vagas[0]) ? "A capa está pronta. Gere outra até ficar do seu gosto." : "Gere a capa: é ela que chama a atenção na página e nos anúncios."} Leva cerca de 1 minuto.
         </p>
         <div className="flex flex-wrap gap-2">
-          {faltam > 0 && (
-            <Botao variante="secundario" onClick={gerarFaltantes} disabled={!!gerando}>
-              {gerando ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />} Gerar as que faltam
-            </Botao>
-          )}
           <Botao onClick={seguir} disabled={!!gerando}>Seguir para o PDF <ArrowRight size={16} /></Botao>
         </div>
       </Cartao>
@@ -102,7 +90,9 @@ export function GeradorImagens({ produtoId }: { produtoId: string }) {
           <CapaPrevia id={produto.identidade} titulo={plano.tituloComercial} subtitulo={plano.subtitulo} imagemUrl={urlDe(vagas[0])} largura={300} />
           <AcoesVaga vaga={vagas[0]} temImagem={!!urlDe(vagas[0])} gerando={gerando} erro={erros[vagas[0].chave]} aoGerar={gerar} />
         </div>
-        <ul className="grid gap-4 sm:grid-cols-2">
+        <details className="group min-w-0">
+          <summary className="cartao cursor-pointer list-none p-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">Imagens de capítulo (opcional) <span className="font-normal text-suave">Sem elas, os capítulos abrem só com o título.</span></summary>
+        <ul className="mt-4 grid gap-4 sm:grid-cols-2">
           {vagas.slice(1).map((v) => {
             const url = urlDe(v);
             return (
@@ -125,6 +115,7 @@ export function GeradorImagens({ produtoId }: { produtoId: string }) {
             );
           })}
         </ul>
+        </details>
       </div>
     </>
   );
@@ -137,7 +128,7 @@ function AcoesVaga({ vaga, temImagem, gerando, erro, aoGerar }: {
     <div className="mt-2">
       <Botao variante="secundario" className="w-full" onClick={() => aoGerar(vaga)} disabled={!!gerando}>
         {gerando === vaga.chave ? <Loader2 size={15} className="animate-spin" /> : temImagem ? <RefreshCw size={15} /> : <Sparkles size={15} />}
-        {gerando === vaga.chave ? "Gerando..." : temImagem ? "Gerar outra" : "Gerar imagem"}
+        {gerando === vaga.chave ? "Gerando..." : temImagem ? "Gerar outra" : vaga.tipo === "capa" ? "Gerar capa" : "Gerar imagem"}
       </Botao>
       {erro && <p className="mt-1.5 flex gap-1.5 text-xs text-erro" role="alert"><AlertTriangle size={13} className="mt-0.5 shrink-0" /> {erro}</p>}
     </div>

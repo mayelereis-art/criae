@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { tokenDoVendedor, vendedorDaConta } from "@/lib/pagamentos/conexoes";
 import { chaveWebhookValida, mercadoPago } from "@/lib/pagamentos/mercadopago";
-import { processarAvisoAssinatura, processarAvisoCobranca } from "@/lib/pagamentos/assinaturas";
+import { processarAvisoAssinatura, processarAvisoCobranca, processarPagamentoPlano } from "@/lib/pagamentos/assinaturas";
 import { aplicarPagamento } from "@/lib/pedidos/servidor";
 
 /**
@@ -43,13 +43,23 @@ export async function POST(req: Request) {
   try {
     const vendedorId = corpo.user_id !== undefined ? await vendedorDaConta(String(corpo.user_id)) : null;
     if (!vendedorId) {
+      // Não é venda de criador: pode ser o Vitalício, pago na conta da plataforma.
+      const plano = await processarPagamentoPlano(pagamentoId);
+      if (plano !== "nao-encontrado" && plano !== "sem-referencia") {
+        console.info(JSON.stringify({ evento: "webhook-plano", resultado: plano }));
+        return NextResponse.json({ ok: true });
+      }
       // Conta desconhecida (ex.: botão "Simular notificação" do painel): 200 para não gerar reenvios.
       console.info(JSON.stringify({ evento: "webhook", pagamentoId, resultado: "conta-desconhecida", conta: corpo.user_id ?? null }));
       return NextResponse.json({ ok: true, ignorado: "conta-desconhecida" });
     }
     const token = await tokenDoVendedor(vendedorId);
     const pagamento = token ? await mercadoPago.consultarPagamento(token, pagamentoId) : null;
-    if (!pagamento) return NextResponse.json({ ok: true, ignorado: "pagamento-nao-encontrado" });
+    if (!pagamento) {
+      // A dona da plataforma também pode vender: o pagamento pode ser de plano, não dessa conta de criador.
+      const plano = await processarPagamentoPlano(pagamentoId);
+      return NextResponse.json({ ok: true, ignorado: plano });
+    }
     const resultado = await aplicarPagamento(pagamento, vendedorId);
     console.info(JSON.stringify({ evento: "webhook", pagamentoId, pedidoId: pagamento.referencia, status: pagamento.status, resultado }));
     return NextResponse.json({ ok: true });

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { lerPlanos } from "@/lib/creditos/servidor";
-import { cancelarAssinatura, iniciarAssinatura, sincronizarAssinatura } from "@/lib/pagamentos/assinaturas";
+import { cancelarAssinatura, iniciarAssinatura, iniciarVitalicio, sincronizarAssinatura } from "@/lib/pagamentos/assinaturas";
 import { ErroGateway } from "@/lib/pagamentos/gateway";
 import { usuarioAtual } from "@/lib/sessao";
 
 const entrada = z.discriminatedUnion("acao", [
-  z.object({ acao: z.literal("assinar"), planoId: z.string().max(40), email: z.email("Informe um e-mail válido.").max(200) }),
+  z.object({ acao: z.literal("assinar"), planoId: z.string().max(40), email: z.email("Informe um e-mail válido.").max(200).optional() }),
   z.object({ acao: z.literal("cancelar") }),
   z.object({ acao: z.literal("sincronizar") }),
 ]);
@@ -31,7 +31,8 @@ export async function POST(req: Request) {
     // O preço vem sempre do banco, nunca do navegador.
     const plano = (await lerPlanos()).find((x) => x.id === planoId && x.ativo);
     if (!plano) return NextResponse.json({ erro: "Este plano não está disponível." }, { status: 404 });
-    const url = await iniciarAssinatura(usuario.uid, email, plano);
+    if (plano.tipo !== "vitalicio" && !email) return NextResponse.json({ erro: "Informe o e-mail da sua conta do Mercado Pago." }, { status: 400 });
+    const url = plano.tipo === "vitalicio" ? await iniciarVitalicio(usuario.uid, plano) : await iniciarAssinatura(usuario.uid, email!, plano);
     console.info(JSON.stringify({ evento: "assinatura", acao: "iniciar", uid: usuario.uid, planoId }));
     return NextResponse.json({ url });
   } catch (e) {

@@ -1,4 +1,6 @@
+import { FieldValue } from "firebase-admin/firestore";
 import { z } from "zod";
+import { dbAdmin } from "@/lib/firebase/admin";
 import { gerarEstruturado } from "@/lib/ia/claude";
 import { aplicarCorrecoes } from "@/lib/ia/correcoes";
 import { capituloRedigidoSchema, planejamentoSchema, revisaoSchema } from "@/lib/ia/esquemas";
@@ -12,6 +14,7 @@ const entrada = z
   .object({
     configuracao: configuracaoProdutoSchema,
     planejamento: planejamentoSchema,
+    produtoId: z.string().min(1).max(128).optional(),
     indice: z.number().int().min(0),
     resumosAnteriores: z.array(z.string().max(2000)).max(40),
   })
@@ -19,7 +22,7 @@ const entrada = z
 
 /** Redige um capítulo e passa pela revisão antes de devolver. */
 export function POST(req: Request) {
-  return rotaIA(req, "capitulo", entrada, async ({ configuracao, planejamento, indice, resumosAnteriores }) => {
+  return rotaIA(req, (d) => (d.configuracao.profundidade === "aprofundado" ? "capitulo_aprofundado" : "capitulo"), entrada, async ({ configuracao, planejamento, produtoId, indice, resumosAnteriores }, usuario) => {
     const { dados: rascunho } = await gerarEstruturado({
       modelo: "forte",
       schema: capituloRedigidoSchema,
@@ -39,11 +42,22 @@ export function POST(req: Request) {
     const corrigido = aplicarCorrecoes(rascunho.conteudo, revisao.correcoes);
     // Correções que encolhem o texto pela metade são suspeitas (corte ou resumo): fica o rascunho.
     const revisaoConfiavel = corrigido.aplicadas === revisao.correcoes.length && corrigido.texto.length > rascunho.conteudo.length * 0.6;
-    return {
+    const resultado = {
       conteudo: corrigido.texto.length > rascunho.conteudo.length * 0.6 ? corrigido.texto : rascunho.conteudo,
       resumo: rascunho.resumo,
       problemas: revisao.problemas,
       revisaoAplicada: revisaoConfiavel,
     };
+    // Salva aqui também: se a pessoa recarregar ou fechar a aba, o capítulo já pago não se perde.
+    if (produtoId) {
+      const ref = dbAdmin().collection("capitulos").doc(`${produtoId}_${String(indice).padStart(2, "0")}`);
+      const atual = (await ref.get().catch(() => null))?.data();
+      if (atual?.donoId === usuario.uid)
+        await ref.update({
+          status: "concluido", conteudo: resultado.conteudo, resumo: resultado.resumo, problemas: resultado.problemas,
+          revisaoAplicada: resultado.revisaoAplicada, editadoManualmente: false, erro: "", atualizadoEm: FieldValue.serverTimestamp(),
+        }).catch((e) => console.error(JSON.stringify({ evento: "salvar-capitulo", ok: false, erro: String(e).slice(0, 200) })));
+    }
+    return resultado;
   });
 }
