@@ -46,7 +46,7 @@ export async function rotaIA<E extends z.ZodType, R>(
     return NextResponse.json({ erro: "Não foi possível conferir seus créditos. Tente de novo." }, { status: 500 });
   }
 
-  const medicao: Medicao = { entrada: 0, saida: 0, imagens: 0 };
+  const medicao: Medicao = { entrada: 0, saida: 0, imagens: 0, custoTextoUsd: 0 };
   try {
     const resultado = await medidor.run(medicao, () => executar(parse.data, usuario));
     const ms = Date.now() - inicio;

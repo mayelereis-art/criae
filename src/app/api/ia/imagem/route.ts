@@ -24,6 +24,7 @@ export function POST(req: Request) {
   return rotaIA(req, "imagem", entrada, async (d) => {
     exigirChaveImagem();
     const { dados } = await gerarEstruturado({
+      modelo: "leve",
       schema: promptImagemSchema,
       sistema: SISTEMA_DIRETOR_ARTE,
       pedido: pedidoPromptImagem(d),

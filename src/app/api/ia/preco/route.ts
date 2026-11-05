@@ -15,6 +15,7 @@ const limitar = (c: number) => Math.min(500_000, Math.max(500, Math.round(c)));
 export function POST(req: Request) {
   return rotaIA(req, "preco", entrada, async ({ configuracao, planejamento }) => {
     const { dados } = await gerarEstruturado({
+      modelo: "leve",
       schema: sugestaoPrecoSchema,
       sistema: SISTEMA_VENDAS,
       pedido: pedidoPreco(configuracao, planejamento),

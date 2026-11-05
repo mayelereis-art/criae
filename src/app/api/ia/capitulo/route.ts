@@ -20,6 +20,7 @@ const entrada = z
 export function POST(req: Request) {
   return rotaIA(req, "capitulo", entrada, async ({ configuracao, planejamento, indice, resumosAnteriores }) => {
     const { dados: rascunho } = await gerarEstruturado({
+      modelo: "forte",
       schema: capituloRedigidoSchema,
       sistema: SISTEMA_EDITOR,
       pedido: pedidoCapitulo(configuracao, planejamento, indice, resumosAnteriores),
@@ -27,6 +28,7 @@ export function POST(req: Request) {
       maxTokens: 64000,
     });
     const { dados: revisao } = await gerarEstruturado({
+      modelo: "medio",
       schema: revisaoSchema,
       sistema: SISTEMA_REVISOR,
       pedido: pedidoRevisao(planejamento, indice, rascunho.conteudo, resumosAnteriores),

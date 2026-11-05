@@ -95,7 +95,7 @@ export async function estornarCreditos(uid: string, operacao: Operacao, reserva:
 }
 
 export const registrarUso = (movimentoId: string, m: Medicao, ms: number) =>
-  dbAdmin().collection("movimentos_creditos").doc(movimentoId).update({ entrada: m.entrada, saida: m.saida, imagens: m.imagens, ms });
+  dbAdmin().collection("movimentos_creditos").doc(movimentoId).update({ entrada: m.entrada, saida: m.saida, imagens: m.imagens, custoTextoUsd: m.custoTextoUsd, ms });
 
 /** Ajuste manual, sempre com registro de quem fez e por quê. */
 export async function ajustarCreditos(uid: string, delta: number, motivo: string, adminUid: string) {

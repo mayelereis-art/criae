@@ -4,8 +4,17 @@ import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import type { z } from "zod";
 import { medir } from "./medidor";
 
-/** Um só lugar para trocar de modelo. */
-export const MODELO = "claude-opus-5-5";
+/**
+ * Um só lugar para trocar de modelo. Cada tarefa escolhe um nível:
+ * forte só onde a qualidade é o produto (redação dos capítulos); leve no que é curto e simples.
+ * Preços em dólar por milhão de tokens, para o custo estimado do painel.
+ */
+export const MODELOS = {
+  forte: { id: "claude-opus-5-5", entrada: 4, saida: 20 },
+  medio: { id: "claude-sonnet-5-5", entrada: 2, saida: 10 },
+  leve: { id: "claude-haiku-5-5", entrada: 0.1, saida: 0.5 },
+} as const;
+export type NivelModelo = keyof typeof MODELOS;
 
 export class ErroIA extends Error {
   constructor(message: string, public status = 500) {
@@ -28,18 +37,20 @@ type Esforco = "low" | "medium" | "high" | "xhigh" | "max";
  */
 export async function gerarEstruturado<S extends z.ZodType>(opcoes: {
   schema: S;
+  modelo: NivelModelo;
   sistema: string;
   pedido: string;
   esforco?: Esforco;
   maxTokens?: number;
 }): Promise<{ dados: z.infer<S>; uso: { entrada: number; saida: number } }> {
-  const { schema, sistema, pedido, esforco = "medium", maxTokens = 32000 } = opcoes;
+  const { schema, modelo, sistema, pedido, esforco = "medium", maxTokens = 32000 } = opcoes;
+  const m = MODELOS[modelo];
   try {
     const stream = obterCliente().beta.messages.stream({
-      model: MODELO,
+      model: m.id,
       max_tokens: maxTokens,
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
+      // O Haiku não tem fallback no servidor: uma recusa nele vira a mensagem de recusa abaixo.
+      ...(modelo === "leve" ? {} : { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }),
       system: sistema,
       messages: [{ role: "user", content: pedido }],
       output_config: { effort: esforco, format: betaZodOutputFormat(schema) },
@@ -52,7 +63,10 @@ export async function gerarEstruturado<S extends z.ZodType>(opcoes: {
       throw new ErroIA("A resposta da IA ficou longa demais e foi cortada. Tente de novo.", 502);
     if (!resposta.parsed_output) throw new ErroIA("A IA devolveu uma resposta fora do formato esperado. Tente de novo.", 502);
 
-    medir({ entrada: resposta.usage.input_tokens, saida: resposta.usage.output_tokens });
+    medir({
+      entrada: resposta.usage.input_tokens, saida: resposta.usage.output_tokens,
+      custoTextoUsd: (resposta.usage.input_tokens * m.entrada + resposta.usage.output_tokens * m.saida) / 1_000_000,
+    });
     return {
       dados: resposta.parsed_output as z.infer<S>,
       uso: { entrada: resposta.usage.input_tokens, saida: resposta.usage.output_tokens },

@@ -9,6 +9,7 @@ export const maxDuration = 300;
 export function POST(req: Request) {
   return rotaIA(req, "planejamento", configuracaoProdutoSchema, async (configuracao) => {
     const { dados } = await gerarEstruturado({
+      modelo: "medio",
       schema: planejamentoSchema,
       sistema: SISTEMA_EDITOR,
       pedido: pedidoPlanejamento(configuracao),

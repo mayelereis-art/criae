@@ -14,6 +14,7 @@ const entrada = z.object({
 export function POST(req: Request) {
   return rotaIA(req, "pesquisa_nicho", entrada, async ({ nicho, detalhe }) => {
     const { dados } = await gerarEstruturado({
+      modelo: "medio",
       schema: pesquisaNichoSchema,
       sistema: SISTEMA_MERCADO,
       pedido: pedidoPesquisaNicho(nicho, detalhe),

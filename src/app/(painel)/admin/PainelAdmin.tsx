@@ -9,7 +9,7 @@ import { formatarPreco } from "@/lib/formato";
 import { lerReais } from "@/lib/oferta";
 
 type Usuario = { uid: string; email: string; nome: string; criadoEm: number | null; saldo: number | null; bloqueado: boolean; usados30d: number; planoId: string | null; status: StatusAssinatura | null; renovaEm: number | null };
-type Consumo = { operacao: string; nome: string; chamadas: number; creditos: number; entrada: number; saida: number; imagens: number };
+type Consumo = { operacao: string; nome: string; chamadas: number; creditos: number; entrada: number; saida: number; imagens: number; custoTextoUsd: number };
 type Dados = {
   resumo: { usuarios: number; assinaturasAtivas: number; inadimplentes: number; receitaRecorrenteCentavos: number; recebido30dCentavos: number; limiteListaAtingido: boolean };
   usuarios: Usuario[]; planos: Plano[]; consumo: Consumo[]; config: { custos: Record<string, number>; creditosIniciais: number };
@@ -80,13 +80,13 @@ function Resumo({ d }: { d: Dados }) {
         <h2 className="mb-3 font-semibold">Consumo de IA em 30 dias</h2>
         {d.consumo.length ? (
           <table className="w-full min-w-[560px] text-left text-sm">
-            <thead className="text-xs text-suave"><tr><th className="py-2 font-medium">Operação</th><th className="font-medium">Usos</th><th className="font-medium">Créditos</th><th className="font-medium">Tokens de entrada</th><th className="font-medium">Tokens de saída</th><th className="font-medium">Imagens</th></tr></thead>
+            <thead className="text-xs text-suave"><tr><th className="py-2 font-medium">Operação</th><th className="font-medium">Usos</th><th className="font-medium">Créditos</th><th className="font-medium">Tokens de entrada</th><th className="font-medium">Tokens de saída</th><th className="font-medium">Imagens</th><th className="font-medium">Custo do texto</th></tr></thead>
             <tbody className="divide-y divide-borda">
-              {d.consumo.map((c) => <tr key={c.operacao}><td className="py-2">{c.nome}</td><td>{c.chamadas}</td><td>{c.creditos}</td><td>{c.entrada.toLocaleString("pt-BR")}</td><td>{c.saida.toLocaleString("pt-BR")}</td><td>{c.imagens}</td></tr>)}
+              {d.consumo.map((c) => <tr key={c.operacao}><td className="py-2">{c.nome}</td><td>{c.chamadas}</td><td>{c.creditos}</td><td>{c.entrada.toLocaleString("pt-BR")}</td><td>{c.saida.toLocaleString("pt-BR")}</td><td>{c.imagens}</td><td>US$ {c.custoTextoUsd.toFixed(2)}</td></tr>)}
             </tbody>
           </table>
         ) : <p className="text-sm text-suave">Nenhum uso nos últimos 30 dias.</p>}
-        <p className="mt-3 text-xs text-apagado">Use tokens e imagens para comparar com as faturas da Anthropic e da OpenAI e calibrar os custos em créditos.</p>
+        <p className="mt-3 text-xs text-apagado">O custo do texto é uma estimativa pela tabela de preços da Anthropic, sem contar as imagens, que são cobradas pela OpenAI. Compare com as faturas para calibrar os créditos.</p>
       </Cartao>
     </>
   );

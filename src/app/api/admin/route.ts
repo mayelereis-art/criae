@@ -28,12 +28,12 @@ export async function GET() {
   const assinaturaDe = new Map(assinaturas.docs.map((d) => [d.id, d.data()]));
 
   const usados = new Map<string, number>();
-  const porOperacao = new Map<string, { chamadas: number; creditos: number; entrada: number; saida: number; imagens: number }>();
+  const porOperacao = new Map<string, { chamadas: number; creditos: number; entrada: number; saida: number; imagens: number; custoTextoUsd: number }>();
   for (const m of movimentos.docs.map((d) => d.data())) {
     if (m.tipo !== "debito") continue;
     usados.set(m.donoId, (usados.get(m.donoId) ?? 0) - m.creditos);
-    const o = porOperacao.get(m.operacao) ?? { chamadas: 0, creditos: 0, entrada: 0, saida: 0, imagens: 0 };
-    o.chamadas++; o.creditos -= m.creditos; o.entrada += m.entrada ?? 0; o.saida += m.saida ?? 0; o.imagens += m.imagens ?? 0;
+    const o = porOperacao.get(m.operacao) ?? { chamadas: 0, creditos: 0, entrada: 0, saida: 0, imagens: 0, custoTextoUsd: 0 };
+    o.chamadas++; o.creditos -= m.creditos; o.entrada += m.entrada ?? 0; o.saida += m.saida ?? 0; o.imagens += m.imagens ?? 0; o.custoTextoUsd += m.custoTextoUsd ?? 0;
     porOperacao.set(m.operacao, o);
   }
 

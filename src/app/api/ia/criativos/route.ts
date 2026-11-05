@@ -23,6 +23,7 @@ export function POST(req: Request) {
   return rotaIA(req, "criativos", entrada, async ({ configuracao, planejamento, oferta, visual, midias, emocoes }) => {
     exigirChaveImagem();
     const { dados } = await gerarEstruturado({
+      modelo: "medio",
       schema: pacoteCriativosSchema,
       sistema: SISTEMA_DIVULGACAO,
       pedido: pedidoCriativos(configuracao, planejamento, oferta, visual, { quantidade: 6, midias, emocoes }),

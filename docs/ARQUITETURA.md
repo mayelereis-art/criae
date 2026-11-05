@@ -100,6 +100,10 @@ Proteção do arquivo:
 
 `lib/pagamentos/gateway.ts` define a interface (`criarCobranca`, `consultarPagamento`, `validarWebhook`, `reembolsar`); `mercadopago.ts` implementa. Outro gateway = outro adaptador.
 
+### Modelos por tarefa
+
+`MODELOS` em `lib/ia/claude.ts`. Forte (Opus): rascunho dos capítulos. Médio (Sonnet): nicho, planejamento, revisão, página, estratégia, canais e criativos. Leve (Haiku): preencher configuração, preço, prompt de imagem e calendário.
+
 ### 2.8 Assinatura e créditos
 
 - Planos em `planos/` (editáveis pelo admin): Mensal R$ 49,90 · Pro R$ 89,90 · Premium R$ 149,90, cada um com créditos/mês e limites.

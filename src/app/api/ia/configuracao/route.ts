@@ -18,6 +18,7 @@ const entrada = z.object(
 export function POST(req: Request) {
   return rotaIA(req, "sugerir_configuracao", entrada, async (parcial) => {
     const { dados } = await gerarEstruturado({
+      modelo: "leve",
       schema: sugestaoConfiguracaoSchema,
       sistema: SISTEMA_EDITOR,
       pedido: pedidoSugestaoConfiguracao(parcial as Partial<ConfiguracaoProduto>),
