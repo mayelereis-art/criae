@@ -73,7 +73,10 @@ export const revisaoSchema = z.object({
       descricao: z.string(),
     }),
   ),
-  conteudoRevisado: z.string().describe("Capítulo inteiro com as correções aplicadas, em Markdown"),
+  correcoes: z.array(z.object({
+    trecho: z.string().describe("Cópia exata, caractere por caractere, do trecho a trocar, longa o bastante para aparecer uma só vez"),
+    substituicao: z.string().describe("Texto que entra no lugar do trecho"),
+  })),
 });
 
 export type PesquisaNicho = z.infer<typeof pesquisaNichoSchema>;

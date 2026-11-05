@@ -22,11 +22,13 @@ const ROTULO_PROBLEMA: Record<string, string> = {
   incompleto: "Trecho incompleto", continuidade: "Continuidade", afirmacao_sem_base: "Afirmação sem base",
 };
 
+const CAPITULOS_POR_VEZ = 3;
+
 export function RedacaoConteudo({ produtoId }: { produtoId: string }) {
   const { produto, erro: erroProduto, usuario } = useProduto(produtoId);
   const [capitulos, setCapitulos] = useState<Capitulo[] | null>(null);
   const [rodando, setRodando] = useState(false);
-  const [atualId, setAtualId] = useState<string | null>(null);
+  const [gerandoIds, setGerandoIds] = useState<string[]>([]);
   const [erro, setErro] = useState("");
   const [selecionado, setSelecionado] = useState<string | null>(null);
   const parar = useRef(false);
@@ -71,8 +73,8 @@ export function RedacaoConteudo({ produtoId }: { produtoId: string }) {
   const plano = produto.planejamento;
 
   const escreverUm = async (cap: Capitulo, lista: Capitulo[]) => {
-    setAtualId(cap.id);
-    setSelecionado(cap.id);
+    setGerandoIds((g) => [...g, cap.id]);
+    setSelecionado((atual) => atual ?? cap.id);
     await atualizarCapitulo(cap.id, { status: "gerando", erro: "" });
     try {
       const resumosAnteriores = lista.filter((c) => c.ordem < cap.ordem).map((c) => c.resumo ?? "");
@@ -85,6 +87,8 @@ export function RedacaoConteudo({ produtoId }: { produtoId: string }) {
     } catch (e) {
       await atualizarCapitulo(cap.id, { status: "erro", erro: (e as Error).message.slice(0, 300) }).catch(() => {});
       throw e;
+    } finally {
+      setGerandoIds((g) => g.filter((id) => id !== cap.id));
     }
   };
 
@@ -95,17 +99,20 @@ export function RedacaoConteudo({ produtoId }: { produtoId: string }) {
     setRodando(true);
     let lista = [...capitulos];
     try {
-      for (const cap of lista) {
-        if (cap.status === "concluido") continue;
-        if (parar.current) break;
-        const feito = await escreverUm(cap, lista);
-        lista = lista.map((c) => (c.id === feito.id ? feito : c));
+      // Até 3 por vez: cada grupo já conhece os resumos dos grupos anteriores.
+      while (!parar.current) {
+        const grupo = lista.filter((c) => c.status !== "concluido").slice(0, CAPITULOS_POR_VEZ);
+        if (!grupo.length) break;
+        const base = lista;
+        const resultados = await Promise.allSettled(grupo.map((cap) => escreverUm(cap, base)));
+        for (const r of resultados) if (r.status === "fulfilled") lista = lista.map((c) => (c.id === r.value.id ? r.value : c));
+        const falha = resultados.find((r) => r.status === "rejected");
+        if (falha) throw (falha as PromiseRejectedResult).reason;
       }
     } catch (e) {
       setErro(`${(e as Error).message} A geração parou; o que já estava pronto foi salvo.`);
     } finally {
       setRodando(false);
-      setAtualId(null);
     }
   };
 
@@ -115,11 +122,11 @@ export function RedacaoConteudo({ produtoId }: { produtoId: string }) {
     setRodando(true);
     try { await escreverUm(cap, capitulos); }
     catch (e) { setErro((e as Error).message); }
-    finally { setRodando(false); setAtualId(null); }
+    finally { setRodando(false); }
   };
 
   // "gerando" sem estar rodando aqui = geração interrompida (aba fechada): conta como pendente.
-  const statusVisivel = (c: Capitulo) => (c.status === "gerando" && c.id !== atualId ? "pendente" : c.status);
+  const statusVisivel = (c: Capitulo) => (c.status === "gerando" && !gerandoIds.includes(c.id) ? "pendente" : c.status);
   const aberto = capitulos.find((c) => c.id === selecionado) ?? capitulos.find((c) => c.status === "concluido") ?? capitulos[0];
 
   return (

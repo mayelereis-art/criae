@@ -102,7 +102,7 @@ Proteção do arquivo:
 
 ### Modelos por tarefa
 
-`MODELOS` em `lib/ia/claude.ts`. Forte (Opus): rascunho dos capítulos. Médio (Sonnet): nicho, planejamento, revisão, página, estratégia, canais e criativos. Leve (Haiku): preencher configuração, preço, prompt de imagem e calendário.
+Capítulos em grupos de 3; a revisão devolve só correções, aplicadas por `lib/ia/correcoes.ts`. `MODELOS` em `lib/ia/claude.ts`. Forte (Opus): rascunho dos capítulos. Médio (Sonnet): nicho, planejamento, revisão, página, estratégia, canais e criativos. Leve (Haiku): preencher configuração, preço, prompt de imagem e calendário.
 
 ### 2.8 Assinatura e créditos
 

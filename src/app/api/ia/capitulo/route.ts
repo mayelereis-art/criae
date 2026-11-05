@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { gerarEstruturado } from "@/lib/ia/claude";
+import { aplicarCorrecoes } from "@/lib/ia/correcoes";
 import { capituloRedigidoSchema, planejamentoSchema, revisaoSchema } from "@/lib/ia/esquemas";
 import { SISTEMA_EDITOR, SISTEMA_REVISOR, pedidoCapitulo, pedidoRevisao } from "@/lib/ia/prompts";
 import { rotaIA } from "@/lib/ia/rota";
@@ -33,12 +34,13 @@ export function POST(req: Request) {
       sistema: SISTEMA_REVISOR,
       pedido: pedidoRevisao(planejamento, indice, rascunho.conteudo, resumosAnteriores),
       esforco: "medium",
-      maxTokens: 64000,
+      maxTokens: 12000,
     });
-    // Revisão que encolhe o texto pela metade é suspeita (corte ou resumo): fica o rascunho.
-    const revisaoConfiavel = revisao.conteudoRevisado.length > rascunho.conteudo.length * 0.6;
+    const corrigido = aplicarCorrecoes(rascunho.conteudo, revisao.correcoes);
+    // Correções que encolhem o texto pela metade são suspeitas (corte ou resumo): fica o rascunho.
+    const revisaoConfiavel = corrigido.aplicadas === revisao.correcoes.length && corrigido.texto.length > rascunho.conteudo.length * 0.6;
     return {
-      conteudo: revisaoConfiavel ? revisao.conteudoRevisado : rascunho.conteudo,
+      conteudo: corrigido.texto.length > rascunho.conteudo.length * 0.6 ? corrigido.texto : rascunho.conteudo,
       resumo: rascunho.resumo,
       problemas: revisao.problemas,
       revisaoAplicada: revisaoConfiavel,

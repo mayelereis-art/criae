@@ -87,6 +87,8 @@ Como escrever:
 - Use quadros de destaque como citação Markdown iniciada por "> **Dica:**", "> **Atenção:**" ou "> **Na prática:**" quando ajudarem.
 - ${cap.exercicio ? `Feche com uma seção "### Exercício" baseada em: ${cap.exercicio}` : "Inclua um exercício curto no final só se fizer sentido."}
 - Faça uma transição natural para o próximo capítulo na última frase, sem resumir o capítulo inteiro.
+- Outros capítulos podem estar sendo escritos agora, então não desenvolva aqui os tópicos deles:
+${p.capitulos.map((x, i) => (i === indice ? "" : `  ${i + 1}. ${x.titulo}: ${x.topicos.join("; ")}`)).filter(Boolean).join("\n")}
 - Tamanho: o necessário para ensinar bem (em geral 1.500 a 3.000 palavras). Nada de enchimento.${p.avisoTemaSensivel ? `\n- Tema sensível: respeite este limite: ${p.avisoTemaSensivel}` : ""}`;
 }
 
@@ -102,7 +104,7 @@ Capítulo:
 ${conteudo}
 </capitulo>
 
-Liste cada problema encontrado (tipo e descrição curta) e devolva o capítulo inteiro já corrigido. Se não houver problemas, devolva a lista vazia e o texto igual.`;
+Liste cada problema encontrado (tipo e descrição curta) e, para cada um, a correção: o trecho exato copiado do capítulo e o texto que entra no lugar. Não devolva o capítulo inteiro. Mude só o necessário, sem reescrever por gosto de estilo. Se não houver problemas, devolva as duas listas vazias.`;
 }
 
 function descreverConfiguracao(c: ConfiguracaoProduto) {
