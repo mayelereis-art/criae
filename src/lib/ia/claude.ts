@@ -64,6 +64,8 @@ export async function gerarEstruturado<S extends z.ZodType>(opcoes: {
     if (e instanceof Anthropic.APIConnectionError) throw new ErroIA("Não foi possível falar com a IA. Tente de novo.", 502);
     if (e instanceof Anthropic.APIError) {
       console.error(JSON.stringify({ evento: "ia-api", status: e.status, mensagem: e.message.slice(0, 400) }));
+      // Saldo da plataforma na Anthropic: não é culpa do criador, e repetir não adianta.
+      if (/credit balance/i.test(e.message)) throw new ErroIA("A IA está temporariamente indisponível. Seus créditos não foram gastos. Tente de novo mais tarde.", 503);
       throw new ErroIA(`Erro da IA (${e.status}). Tente de novo.`, 502);
     }
     throw e;
