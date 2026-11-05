@@ -54,7 +54,7 @@ export function ListaProdutos() {
   };
 
   return (
-    <ul className="grid gap-3">
+    <ul className="grid grid-cols-[minmax(0,1fr)] gap-3">
       {lista.map((p) => (
         <li key={p.id}>
           <Cartao className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -68,7 +68,7 @@ export function ListaProdutos() {
                 {p.atualizadoEm && ` · atualizado em ${p.atualizadoEm.toDate().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}`}
               </p>
             </div>
-            <div className="flex shrink-0 gap-2">
+            <div className="flex shrink-0 flex-wrap gap-2">
               <Link href={rotaContinuar(p)} className={classesBotao("secundario")}>Continuar</Link>
               {p.status !== "publicado" && (
                 <Botao variante="fantasma" onClick={() => excluir(p)} disabled={excluindo === p.id} aria-label={`Excluir ${p.titulo}`}>

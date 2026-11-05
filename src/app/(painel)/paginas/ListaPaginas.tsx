@@ -29,7 +29,7 @@ export function ListaPaginas() {
     );
 
   return (
-    <ul className="grid gap-3">
+    <ul className="grid grid-cols-[minmax(0,1fr)] gap-3">
       {lista.map((p) => (
         <li key={p.slug}>
           <Cartao className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -40,7 +40,7 @@ export function ListaPaginas() {
               </div>
               <p className="mt-1 text-xs text-suave">/p/{p.slug} · {formatarPreco(p.oferta.precoCentavos)}</p>
             </div>
-            <div className="flex shrink-0 gap-2">
+            <div className="flex shrink-0 flex-wrap gap-2">
               {p.publicada && <a href={`/p/${p.slug}`} target="_blank" rel="noreferrer" className={classesBotao("fantasma")}>Abrir <ExternalLink size={14} /></a>}
               <Link href={`/divulgacao?produto=${p.produtoId}`} className={classesBotao("fantasma")}>Divulgar</Link>
               <Link href={`/produtos/${p.produtoId}/pagina`} className={classesBotao("secundario")}>Editar</Link>

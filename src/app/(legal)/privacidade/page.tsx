@@ -32,10 +32,10 @@ export default function Privacidade() {
       <p>Não vendemos dados pessoais.</p>
 
       <h2>4. Seus direitos</h2>
-      <p>Você pode pedir acesso, correção, portabilidade ou exclusão dos seus dados, além de revogar consentimentos, pelo e-mail {EMAIL_CONTATO}. A exportação e a exclusão da conta também ficarão disponíveis em Minha conta.</p>
+      <p>Você pode baixar seus dados e excluir sua conta diretamente em Minha conta, ou pedir acesso, correção, portabilidade ou exclusão dos seus dados, além de revogar consentimentos, pelo e-mail {EMAIL_CONTATO}. A exportação e a exclusão da conta também ficarão disponíveis em Minha conta.</p>
 
       <h2>5. Retenção</h2>
-      <p>Mantemos os dados enquanto a conta estiver ativa. Registros de vendas e pagamentos são guardados pelo prazo exigido pela legislação fiscal.</p>
+      <p>Mantemos os dados enquanto a conta estiver ativa. Ao excluir a conta em Minha conta, apagamos seus produtos, textos, imagens e créditos. Registros de vendas e pagamentos são guardados pelo prazo exigido pela legislação fiscal.</p>
 
       <h2>6. Segurança</h2>
       <p>Os dados de cada conta são isolados por regras de acesso no banco de dados, e as chaves de serviços externos ficam apenas no servidor.</p>

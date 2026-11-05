@@ -1,14 +1,18 @@
-import { TelaPlanejada } from "@/components/TelaPlanejada";
+import Link from "next/link";
+import { CabecalhoPagina, classesBotao } from "@/components/ui";
+import { ListaOportunidades } from "../oportunidades/ListaOportunidades";
 
-export const metadata = { title: "Sugestoes" };
+export const metadata = { title: "Sugestões de produtos" };
 
 export default function Pagina() {
   return (
-    <TelaPlanejada
-      href="/sugestoes"
-      descricao="Ideias de produtos digitais a partir do seu nicho e do seu público."
-      recursos={["Títulos com apelo comercial","Formatos: e-book, guia, checklist, planner","Diferenciais em relação ao que já existe"]}
-      vazio={{ titulo: "Sem sugestões ainda", texto: "As sugestões aparecem depois que você escolhe um nicho." }}
-    />
+    <>
+      <CabecalhoPagina
+        titulo="Sugestões de produtos"
+        descricao="As ideias que a IA sugeriu e você salvou. Escolha uma para começar a criar."
+        acoes={<Link href="/nichos" className={classesBotao("secundario")}>Pedir novas sugestões</Link>}
+      />
+      <ListaOportunidades />
+    </>
   );
 }

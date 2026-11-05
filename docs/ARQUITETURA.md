@@ -151,7 +151,7 @@ Capa em alta qualidade; imagens de capítulo opcionais. Capítulos de 1.000 a 1.
 | 5 | Parte 2: site publicado, conexão OAuth, checkout Mercado Pago, webhook com chave na URL, entrega por e-mail com download marcado, vendas, reembolso, métricas | ✅ compra de teste de ponta a ponta em 04/11/2026 |
 | 6 | Central de divulgação (estratégia, Instagram, TikTok, Facebook, WhatsApp, anúncios, calendário), criativos nos 3 formatos com texto do sistema, ZIP | ✅ |
 | 7 | Planos configuráveis, créditos em toda operação de IA, histórico e avisos, assinatura recorrente no Mercado Pago, painel administrativo | ✅ código (cobrança real em teste) |
-| 8 | Testes funcionais, segurança, responsivo, documentação final | ⏳ |
+| 8 | Testes automáticos, sondagem de segurança, celular, telas restantes, exportação e exclusão de dados, documentação | ✅ (itens de lançamento em docs/LANCAMENTO.md) |
 
 ### Venda e oferta (04/11/2026)
 

@@ -75,15 +75,6 @@ export function EstadoVazio({ icone: Icone, titulo, texto, children }: { icone: 
 }
 
 /** Aviso honesto de que a tela ainda não está ligada ao backend. */
-export function AvisoEtapa({ etapa, oQueFalta }: { etapa: number; oQueFalta: string }) {
-  return (
-    <div className="mb-6 flex items-start gap-3 rounded-xl border border-alerta/30 bg-alerta/5 px-4 py-3 text-sm">
-      <Selo tom="amarelo">Etapa {etapa}</Selo>
-      <p className="text-suave">{oQueFalta}</p>
-    </div>
-  );
-}
-
 export function Campo({ rotulo, dica, children }: { rotulo: string; dica?: string; children: ReactNode }) {
   return (
     <label className="block">

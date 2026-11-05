@@ -12,3 +12,15 @@ Plataforma SaaS para criar e vender produtos digitais com IA: nicho → e-book �
 3. `npm run dev` → http://localhost:3000
 
 Regras do Firestore: `firebase deploy --only firestore`
+
+## Testes
+
+`npm test` roda as regras de negócio (preço, créditos, bloqueio, avisos de pagamento). Localmente, o que usa o banco pelo servidor, como a IA e o checkout, não funciona sem credencial do Google: esses fluxos são testados no site publicado.
+
+## Publicar
+
+Um push na branch main publica o site. Regras do banco: `firebase deploy --only firestore,storage --project criae-app`.
+
+## Antes de vender
+
+Siga [docs/LANCAMENTO.md](docs/LANCAMENTO.md).

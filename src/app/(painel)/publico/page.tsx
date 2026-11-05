@@ -1,14 +1,13 @@
-import { TelaPlanejada } from "@/components/TelaPlanejada";
+import { CabecalhoPagina } from "@/components/ui";
+import { PublicosProdutos } from "./PublicosProdutos";
 
-export const metadata = { title: "Publico" };
+export const metadata = { title: "Público-alvo" };
 
 export default function Pagina() {
   return (
-    <TelaPlanejada
-      href="/publico"
-      descricao="Perfil do comprador ideal: quem é, o que sente, o que deseja."
-      recursos={["Dores, desejos e objeções do público","Linguagem e canais onde ele está","Perfil reaproveitado na página de vendas e nos criativos"]}
-      vazio={{ titulo: "Nenhum público definido", texto: "Gere um perfil a partir de um nicho ou de uma oportunidade salva." }}
-    />
+    <>
+      <CabecalhoPagina titulo="Público-alvo" descricao="Para quem é cada produto: o problema, o objetivo e a transformação que orientam os textos." />
+      <PublicosProdutos />
+    </>
   );
 }

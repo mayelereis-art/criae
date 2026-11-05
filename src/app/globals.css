@@ -69,3 +69,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* Texto longo sem espaço (e-mail, link, código) não pode estourar a tela do celular. */
+code { overflow-wrap: anywhere; }
+pre { overflow-x: auto; max-width: 100%; }

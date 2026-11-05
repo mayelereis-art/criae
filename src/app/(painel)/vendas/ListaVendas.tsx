@@ -98,7 +98,7 @@ export function ListaVendas() {
 
       {aviso && <p className="text-sm text-suave" role="status">{aviso}</p>}
 
-      <ul className="grid gap-3">
+      <ul className="grid grid-cols-[minmax(0,1fr)] gap-3">
         {visiveis.map((p) => {
           const st = STATUS[p.status] ?? { rotulo: p.status, tom: "neutro" as const };
           return (
@@ -112,7 +112,7 @@ export function ListaVendas() {
                     {p.metodo && <span className="text-xs text-apagado">{METODO[p.metodo] ?? p.metodo}</span>}
                   </div>
                   <p className="mt-1 truncate text-sm">{p.itens.map((i) => i.titulo).join(" + ")}</p>
-                  <p className="mt-0.5 text-xs text-suave">
+                  <p className="mt-0.5 text-xs break-words text-suave">
                     {p.comprador.nome} · {p.comprador.email} · canal {p.canal ?? "direto"}{p.cupomCodigo ? ` · cupom ${p.cupomCodigo}` : ""}
                     {p.criadoEm && ` · ${p.criadoEm.toDate().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}`}
                     {p.status === "pago" && !p.plataforma && ` · ${p.downloads} download(s)`}
@@ -124,7 +124,7 @@ export function ListaVendas() {
                 )}
                 {p.status === "pago" && p.plataforma && <p className="shrink-0 text-xs text-suave">Reembolso e entrega na {PLATAFORMA[p.plataforma]}</p>}
                 {p.status === "pago" && !p.plataforma && (
-                  <div className="flex shrink-0 gap-2">
+                  <div className="flex shrink-0 flex-wrap gap-2">
                     <Botao variante="secundario" disabled={ocupado === p.id} onClick={() => executar("/api/vendas/reenviar", p, "E-mail reenviado.")}>Reenviar e-mail</Botao>
                     <Botao variante="fantasma" disabled={ocupado === p.id}
                       onClick={() => confirm(`Reembolsar ${formatarPreco(p.totalCentavos)} para ${p.comprador.nome}? O valor volta ao comprador e o acesso é encerrado.`) && executar("/api/vendas/reembolsar", p, "Reembolso solicitado.")}>
