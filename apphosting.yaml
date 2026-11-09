@@ -70,5 +70,5 @@ env:
     availability: [RUNTIME]
   # Trocar para "false" ao abrir vendas reais.
   - variable: MP_OAUTH_TESTE
-    value: "true"
+    value: "false"
     availability: [RUNTIME]

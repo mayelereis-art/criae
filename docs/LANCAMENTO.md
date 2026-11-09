@@ -4,11 +4,11 @@ O sistema está em modo de teste. Nada abaixo é feito automaticamente.
 
 ## 1. Pagamentos
 
-- [ ] Gravar a chave de produção: `firebase apphosting:secrets:set MP_ACCESS_TOKEN --project criae-app`
-- [ ] Em `apphosting.yaml`, trocar `MP_OAUTH_TESTE` para `"false"`.
-- [ ] No painel do Mercado Pago, modo de produção: URL `https://SEU_DOMINIO/api/webhooks/mercadopago?chave=CHAVE_NOVA`, com os eventos de pagamentos e de planos e assinaturas.
-- [ ] Gerar `MP_WEBHOOK_CHAVE` nova: a atual apareceu nos registros de uma sessão de desenvolvimento.
-- [ ] Redefinir a assinatura secreta no painel e gravar `MP_WEBHOOK_SECRET`: a atual também apareceu nesses registros.
+- [x] Gravar a chave de produção: `firebase apphosting:secrets:set MP_ACCESS_TOKEN --project criae-app`
+- [x] Em `apphosting.yaml`, trocar `MP_OAUTH_TESTE` para `"false"`.
+- [x] No painel do Mercado Pago, modo de produção: URL `https://SEU_DOMINIO/api/webhooks/mercadopago?chave=CHAVE_NOVA`, com os eventos de pagamentos e de planos e assinaturas.
+- [x] Gerar `MP_WEBHOOK_CHAVE` nova: a atual apareceu nos registros de uma sessão de desenvolvimento.
+- [x] Redefinir a assinatura secreta no painel e gravar `MP_WEBHOOK_SECRET`: a atual também apareceu nesses registros.
 - [ ] Reconectar as contas de vendedor, porque os tokens atuais são de teste.
 - [ ] Teste real, com o cartão de outra pessoa: comprar o Mensal, comprar o Vitalício, vender um e-book, reembolsar cada um.
 - [ ] Conferir se o aviso automático de planos chega (nos testes, a ativação veio da conferência direta).
