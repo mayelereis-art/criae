@@ -28,7 +28,8 @@ export const OPERACOES = {
   imagem: { nome: "Imagem de capítulo (opcional)", custo: 4 },
   preco: { nome: "Sugestão de preço", custo: 1 },
   texto_pagina: { nome: "Textos da página de vendas", custo: 4 },
-  campanha: { nome: "Campanha de divulgação", custo: 20 },
+  campanha: { nome: "Campanha de divulgação", custo: 23 },
+  comunidades: { nome: "Grupos e comunidades do nicho", custo: 3 },
   criativos: { nome: "Conceitos de um pacote de criativos", custo: 3 },
   arte_criativo: { nome: "Arte de um criativo", custo: 5 },
 } as const;

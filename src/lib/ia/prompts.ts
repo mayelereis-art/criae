@@ -204,6 +204,7 @@ const PARTES_CAMPANHA = {
   instagram: "os materiais de Instagram: posts, carrosséis, stories e chamadas comerciais. Conteúdo que ensina algo real do tema vem antes da venda",
   tiktok: "os materiais de TikTok: roteiros de vídeo com cenas, ganchos de abertura, ideias de conteúdo e textos para publicação. Roteiros que uma pessoa comum grava com o celular",
   canais: "os materiais de Facebook, WhatsApp e as variações de anúncio pago. WhatsApp com tom de conversa, sem parecer spam",
+  comunidades: "a recomendação de grupos e comunidades onde o público deste e-book se reúne, com termos de busca, hashtags e as mensagens para compartilhar. Descreva TIPOS de comunidade, nunca nomes de grupos, perfis ou links (o sistema monta as buscas a partir dos termos). Pense em quem tem o problema que o e-book resolve, não só no nicho óbvio. Em grupo, primeiro valor, depois venda",
   calendario: "o calendário de 14 dias: comece aquecendo o público, apresente o produto depois e distribua lembretes sem pressão falsa. Cada item precisa dizer o que publicar, de forma que a pessoa consiga executar sem pensar de novo",
 } as const;
 

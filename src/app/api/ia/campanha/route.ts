@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { gerarEstruturado, type NivelModelo } from "@/lib/ia/claude";
-import { calendarioSchema, canaisDiretosSchema, estrategiaSchema, instagramSchema, planejamentoSchema, tiktokSchema } from "@/lib/ia/esquemas";
+import { calendarioSchema, canaisDiretosSchema, comunidadesSchema, estrategiaSchema, instagramSchema, planejamentoSchema, tiktokSchema } from "@/lib/ia/esquemas";
 import { SISTEMA_DIVULGACAO, pedidoCampanha } from "@/lib/ia/prompts";
 import { rotaIA } from "@/lib/ia/rota";
 import { configuracaoProdutoSchema } from "@/lib/validacao/produto";
@@ -20,12 +20,13 @@ export function POST(req: Request) {
       gerarEstruturado({ modelo, schema, sistema: SISTEMA_DIVULGACAO, pedido, esforco: "low", maxTokens }).then((r) => r.dados);
 
     const estrategia = await gerar("medio", estrategiaSchema, pedidoCampanha("estrategia", configuracao, planejamento, oferta), 8000);
-    const [instagram, tiktok, canais, agenda] = await Promise.all([
+    const [instagram, tiktok, canais, agenda, comunidades] = await Promise.all([
       gerar("medio", instagramSchema, pedidoCampanha("instagram", configuracao, planejamento, oferta, estrategia), 16000),
       gerar("medio", tiktokSchema, pedidoCampanha("tiktok", configuracao, planejamento, oferta, estrategia), 16000),
       gerar("medio", canaisDiretosSchema, pedidoCampanha("canais", configuracao, planejamento, oferta, estrategia), 16000),
       gerar("leve", calendarioSchema, pedidoCampanha("calendario", configuracao, planejamento, oferta, estrategia), 12000),
+      gerar("medio", comunidadesSchema, pedidoCampanha("comunidades", configuracao, planejamento, oferta, estrategia), 8000),
     ]);
-    return { estrategia, instagram, tiktok, ...canais, calendario: agenda.calendario };
+    return { estrategia, instagram, tiktok, ...canais, calendario: agenda.calendario, comunidades };
   });
 }

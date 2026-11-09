@@ -1,6 +1,7 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { acessoLiberado, rotaSemPlano } from "@/lib/acesso";
+import { limparHashtag, linkBusca, linkHashtag } from "@/lib/comunidades";
 import { motivoBloqueio } from "@/lib/creditos/servidor";
 import { aplicarCorrecoes } from "@/lib/ia/correcoes";
 import { assinaturaKiwifyValida, hottokValido, lerHotmart, lerKiwify, proximoStatus } from "@/lib/pagamentos/avisos-externos";
@@ -8,6 +9,15 @@ import { chaveWebhookValida, mercadoPago } from "@/lib/pagamentos/mercadopago";
 import { calcularDesconto } from "@/lib/pedidos/montagem";
 import { linkDaPlataforma, promoAtiva } from "@/lib/promocao";
 import { PLANOS_PADRAO, custosPadrao } from "@/config/planos";
+
+describe("busca de grupos do nicho", () => {
+  it("monta buscas reais com o termo codificado", () => {
+    expect(linkBusca("Facebook", "unhas & esmalte")).toBe("https://www.facebook.com/search/groups/?q=unhas%20%26%20esmalte");
+    expect(linkBusca("Telegram", "manicure")).toBe("https://www.google.com/search?q=site%3At.me%20manicure");
+    expect(linkHashtag("#Unhas Decoradas!")).toBe("https://www.instagram.com/explore/tags/unhasdecoradas/");
+    expect(limparHashtag("##maquiagem_fácil")).toBe("maquiagem_fácil");
+  });
+});
 
 describe("acesso só com plano pago", () => {
   const agora = 1_000_000;

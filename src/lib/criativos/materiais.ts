@@ -1,5 +1,6 @@
 import { comLink, dataDoDia, type DocCampanha } from "../campanhas";
 import type { Campanha } from "../ia/esquemas";
+import { textoComunidades } from "../comunidades";
 import { MEDIDAS, type Criativo } from "./dados";
 
 const lista = (itens: string[]) => itens.map((t, i) => `${i + 1}. ${t}`).join("\n\n");
@@ -41,6 +42,7 @@ export function textosPorCanal(d: Campanha, url: string | null): Record<string, 
       `LANÇAMENTO\n${lista(d.whatsapp.lancamento.map(wa))}`,
     ].join("\n\n\n"),
     "anuncios.txt": lista(d.anuncios.map((a) => `Headline: ${a.headline}\nTexto principal: ${ad(a.textoPrincipal)}\nDescrição: ${a.descricao}\nCTA: ${a.cta}`)),
+    ...(d.comunidades ? { "grupos.txt": textoComunidades(d.comunidades, (t) => comLink(t, url, "grupos")) } : {}),
   };
 }
 

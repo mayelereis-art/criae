@@ -186,6 +186,11 @@ export function EditorPagina({ produtoId }: { produtoId: string }) {
                 /p/{r.slug} <ExternalLink size={13} />
               </a>
             )}
+            {r.publicada && (
+              <Link href={`/divulgacao?produto=${produtoId}`} className="text-sm font-semibold text-primaria-clara hover:underline">
+                Divulgar agora: kit, grupos e textos
+              </Link>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             <Botao variante="fantasma" onClick={gerar} disabled={gerando || salvando}>

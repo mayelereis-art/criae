@@ -1,6 +1,6 @@
 import { arrayRemove, arrayUnion, collection, doc, onSnapshot, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase/client";
-import type { Campanha } from "./ia/esquemas";
+import type { Campanha, Comunidades } from "./ia/esquemas";
 
 export type DocCampanha = { donoId: string; produtoId: string; dados: Campanha; dataInicio: string; feitos: string[] };
 
@@ -16,6 +16,10 @@ export const salvarCampanha = (donoId: string, produtoId: string, dados: Campanh
 
 export const mudarInicio = (produtoId: string, dataInicio: string) =>
   updateDoc(doc(colecao, produtoId), { dataInicio, atualizadoEm: serverTimestamp() });
+
+/** Campanha antiga, gerada antes dos grupos: acrescenta só essa parte. */
+export const salvarComunidades = (produtoId: string, comunidades: Comunidades) =>
+  updateDoc(doc(colecao, produtoId), { "dados.comunidades": comunidades, atualizadoEm: serverTimestamp() });
 
 export const marcarFeito = (produtoId: string, chave: string, feito: boolean) =>
   updateDoc(doc(colecao, produtoId), { feitos: feito ? arrayUnion(chave) : arrayRemove(chave), atualizadoEm: serverTimestamp() });

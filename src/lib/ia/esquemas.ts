@@ -168,6 +168,21 @@ export const calendarioSchema = z.object({
   })).describe("14 dias de publicações, de 1 a 2 por dia"),
 });
 
+export const comunidadesSchema = z.object({
+  perfis: z.array(z.object({
+    tipo: z.string().describe("Tipo de grupo ou comunidade onde o público do e-book se reúne. Ex.: grupos de mães que trabalham fora. Nunca o nome de um grupo específico"),
+    porQue: z.string().describe("Por que esse público compraria, em 1 frase"),
+    termos: z.array(z.string()).describe("2 a 3 termos de busca curtos em português, como uma pessoa digitaria na busca de grupos"),
+    plataformas: z.array(z.enum(["Facebook", "Instagram", "Telegram", "LinkedIn", "Reddit"])).describe("1 a 3 redes onde esse tipo de comunidade existe de fato no Brasil"),
+  })).describe("5 a 7 tipos de comunidade, do mais certeiro ao mais amplo"),
+  hashtags: z.array(z.string()).describe("8 a 12 hashtags do nicho usadas no Brasil, sem #"),
+  mensagemAdmin: z.string().describe("Mensagem curta e educada pedindo ao administrador licença para compartilhar o material. Sem [LINK]"),
+  postValor: z.string().describe("Post para o grupo que ensina algo útil do tema e só no fim apresenta o e-book com [LINK]"),
+  mensagemGrupo: z.string().describe("Mensagem curta e natural para grupos que aceitam divulgação, com [LINK]"),
+  cuidados: z.array(z.string()).describe("4 a 6 cuidados para divulgar em grupos sem parecer spam nem ser removido"),
+});
+export type Comunidades = z.infer<typeof comunidadesSchema>;
+
 export const campanhaSchema = z.object({
   estrategia: estrategiaSchema,
   instagram: instagramSchema,
@@ -176,6 +191,7 @@ export const campanhaSchema = z.object({
   whatsapp: canaisDiretosSchema.shape.whatsapp,
   anuncios: canaisDiretosSchema.shape.anuncios,
   calendario: calendarioSchema.shape.calendario,
+  comunidades: comunidadesSchema.optional(),
 });
 
 export const pacoteCriativosSchema = z.object({
