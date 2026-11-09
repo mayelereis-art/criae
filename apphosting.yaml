@@ -60,6 +60,10 @@ env:
     availability: [RUNTIME]
 
   # true = criadores conectados operam em modo de teste do Mercado Pago, sem dinheiro de verdade.
+  # Conta de serviço do Cloud Scheduler que pode chamar /api/cron/assinaturas.
+  - variable: CRON_SA_EMAIL
+    value: "criae-agendador@criae-app.iam.gserviceaccount.com"
+    availability: [RUNTIME]
   # Quem acessa /admin. Uids separados por vírgula.
   - variable: ADMIN_UIDS
     value: "3y90EeUYVsgRhtDFLRapplPWZcS2"

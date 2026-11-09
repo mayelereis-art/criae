@@ -30,7 +30,7 @@ O sistema está em modo de teste. Nada abaixo é feito automaticamente.
 - [ ] Ativar recarga automática na Anthropic e na OpenAI.
 - [ ] Comparar o custo do painel com as faturas e calibrar os créditos em Administração > Custos.
 - [ ] Rever os créditos do Vitalício antes da primeira venda: é difícil mudar depois.
-- [ ] Criar um agendamento diário para conferir assinaturas, porque hoje a conferência só acontece no uso.
+- [x] Conferência diária de assinaturas: Cloud Scheduler `criae-conferencia-assinaturas` chama `/api/cron/assinaturas` com token OIDC da conta `criae-agendador`.
 
 ## 5. Jurídico
 
