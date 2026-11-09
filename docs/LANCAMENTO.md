@@ -36,7 +36,7 @@ O sistema está em modo de teste. Nada abaixo é feito automaticamente.
 
 - [ ] Trocar `EMAIL_CONTATO` em `src/config/legal.ts`.
 - [ ] Advogado: termos, privacidade (LGPD), significado de "vitalício", reembolso e responsabilidade pelo conteúdo gerado por IA.
-- [ ] Testar a exclusão de conta com uma conta descartável.
+- [x] Exclusão de conta testada em 09/11/2026 com conta descartável: nenhum documento nem arquivo restante. Isolamento entre contas conferido pela dona.
 
 ## 6. Limpeza
 
