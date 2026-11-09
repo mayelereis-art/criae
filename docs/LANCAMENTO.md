@@ -26,7 +26,7 @@ O sistema está em modo de teste. Nada abaixo é feito automaticamente.
 
 ## 4. Contas e custos
 
-- [ ] Criar sua conta no site e colocar o uid em `ADMIN_UIDS` (`apphosting.yaml`), tirando a conta de teste.
+- [x] Conta da dona criada (09/11/2026) e única em `ADMIN_UIDS`.
 - [ ] Ativar recarga automática na Anthropic e na OpenAI.
 - [ ] Comparar o custo do painel com as faturas e calibrar os créditos em Administração > Custos.
 - [ ] Rever os créditos do Vitalício antes da primeira venda: é difícil mudar depois.

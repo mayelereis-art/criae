@@ -66,7 +66,7 @@ env:
     availability: [RUNTIME]
   # Quem acessa /admin. Uids separados por vírgula.
   - variable: ADMIN_UIDS
-    value: "3y90EeUYVsgRhtDFLRapplPWZcS2"
+    value: "pUjjEGB6aMczVn5BrHtsyju2iut2"
     availability: [RUNTIME]
   # Trocar para "false" ao abrir vendas reais.
   - variable: MP_OAUTH_TESTE
