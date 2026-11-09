@@ -1,5 +1,6 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { z } from "zod";
+import { CAPITULOS_POR_EBOOK } from "@/config/catalogo";
 import { dbAdmin } from "@/lib/firebase/admin";
 import { gerarEstruturado } from "@/lib/ia/claude";
 import { aplicarCorrecoes } from "@/lib/ia/correcoes";
@@ -18,11 +19,12 @@ const entrada = z
     indice: z.number().int().min(0),
     resumosAnteriores: z.array(z.string().max(2000)).max(40),
   })
-  .refine((d) => d.indice < d.planejamento.capitulos.length, "Capítulo fora do planejamento.");
+  .refine((d) => d.indice < d.planejamento.capitulos.length, "Capítulo fora do planejamento.")
+  .refine((d) => d.indice < CAPITULOS_POR_EBOOK, `O e-book padrão tem ${CAPITULOS_POR_EBOOK} capítulos.`);
 
 /** Redige um capítulo e passa pela revisão antes de devolver. */
 export function POST(req: Request) {
-  return rotaIA(req, (d) => (d.configuracao.profundidade === "aprofundado" ? "capitulo_aprofundado" : "capitulo"), entrada, async ({ configuracao, planejamento, produtoId, indice, resumosAnteriores }, usuario) => {
+  return rotaIA(req, "capitulo", entrada, async ({ configuracao, planejamento, produtoId, indice, resumosAnteriores }, usuario) => {
     const { dados: rascunho } = await gerarEstruturado({
       modelo: "forte",
       schema: capituloRedigidoSchema,

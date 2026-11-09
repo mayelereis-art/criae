@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AlertCircle, ArrowLeft, ArrowRight, Cloud, Loader2, Sparkles } from "lucide-react";
-import { NIVEIS_PUBLICO, PROFUNDIDADES, TONS } from "@/config/catalogo";
+import { CAPITULOS_POR_EBOOK, NIVEIS_PUBLICO, PALAVRAS_POR_CAPITULO, TONS } from "@/config/catalogo";
 import { CONFIGURACAO_VAZIA, configuracaoProdutoSchema, type ConfiguracaoProduto } from "@/lib/validacao/produto";
 import { criarProduto, lerProduto, salvarConfiguracao } from "@/lib/produtos";
 import { mensagemErro } from "@/lib/firebase/erros";
@@ -32,7 +32,7 @@ const ROTULOS: Record<keyof ConfiguracaoProduto, { rotulo: string; dica?: string
   transformacao: { rotulo: "Transformação desejada", longo: true, exemplo: "Manter as unhas bonitas em casa com uma rotina curta e materiais simples" },
   objetivo: { rotulo: "Objetivo do material", exemplo: "Ensinar uma rotina de 7 dias passo a passo" },
   tom: { rotulo: "Tom de comunicação" },
-  profundidade: { rotulo: "Profundidade do conteúdo" },
+  profundidade: { rotulo: "Tamanho do e-book" },
 };
 
 type EstadoSalvo = { tipo: "ocioso" } | { tipo: "salvando" } | { tipo: "salvo"; em: Date } | { tipo: "erro"; msg: string };
@@ -153,7 +153,7 @@ export function AssistenteCriacao({ nichoInicial, produtoId }: { nichoInicial?: 
             {(Object.keys(ROTULOS) as (keyof ConfiguracaoProduto)[]).map((c) => (
               <div key={c} className="rounded-xl border border-borda p-3">
                 <dt className="text-xs text-apagado">{ROTULOS[c].rotulo}</dt>
-                <dd className="mt-0.5">{c === "profundidade" ? PROFUNDIDADES.find((p) => p.id === dados[c])?.nome : dados[c]}</dd>
+                <dd className="mt-0.5">{c === "profundidade" ? `${CAPITULOS_POR_EBOOK} capítulos (padrão)` : dados[c]}</dd>
               </div>
             ))}
           </dl>
@@ -193,20 +193,10 @@ export function AssistenteCriacao({ nichoInicial, produtoId }: { nichoInicial?: 
                 );
               } else if (campo === "profundidade") {
                 entrada = (
-                  <div className="grid gap-2 sm:grid-cols-3">
-                    {PROFUNDIDADES.map((p) => (
-                      <button
-                        type="button"
-                        key={p.id}
-                        onClick={() => alterar("profundidade", p.id)}
-                        aria-pressed={dados.profundidade === p.id}
-                        className={clsx("rounded-xl border p-3 text-left text-sm transition", dados.profundidade === p.id ? "border-primaria-clara bg-primaria/10" : "border-borda hover:border-borda-forte")}
-                      >
-                        <span className="block font-semibold">{p.nome}</span>
-                        <span className="text-xs text-suave">{p.detalhe}</span>
-                      </button>
-                    ))}
-                  </div>
+                  <p className="rounded-xl border border-borda p-3 text-sm">
+                    <span className="block font-semibold">{CAPITULOS_POR_EBOOK} capítulos, de {PALAVRAS_POR_CAPITULO} palavras cada</span>
+                    <span className="text-xs text-suave">Todo e-book do Criaê tem o mesmo tamanho, com introdução, conclusão e bônus.</span>
+                  </p>
                 );
               } else if (meta.longo) {
                 entrada = <textarea rows={3} className={classe} placeholder={meta.exemplo} value={dados[campo]} onChange={(e) => alterar(campo, e.target.value)} />;

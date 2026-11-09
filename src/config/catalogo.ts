@@ -22,11 +22,9 @@ export const ESTILOS_VISUAIS = [
 
 export const TONS = ["Acolhedor", "Direto e prático", "Inspirador", "Técnico", "Descontraído", "Profissional"] as const;
 export const NIVEIS_PUBLICO = ["Iniciante", "Intermediário", "Avançado"] as const;
-export const PROFUNDIDADES = [
-  { id: "essencial", nome: "Essencial", detalhe: "5 a 7 capítulos, leitura rápida" },
-  { id: "completo", nome: "Completo", detalhe: "8 a 12 capítulos, com exercícios" },
-  { id: "aprofundado", nome: "Aprofundado", detalhe: "12+ capítulos, bônus e materiais" },
-] as const;
+/** Tamanho padrão de todo e-book: mantém o consumo de créditos previsível (cerca de 172 por e-book). */
+export const CAPITULOS_POR_EBOOK = 8;
+export const PALAVRAS_POR_CAPITULO = "1.000 a 1.500";
 
 /** Valores sugeridos; o administrador altera em configuracoes/planos (Etapa 7). */
 export const PLANOS_PADRAO = [

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CAPITULOS_POR_EBOOK } from "@/config/catalogo";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowRight, ArrowUp, Check, Loader2, Lock, Plus, RefreshCw, ShieldAlert, Sparkles, Trash2 } from "lucide-react";
@@ -95,6 +96,7 @@ export function EditorPlanejamento({ produtoId }: { produtoId: string }) {
   const aprovar = async () => {
     if (!plano || !usuario) return;
     if (plano.capitulos.length < 3) return setErro("O material precisa de pelo menos 3 capítulos.");
+    if (plano.capitulos.length > CAPITULOS_POR_EBOOK) return setErro(`O e-book padrão tem no máximo ${CAPITULOS_POR_EBOOK} capítulos. Remova os excedentes.`);
     if (plano.capitulos.some((c) => !c.titulo.trim() || !c.objetivo.trim())) return setErro("Todo capítulo precisa de título e objetivo.");
     if (!plano.tituloComercial.trim()) return setErro("Defina o título comercial.");
     setErro("");
@@ -210,7 +212,8 @@ export function EditorPlanejamento({ produtoId }: { produtoId: string }) {
                   </li>
                 ))}
               </ol>
-              {!aprovado && (
+              {!aprovado && plano.capitulos.length >= CAPITULOS_POR_EBOOK && <p className="mt-3 text-xs text-suave">O e-book padrão tem {CAPITULOS_POR_EBOOK} capítulos. Para trocar um, edite ou remova antes de adicionar.</p>}
+              {!aprovado && plano.capitulos.length < CAPITULOS_POR_EBOOK && (
                 <Botao variante="secundario" className="mt-3" onClick={() => editar((p) => ({ ...p, capitulos: [...p.capitulos, CAPITULO_VAZIO] }))}>
                   <Plus size={16} /> Adicionar capítulo
                 </Botao>

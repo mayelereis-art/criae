@@ -1,4 +1,5 @@
 import "server-only";
+import { CAPITULOS_POR_EBOOK, PALAVRAS_POR_CAPITULO } from "@/config/catalogo";
 import { LIMITES, type ConfiguracaoProduto } from "../validacao/produto";
 import type { CapituloPlano, Planejamento } from "./esquemas";
 
@@ -54,7 +55,7 @@ Respeite o tamanho máximo de cada campo, em caracteres: ${Object.entries(LIMITE
 }
 
 export function pedidoPlanejamento(c: ConfiguracaoProduto) {
-  const capitulos = { essencial: "5 a 7", completo: "8 a 12", aprofundado: "12 a 16" }[c.profundidade];
+  const capitulos = `exatamente ${CAPITULOS_POR_EBOOK}`;
   return `Monte o planejamento editorial deste e-book para aprovação da autora/autor.
 
 ${descreverConfiguracao(c)}
@@ -89,7 +90,7 @@ Como escrever:
 - Faça uma transição natural para o próximo capítulo na última frase, sem resumir o capítulo inteiro.
 - Outros capítulos podem estar sendo escritos agora, então não desenvolva aqui os tópicos deles:
 ${p.capitulos.map((x, i) => (i === indice ? "" : `  ${i + 1}. ${x.titulo}: ${x.topicos.join("; ")}`)).filter(Boolean).join("\n")}
-- Tamanho: ${{ essencial: "800 a 1.200", completo: "1.000 a 1.500", aprofundado: "1.800 a 2.500" }[c.profundidade]} palavras. Direto, sem enchimento: cada parágrafo precisa ensinar algo.${p.avisoTemaSensivel ? `\n- Tema sensível: respeite este limite: ${p.avisoTemaSensivel}` : ""}`;
+- Tamanho: ${PALAVRAS_POR_CAPITULO} palavras. Direto, sem enchimento: cada parágrafo precisa ensinar algo.${p.avisoTemaSensivel ? `\n- Tema sensível: respeite este limite: ${p.avisoTemaSensivel}` : ""}`;
 }
 
 export function pedidoRevisao(p: Planejamento, indice: number, conteudo: string, resumosAnteriores: string[]) {
@@ -153,7 +154,7 @@ export function pedidoPreco(c: ConfiguracaoProduto, p: Planejamento) {
 
 ${descreverConfiguracao(c)}
 Título: ${p.tituloComercial} — ${p.subtitulo}
-Capítulos: ${p.capitulos.length} (${c.profundidade})
+Capítulos: ${p.capitulos.length}
 Exercícios práticos em ${p.capitulos.filter((x) => x.exercicio).length} capítulos.
 
 Faixas: preço de ENTRADA (para vender volume e validar), RECOMENDADO (equilíbrio) e PREMIUM (posicionamento mais alto, justificado pela profundidade).
