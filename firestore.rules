@@ -11,6 +11,12 @@ service cloud.firestore {
     function novoDono() { return logado() && request.resource.data.donoId == request.auth.uid; }
     function soMudou(campos) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(campos); }
     function textoAte(v, max) { return v is string && v.size() <= max; }
+    // Mesma regra de src/lib/acesso.ts: só quem pagou um plano (ou tem cortesia) cria conteúdo.
+    function liberado() {
+      let a = get(/databases/$(database)/documents/assinaturas/$(request.auth.uid)).data;
+      return a.get('cortesia', false) == true || a.get('status', '') in ['ativa', 'inadimplente']
+        || (a.get('status', '') == 'cancelada' && a.get('renovaEm', request.time) > request.time);
+    }
 
     match /usuarios/{uid} {
       allow read: if eu(uid);
@@ -40,7 +46,7 @@ service cloud.firestore {
           && d.atualizadoEm == request.time;
       }
       allow read: if dono();
-      allow create: if novoDono() && produtoValido() && request.resource.data.criadoEm == request.time;
+      allow create: if novoDono() && produtoValido() && request.resource.data.criadoEm == request.time && liberado();
       allow update: if dono() && novoDono() && produtoValido()
         && request.resource.data.criadoEm == resource.data.criadoEm
         && resource.data.status != 'publicado';
@@ -61,7 +67,7 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/produtos/$(d.produtoId)).data.donoId == request.auth.uid;
       }
       allow read: if dono();
-      allow create: if novoDono() && capituloValido();
+      allow create: if novoDono() && capituloValido() && liberado();
       allow update: if dono() && novoDono() && capituloValido() && request.resource.data.produtoId == resource.data.produtoId;
       allow delete: if dono();
     }
@@ -179,7 +185,7 @@ service cloud.firestore {
       }
       // resource == null: endereço livre pode ser consultado antes de ser ocupado.
       allow read: if resource == null || resource.data.publicada == true || dono();
-      allow create: if novoDono() && paginaValida() && request.resource.data.get('checkoutAtivo', false) == false;
+      allow create: if novoDono() && paginaValida() && request.resource.data.get('checkoutAtivo', false) == false && liberado();
       allow update: if dono() && novoDono() && paginaValida()
         && request.resource.data.produtoId == resource.data.produtoId
         && request.resource.data.get('checkoutAtivo', false) == resource.data.get('checkoutAtivo', false);

@@ -8,7 +8,7 @@ import { OPERACOES, ROTULO_ASSINATURA, type Operacao, type Plano, type StatusAss
 import { formatarPreco } from "@/lib/formato";
 import { lerReais } from "@/lib/oferta";
 
-type Usuario = { uid: string; email: string; nome: string; criadoEm: number | null; saldo: number | null; bloqueado: boolean; usados30d: number; planoId: string | null; status: StatusAssinatura | null; renovaEm: number | null };
+type Usuario = { uid: string; email: string; nome: string; criadoEm: number | null; saldo: number | null; bloqueado: boolean; usados30d: number; planoId: string | null; status: StatusAssinatura | null; cortesia: boolean; renovaEm: number | null };
 type Consumo = { operacao: string; nome: string; chamadas: number; creditos: number; entrada: number; saida: number; imagens: number; custoTextoUsd: number };
 type Dados = {
   resumo: { usuarios: number; assinaturasAtivas: number; inadimplentes: number; receitaRecorrenteCentavos: number; recebido30dCentavos: number; limiteListaAtingido: boolean };
@@ -112,11 +112,13 @@ function Usuarios({ d, enviar }: { d: Dados; enviar: (c: object, s: string) => P
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="truncate font-semibold">{u.nome || u.email}</span>
                     {u.bloqueado && <Selo tom="vermelho">Suspensa</Selo>}
+                    {u.cortesia && <Selo tom="azul">Cortesia</Selo>}
                     {u.status && <Selo tom={u.status === "ativa" ? "verde" : "amarelo"}>{ROTULO_ASSINATURA[u.status]}</Selo>}
                   </div>
                   <p className="mt-0.5 truncate text-xs text-suave">{u.email} · {nomePlano(u.planoId)} · saldo {u.saldo ?? "sem uso"} · {u.usados30d} usados em 30 dias</p>
                 </div>
-                <div className="flex gap-1.5">
+                <div className="flex flex-wrap gap-1.5">
+                  <Botao variante="fantasma" onClick={() => confirm(u.cortesia ? "Tirar a cortesia? Sem plano pago, a conta perde o acesso ao painel." : "Liberar o acesso sem pagamento? Os créditos você ajusta à parte.") && enviar({ acao: "cortesia", uid: u.uid, cortesia: !u.cortesia }, u.cortesia ? "Cortesia removida." : "Acesso liberado como cortesia.")}>{u.cortesia ? "Tirar cortesia" : "Dar cortesia"}</Botao>
                   <Botao variante="secundario" onClick={() => { setAberto(aberto === u.uid ? null : u.uid); setDelta(""); setMotivo(""); }}>Ajustar créditos</Botao>
                   <Botao variante="fantasma" onClick={() => confirm(u.bloqueado ? "Reativar esta conta?" : "Suspender esta conta? Ela deixa de usar a IA; vendas e páginas continuam.") && enviar({ acao: "suspender", uid: u.uid, bloqueado: !u.bloqueado }, u.bloqueado ? "Conta reativada." : "Conta suspensa.")}>{u.bloqueado ? "Reativar" : "Suspender"}</Botao>
                 </div>

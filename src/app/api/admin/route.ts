@@ -44,7 +44,7 @@ export async function GET() {
     return {
       uid: d.id, email: u.email ?? "", nome: u.nome ?? "", criadoEm: emMs(u.criadoEm),
       saldo: c?.saldo ?? null, bloqueado: !!c?.bloqueado, usados30d: usados.get(d.id) ?? 0,
-      planoId: a?.planoId ?? null, status: a?.status ?? null, renovaEm: emMs(a?.renovaEm),
+      planoId: a?.planoId ?? null, status: a?.status ?? null, cortesia: a?.cortesia === true, renovaEm: emMs(a?.renovaEm),
     };
   });
   // Vitalício não é receita recorrente: entra só em "recebido".
@@ -76,6 +76,7 @@ const acoes = z.discriminatedUnion("acao", [
   z.object({ acao: z.literal("config"), custos: z.record(z.string(), z.number().int().min(0).max(10_000)), creditosIniciais: z.number().int().min(0).max(100_000) }),
   z.object({ acao: z.literal("ajustar"), uid: z.string().max(128), delta: z.number().int().min(-1_000_000).max(1_000_000).refine((n) => n !== 0, "Informe um valor diferente de zero."), motivo: z.string().trim().min(3, "Informe o motivo.").max(200) }),
   z.object({ acao: z.literal("suspender"), uid: z.string().max(128), bloqueado: z.boolean() }),
+  z.object({ acao: z.literal("cortesia"), uid: z.string().max(128), cortesia: z.boolean() }),
 ]);
 
 export async function POST(req: Request) {
@@ -91,6 +92,7 @@ export async function POST(req: Request) {
     await db.collection("configuracoes").doc("creditos").set({ custos, creditosIniciais: d.creditosIniciais }, { merge: true });
   }
   if (d.acao === "ajustar") await ajustarCreditos(d.uid, d.delta, d.motivo, admin.uid);
+  if (d.acao === "cortesia") await db.collection("assinaturas").doc(d.uid).set({ cortesia: d.cortesia, atualizadoEm: FieldValue.serverTimestamp() }, { merge: true });
   if (d.acao === "suspender") await db.collection("creditos").doc(d.uid).set({ bloqueado: d.bloqueado }, { merge: true });
   await db.collection("logs").add({ evento: "admin", acao: d.acao, adminUid: admin.uid, alvo: "uid" in d ? d.uid : d.acao === "plano" ? d.plano.id : null, criadoEm: FieldValue.serverTimestamp() });
   return NextResponse.json({ ok: true });

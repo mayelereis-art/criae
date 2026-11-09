@@ -3,6 +3,7 @@ import { FieldValue, type Transaction } from "firebase-admin/firestore";
 import { CREDITOS_INICIAIS_PADRAO, PLANOS_PADRAO, custosPadrao, type Operacao, type Plano } from "@/config/planos";
 import { dbAdmin } from "../firebase/admin";
 import type { Medicao } from "../ia/medidor";
+import { acessoLiberado } from "../acesso";
 
 export class ErroCreditos extends Error {
   constructor(message: string, public status = 402) {
@@ -54,7 +55,7 @@ export async function reservarCreditos(uid: string, operacao: Operacao) {
   if (operacao === "planejamento") {
     const assinatura = (await refAssinatura.get()).data();
     const plano = planos.find((p) => p.id === assinatura?.planoId);
-    const limite = plano && assinatura?.status !== "pendente" ? plano.maxProdutos : 1;
+    const limite = plano && assinatura?.status !== "pendente" ? plano.maxProdutos : assinatura?.cortesia === true ? Math.max(...planos.map((p) => p.maxProdutos)) : 1;
     const total = (await db.collection("produtos").where("donoId", "==", uid).count().get()).data().count;
     if (total > limite) throw new ErroCreditos(`Seu plano permite ${limite} ${limite === 1 ? "produto" : "produtos"} com IA. Mude de plano para criar mais.`);
   }
@@ -65,13 +66,14 @@ export async function reservarCreditos(uid: string, operacao: Operacao) {
     const plano = planos.find((p) => p.id === assinatura?.planoId);
     const dados = sC.data();
     if (dados?.bloqueado) throw new ErroCreditos("Esta conta está suspensa. Fale com o suporte.", 403);
+    if (!acessoLiberado(assinatura)) throw new ErroCreditos("Assine um plano para usar o Criaê.");
     const motivo = motivoBloqueio(assinatura, plano);
     if (motivo) throw new ErroCreditos(motivo);
 
     let saldo: number = dados?.saldo ?? 0;
     if (!sC.exists) {
       saldo = creditosIniciais;
-      movimentar(tx, uid, "inicial", creditosIniciais, saldo);
+      if (creditosIniciais > 0) movimentar(tx, uid, "inicial", creditosIniciais, saldo);
     }
     if (saldo < custo) throw new ErroCreditos(`Esta ação usa ${custo} ${custo === 1 ? "crédito" : "créditos"} e você tem ${saldo}. ${plano ? "Seus créditos renovam na próxima cobrança, ou você pode mudar de plano." : "Assine um plano para continuar."}`);
     const novo = saldo - custo;

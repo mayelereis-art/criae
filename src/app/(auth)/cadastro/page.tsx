@@ -39,7 +39,7 @@ export default function Cadastro() {
       await sendEmailVerification(user).catch(() => {});
       await user.getIdToken(true); // renova o token para levar o nome
       await sincronizarCookie(user); // cookie pronto antes de entrar no painel
-      router.replace("/visao-geral");
+      router.replace("/assinatura");
     } catch (err) {
       setErro(mensagemErro(err));
       setEnviando(false);

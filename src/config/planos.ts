@@ -37,7 +37,8 @@ export type Operacao = keyof typeof OPERACOES;
 export const custosPadrao = () => Object.fromEntries(Object.entries(OPERACOES).map(([k, v]) => [k, v.custo])) as Record<Operacao, number>;
 
 /** Créditos de quem criou a conta e ainda não assinou. Uma vez só. */
-export const CREDITOS_INICIAIS_PADRAO = 30;
+/** Sem plano pago não há acesso, então ninguém começa com créditos grátis. */
+export const CREDITOS_INICIAIS_PADRAO = 0;
 /** Abaixo desta fração do plano, o painel avisa. */
 export const FRACAO_AVISO = 0.2;
 

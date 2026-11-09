@@ -1,5 +1,6 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
+import { acessoLiberado, rotaSemPlano } from "@/lib/acesso";
 import { motivoBloqueio } from "@/lib/creditos/servidor";
 import { aplicarCorrecoes } from "@/lib/ia/correcoes";
 import { assinaturaKiwifyValida, hottokValido, lerHotmart, lerKiwify, proximoStatus } from "@/lib/pagamentos/avisos-externos";
@@ -7,6 +8,28 @@ import { chaveWebhookValida, mercadoPago } from "@/lib/pagamentos/mercadopago";
 import { calcularDesconto } from "@/lib/pedidos/montagem";
 import { linkDaPlataforma, promoAtiva } from "@/lib/promocao";
 import { PLANOS_PADRAO, custosPadrao } from "@/config/planos";
+
+describe("acesso só com plano pago", () => {
+  const agora = 1_000_000;
+  it("libera quem pagou e tranca o resto", () => {
+    expect(acessoLiberado(undefined, agora)).toBe(false);
+    expect(acessoLiberado({ status: "pendente", planoId: "mensal" }, agora)).toBe(false);
+    expect(acessoLiberado({ status: "ativa" }, agora)).toBe(true);
+    expect(acessoLiberado({ status: "inadimplente" }, agora)).toBe(true);
+    expect(acessoLiberado({ status: "pendente", cortesia: true }, agora)).toBe(true);
+  });
+  it("cancelada vale até o fim do período pago", () => {
+    expect(acessoLiberado({ status: "cancelada", renovaEm: new Date(agora + 1) }, agora)).toBe(true);
+    expect(acessoLiberado({ status: "cancelada", renovaEm: new Date(agora) }, agora)).toBe(false);
+    expect(acessoLiberado({ status: "cancelada" }, agora)).toBe(false);
+  });
+  it("sem plano, só assinatura, conta e ajuda abrem", () => {
+    expect(rotaSemPlano("/assinatura")).toBe(true);
+    expect(rotaSemPlano("/conta")).toBe(true);
+    expect(rotaSemPlano("/visao-geral")).toBe(false);
+    expect(rotaSemPlano("/assinaturas-falsas")).toBe(false);
+  });
+});
 
 describe("oferta com prazo", () => {
   it("vale só até o fim do prazo", () => {
