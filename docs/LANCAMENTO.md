@@ -21,7 +21,7 @@ O sistema está em modo de teste. Nada abaixo é feito automaticamente.
 
 ## 3. E-mail e domínio
 
-- [ ] Registrar o domínio e apontar para o App Hosting. Atualizar `NEXT_PUBLIC_URL_SITE` e a URL de retorno OAuth no Mercado Pago.
+- [x] Domínio criaeapp.com.br (Hostinger) no App Hosting com certificado; `NEXT_PUBLIC_URL_SITE` atualizado em 17/11/2026. O endereço antigo continua no ar.
 - [ ] Verificar o domínio no Resend e definir `EMAIL_REMETENTE`. Sem isso, o e-mail só chega ao dono da conta do Resend.
 
 ## 4. Contas e custos
@@ -34,7 +34,7 @@ O sistema está em modo de teste. Nada abaixo é feito automaticamente.
 
 ## 5. Jurídico
 
-- [ ] Trocar `EMAIL_CONTATO` em `src/config/legal.ts`.
+- [x] `EMAIL_CONTATO` = contato@criaeapp.com.br (caixa na Hostinger), 17/11/2026.
 - [ ] Advogado: termos, privacidade (LGPD), significado de "vitalício", reembolso e responsabilidade pelo conteúdo gerado por IA.
 - [x] Exclusão de conta testada em 09/11/2026 com conta descartável: nenhum documento nem arquivo restante. Isolamento entre contas conferido pela dona.
 
