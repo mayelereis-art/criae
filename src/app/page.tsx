@@ -60,7 +60,6 @@ const PARA_QUEM = [
 
 export default async function PaginaInicial() {
   const { planos, porEbook } = await dados();
-  const ebooks = (creditos: number) => Math.max(0, Math.floor(creditos / porEbook));
   const perguntas: [string, string][] = [
     ["Preciso saber escrever?", "Não. Você define o tema e o público, aprova o planejamento e a IA escreve e revisa cada capítulo. Você pode editar o que quiser antes de gerar o PDF."],
     ["O e-book é meu?", "Sim. O produto final é de sua autoria e você vende com o seu nome, na sua conta da Kiwify ou da Hotmart."],
@@ -158,7 +157,6 @@ export default async function PaginaInicial() {
           <div className="mx-auto mt-10 grid max-w-4xl gap-5 md:grid-cols-2">
             {planos.map((p) => {
               const destaque = p.tipo === "vitalicio";
-              const qtd = ebooks(p.creditosMes);
               return (
                 <div key={p.id} className={`cartao relative flex flex-col p-6 sm:p-8 ${destaque ? "border-primaria-clara" : ""}`}>
                   {destaque && <span className="absolute -top-3 left-6 rounded-full bg-primaria px-3 py-1 text-xs font-semibold text-white">Pague uma vez</span>}
@@ -170,7 +168,7 @@ export default async function PaginaInicial() {
                   </p>
                   <ul className="mt-6 grid gap-3 text-sm">
                     <li className="flex gap-2"><Check size={17} className="shrink-0 text-sucesso" /> {p.creditosMes.toLocaleString("pt-BR")} créditos por mês</li>
-                    <li className="flex gap-2"><Check size={17} className="shrink-0 text-sucesso" /> {qtd >= 1 ? `Cerca de ${qtd} ${qtd === 1 ? "e-book completo" : "e-books completos"} por mês` : "Créditos para criar e divulgar"}</li>
+                    <li className="flex gap-2"><Check size={17} className="shrink-0 text-sucesso" /> E-books completos, com capa e PDF</li>
                     <li className="flex gap-2"><Check size={17} className="shrink-0 text-sucesso" /> Até {p.maxProdutos} produtos</li>
                     <li className="flex gap-2"><Check size={17} className="shrink-0 text-sucesso" /> Página de vendas, criativos e divulgação</li>
                     <li className="flex gap-2"><Check size={17} className="shrink-0 text-sucesso" /> {p.tipo === "vitalicio" ? "Sem mensalidade" : "Cancele quando quiser"}</li>

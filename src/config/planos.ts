@@ -14,7 +14,7 @@ export type Plano = {
 
 export const PLANOS_PADRAO: Plano[] = [
   { id: "mensal", nome: "Mensal", descricao: "Cobrança todo mês, com mais créditos para criar.", tipo: "mensal", precoCentavos: 14700, creditosMes: 1000, maxProdutos: 50, diasTolerancia: 3, ativo: true, ordem: 1 },
-  { id: "vitalicio", nome: "Vitalício", descricao: "Pagamento único, sem mensalidade.", tipo: "vitalicio", precoCentavos: 28700, creditosMes: 300, maxProdutos: 50, diasTolerancia: 0, ativo: true, ordem: 2 },
+  { id: "vitalicio", nome: "Vitalício", descricao: "Pagamento único, sem mensalidade.", tipo: "vitalicio", precoCentavos: 28700, creditosMes: 400, maxProdutos: 50, diasTolerancia: 0, ativo: true, ordem: 2 },
 ];
 
 // Um crédito vale cerca de US$ 0,01 de IA, pelo custo medido em 05/11/2026.

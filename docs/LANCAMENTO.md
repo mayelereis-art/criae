@@ -29,7 +29,7 @@ O sistema está em modo de teste. Nada abaixo é feito automaticamente.
 - [x] Conta da dona criada (09/11/2026) e única em `ADMIN_UIDS`.
 - [ ] Ativar recarga automática na Anthropic e na OpenAI.
 - [ ] Comparar o custo do painel com as faturas e calibrar os créditos em Administração > Custos.
-- [ ] Rever os créditos do Vitalício antes da primeira venda: é difícil mudar depois.
+- [x] Créditos do Vitalício revistos em 17/11/2026: 400 por mês (cerca de 2 e-books). Usando tudo, os R$ 287 cobrem a IA por uns 13 meses.
 - [x] Conferência diária de assinaturas: Cloud Scheduler `criae-conferencia-assinaturas` chama `/api/cron/assinaturas` com token OIDC da conta `criae-agendador`.
 
 ## 5. Jurídico
