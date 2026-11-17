@@ -214,6 +214,7 @@ export default async function PaginaInicial() {
           <nav className="flex flex-wrap gap-x-5 gap-y-2">
             <Link href="/termos" className="hover:text-texto">Termos de uso</Link>
             <Link href="/privacidade" className="hover:text-texto">Privacidade</Link>
+            <a href="https://www.instagram.com/criae_app/" target="_blank" rel="noopener noreferrer" className="hover:text-texto">Instagram @criae_app</a>
             <a href={`mailto:${EMAIL_CONTATO}`} className="hover:text-texto">{EMAIL_CONTATO}</a>
           </nav>
         </div>
