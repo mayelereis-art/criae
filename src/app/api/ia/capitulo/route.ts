@@ -25,22 +25,30 @@ const entrada = z
 /** Redige um capítulo e passa pela revisão antes de devolver. */
 export function POST(req: Request) {
   return rotaIA(req, "capitulo", entrada, async ({ configuracao, planejamento, produtoId, indice, resumosAnteriores }, usuario) => {
+    // Sonnet escreve e Haiku revisa: testado em 17/11/2026, texto no mesmo nível do Opus por cerca de metade do custo.
     const { dados: rascunho } = await gerarEstruturado({
-      modelo: "forte",
+      modelo: "medio",
       schema: capituloRedigidoSchema,
       sistema: SISTEMA_EDITOR,
       pedido: pedidoCapitulo(configuracao, planejamento, indice, resumosAnteriores),
       esforco: "high",
       maxTokens: 64000,
     });
-    const { dados: revisao } = await gerarEstruturado({
-      modelo: "medio",
+    // O Haiku não tem fallback no servidor: se a revisão falhar, o capítulo já pago segue com o rascunho.
+    const revisao = await gerarEstruturado({
+      modelo: "leve",
       schema: revisaoSchema,
       sistema: SISTEMA_REVISOR,
       pedido: pedidoRevisao(planejamento, indice, rascunho.conteudo, resumosAnteriores),
       esforco: "medium",
       maxTokens: 12000,
-    });
+    })
+      .then((r) => r.dados)
+      .catch((e) => {
+        console.error(JSON.stringify({ evento: "revisao-capitulo", ok: false, erro: String(e).slice(0, 200) }));
+        const vazia: z.infer<typeof revisaoSchema> = { correcoes: [], problemas: [] };
+        return vazia;
+      });
     const corrigido = aplicarCorrecoes(rascunho.conteudo, revisao.correcoes);
     // Correções que encolhem o texto pela metade são suspeitas (corte ou resumo): fica o rascunho.
     const revisaoConfiavel = corrigido.aplicadas === revisao.correcoes.length && corrigido.texto.length > rascunho.conteudo.length * 0.6;

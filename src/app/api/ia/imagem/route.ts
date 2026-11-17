@@ -32,7 +32,7 @@ export function POST(req: Request) {
       maxTokens: 4000,
     });
     const prompt = `${dados.prompt}\n\nNo text, no letters, no numbers, no logos, no watermark.`;
-    const base64 = await gerarImagem(prompt, d.tipo === "capa" ? "retrato" : "paisagem", d.tipo === "capa" ? "high" : "medium");
+    const base64 = await gerarImagem(prompt, d.tipo === "capa" ? "retrato" : "paisagem", "medium"); // capa em qualidade média desde 17/11/2026: no teste, quase igual à alta por cerca de 1/3 do custo
     return { base64, prompt };
   });
 }
