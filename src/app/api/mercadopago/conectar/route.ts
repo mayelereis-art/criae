@@ -1,11 +1,13 @@
 import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
 import { mercadoPago } from "@/lib/pagamentos/mercadopago";
+import { MERCADO_PAGO_VENDE_EBOOK } from "@/lib/promocao";
 import { usuarioAtual } from "@/lib/sessao";
 
 /** Leva o criador ao Mercado Pago. O "state" no cookie impede conectar uma conta na sessão de outra pessoa. */
 export async function GET(req: Request) {
   const site = process.env.NEXT_PUBLIC_URL_SITE ?? new URL(req.url).origin;
+  if (!MERCADO_PAGO_VENDE_EBOOK) return NextResponse.redirect(`${site}/integracoes`);
   const usuario = await usuarioAtual();
   if (!usuario) return NextResponse.redirect(`${site}/entrar?volta=/integracoes`);
   try {

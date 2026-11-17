@@ -17,7 +17,7 @@ import {
   type ModeloPagina, type Pagina, type SecaoPagina,
 } from "@/lib/paginas";
 import { marcarEtapa } from "@/lib/produtos";
-import { NOMES_PLATAFORMA, linkDaPlataforma, promoAtiva, type PlataformaVenda } from "@/lib/promocao";
+import { NOMES_PLATAFORMA, linkDaPlataforma, promoAtiva, PLATAFORMAS_ATIVAS, plataformaAtiva, type PlataformaAtiva } from "@/lib/promocao";
 import { configuracaoProdutoSchema, encurtar } from "@/lib/validacao/produto";
 
 type Rascunho = Omit<Pagina, "atualizadoEm" | "checkoutAtivo" | "publicadaEm">;
@@ -102,7 +102,7 @@ export function EditorPagina({ produtoId }: { produtoId: string }) {
         capaUrl,
         seo: { titulo: t.seoTitulo, descricao: t.seoDescricao, imagemUrl: capaUrl },
         publicada: r?.publicada ?? false,
-        venda: r?.venda ?? { plataforma: "mercadopago", link: null, linkPromo: null },
+        venda: r?.venda && r.venda.plataforma !== "mercadopago" ? r.venda : { plataforma: "kiwify", link: null, linkPromo: null },
       };
       await salvarPagina(novo, !!paginaSalva?.publicada);
       carregado.current = true;
@@ -120,20 +120,21 @@ export function EditorPagina({ produtoId }: { produtoId: string }) {
     if (!r) return;
     const slug = slugTexto.trim();
     if (!slugValido(slug)) return setErro("O endereço precisa ter de 3 a 60 letras minúsculas, números e hifens.");
-    const plataforma = r.venda?.plataforma ?? "mercadopago";
-    if (plataforma !== "mercadopago") {
-      const nome = NOMES_PLATAFORMA[plataforma];
-      if (publicada && !r.venda?.link) return setErro(`Cole o link de checkout da ${nome} antes de publicar.`);
-      if (r.venda?.link && !linkDaPlataforma(plataforma, r.venda.link)) return setErro(`O link de checkout não é um endereço da ${nome}.`);
-      if (r.venda?.linkPromo && !linkDaPlataforma(plataforma, r.venda.linkPromo)) return setErro(`O link da oferta não é um endereço da ${nome}.`);
-      if (publicada && promoAtiva(oferta.promo) && !r.venda?.linkPromo) return setErro(`Há uma oferta com prazo: cole o link da ${nome} com esse preço.`);
-    }
+    const plataforma = plataformaAtiva(r.venda?.plataforma);
+    const nome = NOMES_PLATAFORMA[plataforma];
+    // Página antiga do Mercado Pago: continua sem link até a pessoa escolher Kiwify ou Hotmart.
+    const link = r.venda?.plataforma === plataforma ? r.venda.link : null;
+    const linkPromo = r.venda?.plataforma === plataforma ? r.venda.linkPromo : null;
+    if (publicada && !link) return setErro(`Cole o link de checkout da ${nome} antes de publicar.`);
+    if (link && !linkDaPlataforma(plataforma, link)) return setErro(`O link de checkout não é um endereço da ${nome}.`);
+    if (linkPromo && !linkDaPlataforma(plataforma, linkPromo)) return setErro(`O link da oferta não é um endereço da ${nome}.`);
+    if (publicada && promoAtiva(oferta.promo) && !linkPromo) return setErro(`Há uma oferta com prazo: cole o link da ${nome} com esse preço.`);
     setErro("");
     setAviso("");
     setSalvando(true);
     try {
       if (slug !== r.slug && !(await slugDisponivel(slug, produtoId))) throw new Error("Este endereço já está em uso. Escolha outro.");
-      const novo: Rascunho = { ...r, slug, publicada, oferta: ofertaPagina, capa: identidade, capaUrl, seo: { ...r.seo, imagemUrl: capaUrl }, venda: plataforma === "mercadopago" ? { plataforma, link: null, linkPromo: null } : r.venda };
+      const novo: Rascunho = { ...r, slug, publicada, oferta: ofertaPagina, capa: identidade, capaUrl, seo: { ...r.seo, imagemUrl: capaUrl }, venda: { plataforma, link, linkPromo } };
       if (slug !== r.slug) await trocarSlug(r.slug, novo);
       else await salvarPagina(novo, !!paginaSalva?.publicada);
       const estavaPublicada = r.publicada;
@@ -168,8 +169,9 @@ export function EditorPagina({ produtoId }: { produtoId: string }) {
 
   const c = r.conteudo;
   const mudarTexto = (campos: Partial<Rascunho["conteudo"]>) => setR({ ...r, conteudo: { ...c, ...campos } });
-  const plataforma: PlataformaVenda = r.venda?.plataforma ?? "mercadopago";
-  const mudarVenda = (campos: Partial<NonNullable<Rascunho["venda"]>>) => setR({ ...r, venda: { plataforma, link: r.venda?.link ?? null, linkPromo: r.venda?.linkPromo ?? null, ...campos } });
+  const plataforma: PlataformaAtiva = plataformaAtiva(r.venda?.plataforma);
+  const vendaAtual = r.venda?.plataforma === plataforma ? r.venda : null;
+  const mudarVenda = (campos: Partial<NonNullable<Rascunho["venda"]>>) => setR({ ...r, venda: { plataforma, link: vendaAtual?.link ?? null, linkPromo: vendaAtual?.linkPromo ?? null, ...campos } });
   const depoimentos = c.depoimentos ?? [];
   const precoDesatualizado = paginaSalva && paginaSalva.oferta.precoCentavos !== oferta.precoCentavos;
 
@@ -204,9 +206,9 @@ export function EditorPagina({ produtoId }: { produtoId: string }) {
             )}
           </div>
         </div>
-        {plataforma === "mercadopago" && !paginaSalva?.checkoutAtivo && (
+        {paginaSalva?.venda?.plataforma === "mercadopago" && (
           <p className="mt-3 flex gap-2 text-xs text-alerta">
-            <AlertTriangle size={14} className="shrink-0" /> Vendas fechadas: para abrir, conecte o Mercado Pago em Integrações e salve uma versão final do PDF. Até lá a página mostra &ldquo;Vendas ainda não abertas&rdquo;.
+            <AlertTriangle size={14} className="shrink-0" /> As vendas pelo Mercado Pago foram encerradas. Escolha Kiwify ou Hotmart, cole o link de checkout e salve para voltar a vender.
           </p>
         )}
         {precoDesatualizado && <p className="mt-2 text-xs text-suave">O preço do produto mudou. Salve para atualizar a página.</p>}
@@ -219,25 +221,24 @@ export function EditorPagina({ produtoId }: { produtoId: string }) {
           <Cartao className="space-y-3">
             <h2 className="font-semibold">Como você vai receber</h2>
             <div className="grid gap-2">
-              {(Object.keys(NOMES_PLATAFORMA) as PlataformaVenda[]).map((v) => (
+              {PLATAFORMAS_ATIVAS.map((v) => (
                 <label key={v} className={clsx("flex cursor-pointer items-center gap-2.5 rounded-xl border p-3 text-sm transition", plataforma === v ? "border-primaria-clara bg-primaria/10" : "border-borda hover:border-borda-forte")}>
-                  <input type="radio" name="plataforma" className="accent-primaria" checked={plataforma === v} onChange={() => mudarVenda({ plataforma: v })} />
+                  <input type="radio" name="plataforma" className="accent-primaria" checked={plataforma === v} onChange={() => mudarVenda({ plataforma: v, link: null, linkPromo: null })} />
                   <span className="font-semibold">{NOMES_PLATAFORMA[v]}</span>
-                  {v === "mercadopago" && <span className="text-xs text-suave">checkout e entrega pela Criaê</span>}
                 </label>
               ))}
             </div>
-            {plataforma !== "mercadopago" && (
+            {(
               <>
                 <ol className="list-decimal space-y-1 pl-4 text-xs text-suave">
                   <li>Baixe o PDF final na <Link href={`/produtos/${produtoId}/pdf`} className="text-primaria-clara underline">etapa PDF</Link>.</li>
                   <li>Na sua conta da {NOMES_PLATAFORMA[plataforma]}, cadastre o produto com esse arquivo e o mesmo preço desta página.</li>
                   <li>Copie o link de checkout e cole abaixo.</li>
                 </ol>
-                <Campo rotulo="Link de checkout"><input inputMode="url" className={estiloEntrada} placeholder={plataforma === "kiwify" ? "https://pay.kiwify.com.br/..." : "https://pay.hotmart.com/..."} value={r.venda?.link ?? ""} onChange={(e) => mudarVenda({ link: e.target.value.trim() || null })} /></Campo>
+                <Campo rotulo="Link de checkout"><input inputMode="url" className={estiloEntrada} placeholder={plataforma === "kiwify" ? "https://pay.kiwify.com.br/..." : "https://pay.hotmart.com/..."} value={vendaAtual?.link ?? ""} onChange={(e) => mudarVenda({ link: e.target.value.trim() || null })} /></Campo>
                 {promoAtiva(oferta.promo) && (
                   <Campo rotulo="Link de checkout da oferta com prazo" dica={`Crie na ${NOMES_PLATAFORMA[plataforma]} uma oferta com o preço promocional. Ao fim do prazo a página volta ao link normal; desative a oferta lá também.`}>
-                    <input inputMode="url" className={estiloEntrada} value={r.venda?.linkPromo ?? ""} onChange={(e) => mudarVenda({ linkPromo: e.target.value.trim() || null })} />
+                    <input inputMode="url" className={estiloEntrada} value={vendaAtual?.linkPromo ?? ""} onChange={(e) => mudarVenda({ linkPromo: e.target.value.trim() || null })} />
                   </Campo>
                 )}
               </>

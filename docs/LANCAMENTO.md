@@ -9,8 +9,8 @@ O sistema está em modo de teste. Nada abaixo é feito automaticamente.
 - [x] No painel do Mercado Pago, modo de produção: URL `https://SEU_DOMINIO/api/webhooks/mercadopago?chave=CHAVE_NOVA`, com os eventos de pagamentos e de planos e assinaturas.
 - [x] Gerar `MP_WEBHOOK_CHAVE` nova: a atual apareceu nos registros de uma sessão de desenvolvimento.
 - [x] Redefinir a assinatura secreta no painel e gravar `MP_WEBHOOK_SECRET`: a atual também apareceu nesses registros.
-- [ ] Reconectar as contas de vendedor, porque os tokens atuais são de teste.
-- [ ] Teste real, com o cartão de outra pessoa: comprar o Mensal, comprar o Vitalício, vender um e-book, reembolsar cada um.
+- [x] Venda de e-book pelo Mercado Pago encerrada em 16/11/2026: e-books vendem só pela Kiwify ou Hotmart do criador. O Mercado Pago fica para a assinatura do Criaê. Para reativar, `MERCADO_PAGO_VENDE_EBOOK` em `src/lib/promocao.ts` (exige domínio e e-mail de entrega).
+- [ ] Teste real, com o cartão de outra pessoa: comprar o Mensal e o Vitalício e reembolsar cada um.
 - [ ] Conferir se o aviso automático de planos chega (nos testes, a ativação veio da conferência direta).
 - [ ] Testar uma recusa de cartão na renovação, ou acompanhar a primeira renovação real.
 

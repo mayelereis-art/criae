@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } 
 import { FONTES, type ChaveFonte } from "@/config/identidade";
 import { formatarPreco } from "@/lib/formato";
 import type { Pagina } from "@/lib/paginas";
-import { NOMES_PLATAFORMA, promoAtiva } from "@/lib/promocao";
+import { NOMES_PLATAFORMA, promoAtiva, MERCADO_PAGO_VENDE_EBOOK } from "@/lib/promocao";
 import { CapaPrevia } from "./CapaPrevia";
 
 export type DadosPaginaVenda = Pick<Pagina, "slug" | "modelo" | "cores" | "fontes" | "conteudo" | "secoes" | "oferta" | "capa" | "capaUrl" | "checkoutAtivo" | "venda">;
@@ -55,7 +55,8 @@ export function PaginaVenda({ p }: { p: DadosPaginaVenda }) {
   const externa = venda && venda.plataforma !== "mercadopago" ? venda : null;
   const linkExterno = externa ? (ativa && externa.linkPromo ? externa.linkPromo : externa.link) : null;
   const href = linkExterno ? (origem ? `${linkExterno}${linkExterno.includes("?") ? "&" : "?"}${externa?.plataforma === "hotmart" ? "sck" : "utm_source"}=${origem}` : linkExterno) : `/p/${p.slug}/comprar`;
-  const aberta = externa ? !!linkExterno : !!p.checkoutAtivo;
+  // Página antiga do Mercado Pago: fica com as vendas fechadas até o criador escolher Kiwify ou Hotmart.
+  const aberta = externa ? !!linkExterno : MERCADO_PAGO_VENDE_EBOOK && !!p.checkoutAtivo;
   const nomeExterno = externa ? NOMES_PLATAFORMA[externa.plataforma] : "";
   const contaClique = () => {
     if (!externa) return; // no checkout próprio, o clique é contado na tela de compra

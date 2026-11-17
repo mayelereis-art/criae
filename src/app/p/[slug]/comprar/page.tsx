@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { MERCADO_PAGO_VENDE_EBOOK } from "@/lib/promocao";
 import { lerPaginaPublicada } from "@/lib/paginas-publicas";
 import { FormCompra } from "./FormCompra";
 
@@ -7,6 +8,7 @@ export const metadata: Metadata = { title: "Finalizar compra", robots: { index: 
 
 export default async function Comprar({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  if (!MERCADO_PAGO_VENDE_EBOOK) redirect(`/p/${slug}`);
   const p = await lerPaginaPublicada(slug);
   if (!p) notFound();
   return (

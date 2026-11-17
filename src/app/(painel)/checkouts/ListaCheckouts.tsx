@@ -7,7 +7,7 @@ import { useAuth } from "@/components/ProvedorAuth";
 import { Cartao, EstadoVazio, Selo, classesBotao } from "@/components/ui";
 import { formatarPreco } from "@/lib/formato";
 import { ouvirPaginas, type Pagina } from "@/lib/paginas";
-import { NOMES_PLATAFORMA, promoAtiva } from "@/lib/promocao";
+import { NOMES_PLATAFORMA, plataformaAtiva, promoAtiva } from "@/lib/promocao";
 
 export function ListaCheckouts() {
   const { usuario } = useAuth();
@@ -29,8 +29,9 @@ export function ListaCheckouts() {
   return (
     <ul className="grid grid-cols-[minmax(0,1fr)] gap-3">
       {lista.map((p) => {
-        const plataforma = p.venda?.plataforma ?? "mercadopago";
-        const aberta = p.publicada && (plataforma === "mercadopago" ? !!p.checkoutAtivo : !!p.venda?.link);
+        const antiga = !p.venda || p.venda.plataforma === "mercadopago";
+        const plataforma = plataformaAtiva(p.venda?.plataforma);
+        const aberta = p.publicada && !antiga && !!p.venda?.link;
         const oferta = promoAtiva(p.oferta.promo) ? p.oferta.promo! : null;
         return (
           <li key={p.slug}>
@@ -39,14 +40,14 @@ export function ListaCheckouts() {
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="truncate font-semibold">{p.conteudo.tituloLivro}</span>
                   <Selo tom={aberta ? "verde" : "amarelo"}>{aberta ? "Vendas abertas" : "Vendas fechadas"}</Selo>
-                  <Selo tom="azul">{NOMES_PLATAFORMA[plataforma]}</Selo>
+                  {!antiga && <Selo tom="azul">{NOMES_PLATAFORMA[plataforma]}</Selo>}
                 </div>
                 <p className="mt-1 text-sm text-suave">
                   {oferta ? <>{formatarPreco(oferta.precoCentavos)} até {new Date(oferta.terminaEm).toLocaleDateString("pt-BR")}, depois {formatarPreco(p.oferta.precoCentavos)}</> : formatarPreco(p.oferta.precoCentavos)}
                   {" · "}garantia de {p.oferta.garantiaDias} dias
                   {p.oferta.orderBump ? " · com order bump" : ""}
                 </p>
-                {!aberta && <p className="mt-1 text-xs text-alerta">{!p.publicada ? "Publique a página de vendas." : plataforma === "mercadopago" ? "Conecte o Mercado Pago em Integrações e salve uma versão final do PDF." : `Cole o link de checkout da ${NOMES_PLATAFORMA[plataforma]} na página de vendas.`}</p>}
+                {!aberta && <p className="mt-1 text-xs text-alerta">{!p.publicada ? "Publique a página de vendas." : antiga ? "As vendas pelo Mercado Pago foram encerradas. Escolha Kiwify ou Hotmart na página de vendas." : `Cole o link de checkout da ${NOMES_PLATAFORMA[plataforma]} na página de vendas.`}</p>}
               </div>
               <div className="flex shrink-0 flex-wrap gap-2">
                 <Link href={`/produtos/${p.produtoId}/preco`} className={classesBotao("fantasma")}>Preço e cupons</Link>

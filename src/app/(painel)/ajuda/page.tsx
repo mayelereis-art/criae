@@ -15,7 +15,7 @@ const PASSOS: [string, string, string][] = [
 ];
 
 const DUVIDAS: [string, string][] = [
-  ["Como recebo o dinheiro das minhas vendas?", "Em Integrações você conecta o Mercado Pago, e o valor cai na sua conta dele. Também dá para vender pela Kiwify ou pela Hotmart, usando a sua conta nessas plataformas: nesse caso, cole o link de checkout na página de vendas. A Criaê não guarda o seu saldo."],
+  ["Como recebo o dinheiro das minhas vendas?", "Pela sua conta na Kiwify ou na Hotmart. Cadastre o e-book lá com o PDF final, cole o link de checkout na página de vendas e conecte a plataforma em Integrações para as vendas aparecerem em Minhas vendas. O pagamento, a entrega do arquivo e o dinheiro ficam com a plataforma; a Criaê não guarda o seu saldo."],
   ["O que são créditos?", "Cada ação de IA usa créditos. A tabela e o seu histórico estão em Créditos e consumo. Se uma geração falhar, os créditos voltam sozinhos."],
   ["O que acontece quando os créditos acabam?", "A IA para até a próxima renovação, mas suas páginas e vendas continuam funcionando normalmente."],
   ["Qual a diferença entre os planos?", "O Mensal é cobrado todo mês e tem mais créditos. O Vitalício é um pagamento único, sem mensalidade, com uma quantidade menor de créditos renovada todo mês. Veja os valores em Assinatura."],

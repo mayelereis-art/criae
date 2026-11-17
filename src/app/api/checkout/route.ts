@@ -8,6 +8,7 @@ import { ErroGateway } from "@/lib/pagamentos/gateway";
 import { mercadoPago } from "@/lib/pagamentos/mercadopago";
 import { ErroCheckout, montarPedido, type PedidoMontado } from "@/lib/pedidos/montagem";
 import { hashToken, novoToken, pdfFinal, tokenValido } from "@/lib/pedidos/servidor";
+import { MERCADO_PAGO_VENDE_EBOOK } from "@/lib/promocao";
 
 const entrada = z.union([
   z.object({
@@ -46,6 +47,7 @@ async function montarUpsell(pedidoId: string, token: string) {
 }
 
 export async function POST(req: Request) {
+  if (!MERCADO_PAGO_VENDE_EBOOK) return NextResponse.json({ erro: "Este produto não está mais à venda por aqui. Volte à página de vendas." }, { status: 410 });
   if (!dentroDoLimite(`checkout:${ipDe(req)}`, 10)) return NextResponse.json({ erro: "Muitas tentativas. Aguarde um minuto." }, { status: 429 });
   const p = entrada.safeParse(await req.json().catch(() => null));
   if (!p.success) return NextResponse.json({ erro: p.error.issues[0]?.message ?? "Dados inválidos." }, { status: 400 });

@@ -27,7 +27,8 @@ export default function Privacidade() {
       <ul>
         <li>Google Firebase / Google Cloud: hospedagem e banco de dados.</li>
         <li>Anthropic e OpenAI: o conteúdo que você envia para gerar textos e imagens.</li>
-        <li>Mercado Pago: processamento de pagamentos.</li>
+        <li>Mercado Pago: pagamento da sua assinatura do Criaê.</li>
+        <li>Kiwify e Hotmart: avisos de venda dos seus produtos, quando você conecta a sua conta.</li>
       </ul>
       <p>Não vendemos dados pessoais.</p>
 

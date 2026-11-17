@@ -7,7 +7,13 @@ export function promoAtiva(promo: Promocao | null | undefined, agora = Date.now(
   return !!promo && promo.terminaEm > agora;
 }
 
+/** "mercadopago" só existe em páginas antigas: e-book novo vende pela Kiwify ou pela Hotmart. */
 export type PlataformaVenda = "mercadopago" | "kiwify" | "hotmart";
+export type PlataformaAtiva = "kiwify" | "hotmart";
+export const PLATAFORMAS_ATIVAS: PlataformaAtiva[] = ["kiwify", "hotmart"];
+/** Venda de e-book pelo Mercado Pago encerrada: sem domínio, o comprador não recebia o e-mail de entrega. */
+export const MERCADO_PAGO_VENDE_EBOOK = false;
+export const plataformaAtiva = (p: PlataformaVenda | null | undefined): PlataformaAtiva => (p === "hotmart" ? "hotmart" : "kiwify");
 export const NOMES_PLATAFORMA: Record<PlataformaVenda, string> = { mercadopago: "Mercado Pago", kiwify: "Kiwify", hotmart: "Hotmart" };
 
 const DOMINIOS: Record<"kiwify" | "hotmart", RegExp> = {

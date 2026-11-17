@@ -3,7 +3,7 @@ import { Logo } from "@/components/Logo";
 
 const RECURSOS = [
   { icone: BookOpenText, titulo: "E-book escrito e revisado pela IA", texto: "Do planejamento ao PDF diagramado, capítulo por capítulo, com capa e imagens do seu tema." },
-  { icone: PanelsTopLeft, titulo: "Página de vendas com checkout", texto: "Modelos prontos, Pix e cartão pelo Mercado Pago e entrega automática do arquivo." },
+  { icone: PanelsTopLeft, titulo: "Página de vendas com checkout", texto: "Modelos prontos com contagem regressiva, ligados ao seu checkout da Kiwify ou da Hotmart." },
   { icone: Megaphone, titulo: "Divulgação pronta para postar", texto: "Posts, stories, roteiros e mensagens de WhatsApp com a identidade do seu produto." },
 ];
 

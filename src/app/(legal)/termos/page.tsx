@@ -27,7 +27,7 @@ export default function Termos() {
       <p>Produtos que violem estas regras podem ser despublicados e a conta suspensa.</p>
 
       <h2>4. Vendas e pagamentos</h2>
-      <p>As vendas são processadas pelo gateway de pagamento conectado por você (Mercado Pago, ou a sua conta na Kiwify ou na Hotmart), e os valores são creditados na sua conta no gateway. As regras de reembolso e garantia que você configurar valem perante o comprador, respeitado o Código de Defesa do Consumidor.</p>
+      <p>As vendas dos seus produtos são processadas pela plataforma em que você tem conta (Kiwify ou Hotmart), que faz a cobrança, a entrega do arquivo ao comprador e credita os valores na sua conta nela. As regras de reembolso e garantia que você configurar valem perante o comprador, respeitado o Código de Defesa do Consumidor.</p>
 
       <h2>5. Assinatura e créditos</h2>
       <p>O uso das ferramentas de IA consome créditos conforme a tabela exibida no painel. Créditos não utilizados não acumulam para o mês seguinte e não são convertidos em dinheiro.</p>
