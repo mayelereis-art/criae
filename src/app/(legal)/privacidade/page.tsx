@@ -14,6 +14,7 @@ export default function Privacidade() {
         <li><strong>Conteúdo:</strong> informações dos produtos que você cria, textos e imagens gerados.</li>
         <li><strong>Vendas:</strong> dados dos pedidos dos seus produtos (nome e e-mail do comprador, valor, status). Dados de cartão ficam só com o gateway de pagamento.</li>
         <li><strong>Uso:</strong> consumo de créditos de IA e registros técnicos de segurança.</li>
+        <li><strong>Origem do cadastro:</strong> de qual link ou site você chegou ao Criaê (por exemplo, a campanha de um anúncio), guardada no seu navegador e na sua conta.</li>
       </ul>
 
       <h2>2. Para que usamos</h2>
@@ -21,6 +22,7 @@ export default function Privacidade() {
         <li>Prestar o serviço contratado (execução de contrato).</li>
         <li>Cobrar a assinatura e registrar vendas (execução de contrato e obrigação legal).</li>
         <li>Prevenir fraude e abuso (legítimo interesse).</li>
+        <li>Saber quais divulgações trazem novos clientes (legítimo interesse) e, só com o seu consentimento, medir anúncios com o Pixel da Meta.</li>
       </ul>
 
       <h2>3. Com quem compartilhamos</h2>
@@ -29,6 +31,7 @@ export default function Privacidade() {
         <li>Anthropic e OpenAI: o conteúdo que você envia para gerar textos e imagens.</li>
         <li>Mercado Pago: pagamento da sua assinatura do Criaê.</li>
         <li>Kiwify e Hotmart: avisos de venda dos seus produtos, quando você conecta a sua conta.</li>
+        <li>Meta (Facebook e Instagram): só se você aceitar os cookies de divulgação, o Pixel da Meta registra visitas, cadastros e compras do plano para medir anúncios. Você pode recusar no aviso de cookies ou depois, limpando os dados do site no navegador.</li>
       </ul>
       <p>Não vendemos dados pessoais.</p>
 

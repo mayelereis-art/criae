@@ -8,9 +8,10 @@ import { OPERACOES, ROTULO_ASSINATURA, type Operacao, type Plano, type StatusAss
 import { formatarPreco } from "@/lib/formato";
 import { lerReais } from "@/lib/oferta";
 
-type Usuario = { uid: string; email: string; nome: string; criadoEm: number | null; saldo: number | null; bloqueado: boolean; usados30d: number; planoId: string | null; status: StatusAssinatura | null; cortesia: boolean; renovaEm: number | null };
+type Usuario = { uid: string; email: string; nome: string; criadoEm: number | null; saldo: number | null; bloqueado: boolean; usados30d: number; planoId: string | null; status: StatusAssinatura | null; cortesia: boolean; origem: { fonte: string | null; campanha: string | null } | null; renovaEm: number | null };
 type Consumo = { operacao: string; nome: string; chamadas: number; creditos: number; entrada: number; saida: number; imagens: number; custoTextoUsd: number };
 type Dados = {
+  origens: { fonte: string; cadastros: number; pagantes: number }[];
   resumo: { usuarios: number; assinaturasAtivas: number; inadimplentes: number; receitaRecorrenteCentavos: number; recebido30dCentavos: number; limiteListaAtingido: boolean };
   usuarios: Usuario[]; planos: Plano[]; consumo: Consumo[]; config: { custos: Record<string, number>; creditosIniciais: number };
 };
@@ -88,6 +89,18 @@ function Resumo({ d }: { d: Dados }) {
         ) : <p className="text-sm text-suave">Nenhum uso nos últimos 30 dias.</p>}
         <p className="mt-3 text-xs text-apagado">O custo do texto é uma estimativa pela tabela de preços da Anthropic, sem contar as imagens, que são cobradas pela OpenAI. Compare com as faturas para calibrar os créditos.</p>
       </Cartao>
+      <Cartao className="overflow-x-auto">
+        <h2 className="mb-1 font-semibold">De onde vêm os cadastros</h2>
+        <p className="mb-3 text-xs text-apagado">Pela utm_source do link de divulgação ou pelo site de onde a pessoa veio. Contas criadas antes de 17/11/2026 aparecem como &ldquo;sem registro&rdquo;.</p>
+        {d.origens?.length ? (
+          <table className="w-full min-w-[360px] text-left text-sm">
+            <thead className="text-xs text-suave"><tr><th className="py-2 font-medium">Origem</th><th className="font-medium">Cadastros</th><th className="font-medium">Pagantes</th><th className="font-medium">Conversão</th></tr></thead>
+            <tbody className="divide-y divide-borda">
+              {d.origens.map((o) => <tr key={o.fonte}><td className="py-2">{o.fonte}</td><td>{o.cadastros}</td><td>{o.pagantes}</td><td>{o.cadastros ? Math.round((o.pagantes / o.cadastros) * 100) : 0}%</td></tr>)}
+            </tbody>
+          </table>
+        ) : <p className="text-sm text-suave">Ainda não há cadastros.</p>}
+      </Cartao>
     </>
   );
 }
@@ -115,7 +128,7 @@ function Usuarios({ d, enviar }: { d: Dados; enviar: (c: object, s: string) => P
                     {u.cortesia && <Selo tom="azul">Cortesia</Selo>}
                     {u.status && <Selo tom={u.status === "ativa" ? "verde" : "amarelo"}>{ROTULO_ASSINATURA[u.status]}</Selo>}
                   </div>
-                  <p className="mt-0.5 truncate text-xs text-suave">{u.email} · {nomePlano(u.planoId)} · saldo {u.saldo ?? "sem uso"} · {u.usados30d} usados em 30 dias</p>
+                  <p className="mt-0.5 truncate text-xs text-suave">{u.email} · {nomePlano(u.planoId)} · saldo {u.saldo ?? "sem uso"} · {u.usados30d} usados em 30 dias{u.origem?.fonte ? ` · veio de ${u.origem.fonte}${u.origem.campanha ? ` (${u.origem.campanha})` : ""}` : ""}</p>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   <Botao variante="fantasma" onClick={() => confirm(u.cortesia ? "Tirar a cortesia? Sem plano pago, a conta perde o acesso ao painel." : "Liberar o acesso sem pagamento? Os créditos você ajusta à parte.") && enviar({ acao: "cortesia", uid: u.uid, cortesia: !u.cortesia }, u.cortesia ? "Cortesia removida." : "Acesso liberado como cortesia.")}>{u.cortesia ? "Tirar cortesia" : "Dar cortesia"}</Botao>

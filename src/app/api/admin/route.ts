@@ -44,7 +44,8 @@ export async function GET() {
     return {
       uid: d.id, email: u.email ?? "", nome: u.nome ?? "", criadoEm: emMs(u.criadoEm),
       saldo: c?.saldo ?? null, bloqueado: !!c?.bloqueado, usados30d: usados.get(d.id) ?? 0,
-      planoId: a?.planoId ?? null, status: a?.status ?? null, cortesia: a?.cortesia === true, renovaEm: emMs(a?.renovaEm),
+      planoId: a?.planoId ?? null, status: a?.status ?? null, cortesia: a?.cortesia === true,
+      origem: u.origem ? { fonte: u.origem.fonte ?? null, campanha: u.origem.campanha ?? null } : null, renovaEm: emMs(a?.renovaEm),
     };
   });
   // Vitalício não é receita recorrente: entra só em "recebido".
@@ -52,7 +53,19 @@ export async function GET() {
   const ativas = assinaturas.docs.map((d) => d.data()).filter((a) => a.status === "ativa");
   const pagos = pagamentos.docs.map((d) => d.data()).filter((p) => p.status === "pago");
 
+  // Cadastros e pagantes por fonte de divulgação (utm_source ou site de origem).
+  const porFonte = new Map<string, { cadastros: number; pagantes: number }>();
+  for (const u of usuarios) {
+    const f = u.origem?.fonte || "sem registro";
+    const o = porFonte.get(f) ?? { cadastros: 0, pagantes: 0 };
+    o.cadastros++;
+    if (!u.cortesia && (u.status === "ativa" || u.status === "inadimplente")) o.pagantes++;
+    porFonte.set(f, o);
+  }
+  const origens = [...porFonte.entries()].map(([fonte, v]) => ({ fonte, ...v })).sort((a, b) => b.cadastros - a.cadastros);
+
   return NextResponse.json({
+    origens,
     resumo: {
       usuarios: contas.size, assinaturasAtivas: ativas.length,
       inadimplentes: assinaturas.docs.filter((d) => d.data().status === "inadimplente").length,

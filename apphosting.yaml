@@ -32,6 +32,11 @@ env:
   - variable: NEXT_PUBLIC_URL_SITE
     value: https://criaeapp.com.br
     availability: [BUILD, RUNTIME]
+  # Pixel da Meta: quando houver o ID do Gerenciador de Eventos, acrescentar aqui
+  #   - variable: NEXT_PUBLIC_META_PIXEL_ID
+  #     value: "<id do pixel>"
+  #     availability: [BUILD, RUNTIME]
+  # Sem a variável, não há Pixel nem aviso de cookies; a origem dos cadastros é registrada do mesmo jeito.
   # Endereço antigo: continua no ar; o agendador e avisos já cadastrados nele seguem válidos.
   - variable: URL_SITE_ANTIGA
     value: https://criae--criae-app.us-east4.hosted.app

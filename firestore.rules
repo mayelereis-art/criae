@@ -18,10 +18,19 @@ service cloud.firestore {
         || (a.get('status', '') == 'cancelada' && a.get('renovaEm', request.time) > request.time);
     }
 
+    // Origem do cadastro (utm): só textos curtos e campos conhecidos.
+    function origemValida(o) {
+      return o is map && o.keys().hasOnly(['fonte', 'meio', 'campanha', 'conteudo', 'ref', 'pagina', 'primeiraVisita'])
+        && textoAte(o.get('fonte', ''), 120) && textoAte(o.get('meio', ''), 120) && textoAte(o.get('campanha', ''), 120)
+        && textoAte(o.get('conteudo', ''), 120) && textoAte(o.get('ref', ''), 120) && textoAte(o.get('pagina', ''), 120)
+        && textoAte(o.get('primeiraVisita', ''), 40);
+    }
+
     match /usuarios/{uid} {
       allow read: if eu(uid);
       allow create: if eu(uid)
-        && request.resource.data.keys().hasOnly(['nome', 'email', 'criadoEm', 'aceite'])
+        && request.resource.data.keys().hasOnly(['nome', 'email', 'criadoEm', 'aceite', 'origem'])
+        && (!('origem' in request.resource.data) || origemValida(request.resource.data.origem))
         && textoAte(request.resource.data.nome, 120)
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.criadoEm == request.time

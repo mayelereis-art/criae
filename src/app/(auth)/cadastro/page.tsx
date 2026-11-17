@@ -8,6 +8,7 @@ import { useState } from "react";
 import { auth, db } from "@/lib/firebase/client";
 import { mensagemErro } from "@/lib/firebase/erros";
 import { VERSAO_TERMOS } from "@/config/legal";
+import { evento, lerOrigem } from "@/lib/rastreamento";
 import { sincronizarCookie } from "@/components/ProvedorAuth";
 import { Botao, Campo, estiloEntrada } from "@/components/ui";
 
@@ -35,7 +36,9 @@ export default function Cadastro() {
         email: user.email,
         criadoEm: serverTimestamp(),
         aceite: { versao: VERSAO_TERMOS, em: serverTimestamp() },
+        ...(lerOrigem() ? { origem: lerOrigem() } : {}),
       });
+      evento("CompleteRegistration", {}, `cadastro_${user.uid}`);
       await sendEmailVerification(user).catch(() => {});
       await user.getIdToken(true); // renova o token para levar o nome
       await sincronizarCookie(user); // cookie pronto antes de entrar no painel

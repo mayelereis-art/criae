@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ProvedorAuth } from "@/components/ProvedorAuth";
+import { Rastreamento } from "@/components/Rastreamento";
 // Fontes em pacotes locais: o build não depende do Google Fonts responder (next/font/google falhava às vezes).
 import "@fontsource/sora/600.css";
 import "@fontsource/sora/700.css";
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="pt-BR">
       <body>
         <ProvedorAuth>{children}</ProvedorAuth>
+        <Rastreamento />
       </body>
     </html>
   );

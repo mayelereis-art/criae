@@ -3,6 +3,7 @@
 import { collection, doc, onSnapshot, orderBy, query, where, type Timestamp } from "firebase/firestore";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { evento } from "@/lib/rastreamento";
 import { Check, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/ProvedorAuth";
 import { Botao, Campo, Cartao, Selo, estiloEntrada } from "@/components/ui";
@@ -66,9 +67,26 @@ export function PainelAssinatura() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voltou, usuario]);
 
+  // Compra confirmada: avisa o Pixel uma vez por pagamento, e só de pagamentos recentes (navegador novo não reenvia compras antigas).
+  useEffect(() => {
+    if (assinatura?.status !== "ativa") return;
+    const pago = pagamentos.find((p) => p.status === "pago" && p.criadoEm && Date.now() - p.criadoEm.toMillis() < 2 * 864e5);
+    if (!pago) return;
+    const chave = `criae_compra_${pago.id}`;
+    try {
+      if (localStorage.getItem(chave)) return;
+      localStorage.setItem(chave, "1");
+    } catch {
+      return;
+    }
+    evento("Purchase", { value: pago.valorCentavos / 100, currency: "BRL", content_name: planos.find((p) => p.id === pago.planoId)?.nome }, `compra_${pago.id}`);
+  }, [assinatura?.status, pagamentos, planos]);
+
   const assinar = async (planoId: string) => {
     setErro("");
     setOcupado(planoId);
+    const plano = planos.find((p) => p.id === planoId);
+    if (plano) evento("InitiateCheckout", { value: plano.precoCentavos / 100, currency: "BRL", content_name: plano.nome });
     try {
       const { url } = await chamar({ acao: "assinar", planoId, ...(email ? { email } : {}) });
       if (url) window.location.href = url;
