@@ -16,7 +16,7 @@ async function chamadaDoAgendador(req: Request) {
   const conta = process.env.CRON_SA_EMAIL?.trim();
   if (!token || !conta) return false;
   try {
-    const ticket = await verificador.verifyIdToken({ idToken: token, audience: `${process.env.NEXT_PUBLIC_URL_SITE}/api/cron/assinaturas` });
+    const ticket = await verificador.verifyIdToken({ idToken: token, audience: [process.env.NEXT_PUBLIC_URL_SITE, process.env.URL_SITE_ANTIGA].filter((u): u is string => !!u).map((u) => `${u}/api/cron/assinaturas`) });
     const p = ticket.getPayload();
     return p?.email === conta && p.email_verified === true;
   } catch {

@@ -28,10 +28,14 @@ env:
     value: 1:969564852725:web:fce33f1d03a07df9c090bc
     availability: [BUILD, RUNTIME]
 
-  # Endereço público (SEO e Open Graph). Trocar quando houver domínio próprio.
+  # Endereço público: links, e-mails, retorno do pagamento, SEO e Open Graph.
   - variable: NEXT_PUBLIC_URL_SITE
-    value: https://criae--criae-app.us-east4.hosted.app
+    value: https://criaeapp.com.br
     availability: [BUILD, RUNTIME]
+  # Endereço antigo: continua no ar; o agendador e avisos já cadastrados nele seguem válidos.
+  - variable: URL_SITE_ANTIGA
+    value: https://criae--criae-app.us-east4.hosted.app
+    availability: [RUNTIME]
 
   # Chaves só do servidor: ficam no Secret Manager, nunca neste arquivo.
   - variable: ANTHROPIC_API_KEY
