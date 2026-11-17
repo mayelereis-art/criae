@@ -62,6 +62,10 @@ env:
   - variable: RESEND_API_KEY
     secret: RESEND_API_KEY
     availability: [RUNTIME]
+  # Domínio verificado no Resend (região São Paulo). As respostas vão para o e-mail de contato.
+  - variable: EMAIL_REMETENTE
+    value: "Criaê <nao-responda@criaeapp.com.br>"
+    availability: [RUNTIME]
 
   # true = criadores conectados operam em modo de teste do Mercado Pago, sem dinheiro de verdade.
   # Conta de serviço do Cloud Scheduler que pode chamar /api/cron/assinaturas.

@@ -22,7 +22,7 @@ O sistema está em modo de teste. Nada abaixo é feito automaticamente.
 ## 3. E-mail e domínio
 
 - [x] Domínio criaeapp.com.br (Hostinger) no App Hosting com certificado; `NEXT_PUBLIC_URL_SITE` atualizado em 17/11/2026. O endereço antigo continua no ar.
-- [ ] Verificar o domínio no Resend e definir `EMAIL_REMETENTE`. Sem isso, o e-mail só chega ao dono da conta do Resend.
+- [x] Domínio criaeapp.com.br no Resend (São Paulo), registros DKIM e envio na Hostinger em 17/11/2026; `EMAIL_REMETENTE` = nao-responda@criaeapp.com.br, respostas para o contato. Hoje o Resend só seria usado na venda de e-book pelo Mercado Pago, que está desligada.
 
 ## 4. Contas e custos
 

@@ -1,4 +1,5 @@
 import "server-only";
+import { EMAIL_CONTATO } from "@/config/legal";
 
 const escapar = (t: string) => t.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
@@ -12,6 +13,7 @@ export async function enviarEntrega(d: { para: string; nome: string; itens: { ti
     headers: { Authorization: `Bearer ${chave}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       from: process.env.EMAIL_REMETENTE || "Criaê <onboarding@resend.dev>",
+      reply_to: EMAIL_CONTATO,
       to: [d.para],
       subject: `Seu produto chegou: ${d.itens[0].titulo}`.slice(0, 140),
       html: `<p>Olá, ${escapar(d.nome)}!</p>
